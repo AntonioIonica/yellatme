@@ -104,4 +104,22 @@ export const signIn = async (req, res, next) => {
 };
 
 // User logged out
-export const signOut = async (req, res, next) => {};
+export const signOut = async (req, res, next) => {
+  try {
+    const user = req.user;
+
+    if (!user) {
+      const error = new Error("Not authorized!");
+      error.statusCode = 401;
+      throw error;
+    }
+
+    res.clearCookie("token");
+
+    res
+      .status(200)
+      .json({ success: true, message: "Successfully logged out!" });
+  } catch (error) {
+    next(error);
+  }
+};

@@ -7,6 +7,7 @@ import userRouter from "./routes/user.routes.js";
 import connectMongoDB from "./database/mongodb.js";
 import errorMiddleware from "./middlewares/error.middleware.js";
 import cookieParser from "cookie-parser";
+import arcjetMiddleware from "./middlewares/arcjet.middleware.js";
 
 const app = express();
 
@@ -18,6 +19,9 @@ app.use(express.urlencoded({ extended: false }));
 
 // Reads cookies from requests
 app.use(cookieParser());
+
+// Arcjet middleware - rate limiter
+app.use(arcjetMiddleware);
 
 // Append the routes to the specific general route
 app.use("/api/v1/auth", authRouter);
