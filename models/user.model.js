@@ -27,6 +27,7 @@ const userSchema = new mongoose.Schema(
 );
 
 // Starts with capital letter as to be used to instantiate a new document
+// "User" as it will automatically create colletions by pluralizing and lowercase "users"
 const User = mongoose.model("User", userSchema);
 
 export default User;

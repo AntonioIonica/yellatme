@@ -19,7 +19,7 @@ app.use(express.urlencoded({ extended: false }));
 // Reads cookies from requests
 app.use(cookieParser());
 
-// Append the routes to the main route
+// Append the routes to the specific general route
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/subscriptions", subscriptionRouter);
@@ -34,6 +34,7 @@ app.get("/", (req, res) => {
 app.listen(PORT, async () => {
   console.log(`The server started at http://localhost:${PORT}`);
 
+  // Before starting the server
   await connectMongoDB();
 });
 

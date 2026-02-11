@@ -30,8 +30,11 @@ const errorMiddleware = (err, req, res, next) => {
 
     // Send back one of the status codes and the equivalent message/s
     res
-      .send(error.statusCode || 500)
-      .json({ success: false, error: error.message || "Server error!" });
+      .status(error.statusCode || 500)
+      .json({
+        success: false,
+        error: error.message || "Internal server error!",
+      });
   } catch (error) {
     // Send the error to the next step to know actually happened
     next(error);

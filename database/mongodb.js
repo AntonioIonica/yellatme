@@ -18,6 +18,7 @@ const connectMongoDB = async () => {
     console.error(
       `An error has occured while connecting to the database. ${error}`,
     );
+
     process.exit(1);
   }
 };

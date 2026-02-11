@@ -1,0 +1,107 @@
+import mongoose from "mongoose";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+
+import User from "../models/user.model.js";
+import { JWT_SECRET, JWT_EXPIRES_IN } from "../config/env.js";
+
+// Create a new user
+export const signUp = async (req, res, next) => {
+  // Atomic operations constraints
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    const { name, email, password } = req.body;
+
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      const error = new Error(
+        "There is already an user created with this email. Please try a different email!",
+      );
+      error.statusCode = 409;
+      throw error;
+    }
+
+    // Hashing the password before storing it
+    const salt = await bcrypt.genSalt(10);
+    const hashPassword = await bcrypt.hash(password, salt);
+
+    // Create new user (or multiple) and attach the session to abort it in case of failure (atomic)
+    // Will return a list with n elements (1 in this case)
+    const newUsers = await User.create(
+      [{ name, email, password: hashPassword }],
+      { session },
+    );
+
+    // Creating a token to be attached to the user using the coming id from creating the new user
+    const token = jwt.sign({ userId: newUsers[0]._id }, JWT_SECRET, {
+      expiresIn: JWT_EXPIRES_IN,
+    });
+
+    // At the end commit all the above code and end the session
+    await session.commitTransaction();
+    session.endSession();
+
+    res.status(201).json({
+      success: true,
+      message: "User created successfully!",
+      // Send the token and the user as a response
+      data: {
+        token,
+        user: newUsers[0],
+      },
+    });
+  } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+
+    // Send the error to error middleware
+    next(error);
+  }
+};
+
+// Login the user
+export const signIn = async (req, res, next) => {
+  try {
+    const { email, password } = req.body;
+
+    // Check if the user exists in the DB
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      const error = new Error("User not found!");
+      error.statusCode = 404;
+      throw error;
+    }
+
+    // Check if the password is valid
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+
+    if (!isPasswordValid) {
+      const error = new Error("Invalid password entered. Please try again!");
+      error.statusCode = 401;
+      throw error;
+    }
+
+    // if the password is valid generate a token
+    const token = jwt.sign({ userId: user._id }, JWT_SECRET, {
+      expiresIn: JWT_EXPIRES_IN,
+    });
+
+    // Return a res status and object if logged in successfully
+    res.status(200).json({
+      success: true,
+      message: "The user signed in successfully!",
+      data: {
+        token,
+        user,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// User logged out
+export const signOut = async (req, res, next) => {};
