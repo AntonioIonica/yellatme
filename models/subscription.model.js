@@ -64,6 +64,7 @@ const subscriptionSchema = new mongoose.Schema(
           // previous of today
           return value <= new Date();
         },
+        // If validator returns false, append the below message
         message: "Start date must be in the past!",
       },
     },
@@ -75,11 +76,12 @@ const subscriptionSchema = new mongoose.Schema(
           // further than the starting date
           return value > this.startDate;
         },
+        // If validator returns false, append the below message
         message: "Renewal date must be in the future!",
       },
     },
     user: {
-      // Accepts and id which will refer to User model
+      // Accepts the id which will refer to User (model)
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
@@ -91,7 +93,7 @@ const subscriptionSchema = new mongoose.Schema(
 
 // Autocalculate renewal date if not specified
 // Running before creating the document (acts as a middleware)
-subscriptionSchema.pre("save", function (next) {
+subscriptionSchema.pre("save", function () {
   if (!this.renewalDate) {
     const renewalPeriods = {
       daily: 1,
@@ -101,19 +103,20 @@ subscriptionSchema.pre("save", function (next) {
     };
 
     // "this" of this actual document (eg. renewalDate, startDate, frequency)
+    // creates date based on startDate to calculate based on it
     this.renewalDate = new Date(this.startDate);
+    // based on startDate, add the days determined by frequency
     this.renewalDate.setDate(
       this.renewalDate.getDate() + renewalPeriods[this.frequency],
     );
   }
 
-  // Auto-updates the status if the renewal date passed
+  // Auto-updates the status if the renewal date is in the past (today)
   if (this.renewalDay < new Date()) {
     this.status = "expired";
   }
 
-  // Proceed with the creation of the document
-  next();
+  // next() has been deprecated in newer versions of mongoDB
 });
 
 const Subscription = mongoose.model("Subscription", subscriptionSchema);

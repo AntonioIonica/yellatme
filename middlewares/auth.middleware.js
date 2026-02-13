@@ -17,7 +17,7 @@ const authorize = async (req, res, next) => {
 
     if (!token) return res.status(401).json({ message: "Unauthorized!" });
 
-    // 2. Verified by the server using the secret
+    // 2. Verified by the server using the secret and get the userId from the token
     const decoded = jwt.verify(token, JWT_SECRET);
 
     // 3. Getting the user by the id from the decoded token
