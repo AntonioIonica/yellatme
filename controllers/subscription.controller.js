@@ -1,4 +1,6 @@
+import { workflowClient } from "../config/upstash.js";
 import Subscription from "../models/subscription.model.js";
+import { SERVER_URL } from "../config/env.js";
 
 export const createSubscription = async (req, res, next) => {
   try {
@@ -10,7 +12,22 @@ export const createSubscription = async (req, res, next) => {
       user: req.user._id,
     });
 
-    res.status(201).json({ success: true, data: subscription });
+    // run in the CLI npx @upstash/qstash-cli dev to get the dev token, signing keys
+    // here the workflow is created
+    const { workflowRunId } = await workflowClient.trigger({
+      // Will hit the endpoint when a new subscription is created
+      url: `${SERVER_URL}/api/v1/workflows/subscription/reminder`,
+      body: {
+        subscriptionId: subscription.id,
+      },
+      headers: {
+        "content-type": "application/json",
+      },
+      retries: 0,
+    });
+
+    // Attach the subscription created and the tied workflow id to it
+    res.status(201).json({ success: true, data: subscription, workflowRunId });
   } catch (error) {
     next(error);
   }
