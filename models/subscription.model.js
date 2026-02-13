@@ -81,7 +81,7 @@ const subscriptionSchema = new mongoose.Schema(
       },
     },
     user: {
-      // Accepts the id which will refer to User (model)
+      // Accepts the id which will refer to User (model) and access the whole user document
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
