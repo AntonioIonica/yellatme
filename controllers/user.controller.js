@@ -2,7 +2,7 @@ import User from "../models/user.model.js";
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { JWT_SECRET, JWT_EXPIRES_IN } from "../config/env.js";
+import { JWT_SECRET, JWT_EXPIRES_IN, NODE_ENV } from "../config/env.js";
 
 export const getUsers = async (req, res, next) => {
   // Available only to admin roles
@@ -115,16 +115,43 @@ export const updateUser = async (req, res, next) => {
       password: hashPassword,
     });
 
-    res
-      .status(201)
-      .json({
-        success: true,
-        message: "User updated successfully!",
-        data: updatedUser,
-      });
+    res.status(201).json({
+      success: true,
+      message: "User updated successfully!",
+      data: updatedUser,
+    });
   } catch (error) {
     next(error);
   }
 };
 
-export const deleteUser = async (req, res, next) => {};
+export const deleteUser = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.params.id).select("-password");
+    if (!user) {
+      const error = new Error("User not found");
+      error.statusCode = 404;
+      throw error;
+    }
+
+    if (req.user._id !== user._id) {
+      const error = new Error("Not authorized to delete other users account!");
+      error.statusCode = 401;
+      throw error;
+    }
+
+    await User.findByIdAndDelete(req.params.id);
+    res.clearCookie("token");
+
+    res
+      .status(302)
+      .json({
+        success: true,
+        message: "Account successfully deleted!",
+        signOut: true,
+        redirect: "/sign-in",
+      });
+  } catch (error) {
+    next(error);
+  }
+};
