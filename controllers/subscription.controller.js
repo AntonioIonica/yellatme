@@ -12,7 +12,7 @@ export const createSubscription = async (req, res, next) => {
       user: req.user._id,
     });
 
-    // run in the CLI npx @upstash/qstash-cli dev to get the dev token, signing keys
+    // run in the CLI 'npx @upstash/qstash-cli dev' to get the dev token, signing keys
     // here the workflow is created
     const { workflowRunId } = await workflowClient.trigger({
       // Will hit the endpoint when a new subscription is created

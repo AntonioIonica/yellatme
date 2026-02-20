@@ -30,12 +30,12 @@ export const signUp = async (req, res, next) => {
     // Create new user (or multiple) and attach the session to abort it in case of failure (atomic)
     // Will return a list with n elements (1 in this case)
     const newUsers = await User.create(
-      [{ name, email, password: hashPassword }],
+      [{ name, email, password: hashPassword, role: "user" }],
       { session },
     );
 
     // Creating a token to be attached to the user using the coming id from creating the new user
-    const token = jwt.sign({ userId: newUsers[0]._id }, JWT_SECRET, {
+    const token = jwt.sign({ userId: newUsers[0]._id, role: newUsers[0].role }, JWT_SECRET, {
       expiresIn: JWT_EXPIRES_IN,
     });
 
@@ -85,7 +85,7 @@ export const signIn = async (req, res, next) => {
     }
 
     // if the password is valid generate a token
-    const token = jwt.sign({ userId: user._id }, JWT_SECRET, {
+    const token = jwt.sign({ userId: user._id, role: user.role }, JWT_SECRET, {
       expiresIn: JWT_EXPIRES_IN,
     });
 
