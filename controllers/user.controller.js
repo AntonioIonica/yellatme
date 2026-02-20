@@ -85,6 +85,46 @@ export const createUser = async (req, res, next) => {
   }
 };
 
-export const updateUser = async (req, res, next) => {};
+export const updateUser = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.params.id).select("-password");
+    if (!user) {
+      const error = new Error("User not found");
+      error.statusCode = 404;
+      throw error;
+    }
+
+    if (req.user._id !== user._id) {
+      const error = new Error("Not authorized to update another user info!");
+      error.statusCode = 401;
+      throw error;
+    }
+
+    const { name, password } = req.body;
+    if (name.length() < 4) {
+      const error = new Error("The name you introduced is too small!");
+      error.statusCode = 401;
+      throw error;
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashPassword = await bcrypt.hash(password, salt);
+
+    const updatedUser = await User.findByIdAndUpdate(req.params.id, {
+      name,
+      password: hashPassword,
+    });
+
+    res
+      .status(201)
+      .json({
+        success: true,
+        message: "User updated successfully!",
+        data: updatedUser,
+      });
+  } catch (error) {
+    next(error);
+  }
+};
 
 export const deleteUser = async (req, res, next) => {};
