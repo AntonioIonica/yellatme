@@ -94,26 +94,37 @@ export const updateUser = async (req, res, next) => {
       throw error;
     }
 
-    if (req.user._id !== user._id) {
+    if (req.user.id !== req.params.id) {
       const error = new Error("Not authorized to update another user info!");
       error.statusCode = 401;
       throw error;
     }
 
     const { name, password } = req.body;
-    if (name.length() < 4) {
-      const error = new Error("The name you introduced is too small!");
+    if (name.length < 4) {
+      const error = new Error("The name should have more than 3 characters!");
       error.statusCode = 401;
       throw error;
     }
 
+    let updatedUser;
+    let options;
+    let hashPassword;
     const salt = await bcrypt.genSalt(10);
-    const hashPassword = await bcrypt.hash(password, salt);
 
-    const updatedUser = await User.findByIdAndUpdate(req.params.id, {
-      name,
-      password: hashPassword,
-    });
+    if (password && user) {
+      hashPassword = await bcrypt.hash(password, salt);
+      options = { name, password: hashPassword };
+    }
+    if (password && !user) {
+      hashPassword = await bcrypt.hash(password, salt);
+      options = { password: hashPassword };
+    }
+    if (!password && user) {
+      options = { name };
+    }
+
+    updatedUser = await User.findByIdAndUpdate(req.params.id, options);
 
     res.status(201).json({
       success: true,
@@ -143,14 +154,12 @@ export const deleteUser = async (req, res, next) => {
     await User.findByIdAndDelete(req.params.id);
     res.clearCookie("token");
 
-    res
-      .status(302)
-      .json({
-        success: true,
-        message: "Account successfully deleted!",
-        signOut: true,
-        redirect: "/sign-in",
-      });
+    res.status(302).json({
+      success: true,
+      message: "Account successfully deleted!",
+      signOut: true,
+      redirect: "/sign-in",
+    });
   } catch (error) {
     next(error);
   }
