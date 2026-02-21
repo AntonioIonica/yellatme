@@ -22,6 +22,32 @@ export const getAllSubscriptions = async (req, res, next) => {
   }
 };
 
+export const getUpcomingRenewals = async (req, res, next) => {
+  try {
+    // req.user._id because mongo need an ObjectId, not a plain id
+    const upcomingSubscriptions = await Subscription.find({
+      user: req.user._id,
+      status: "active",
+    }).sort({renewalDate: 1});
+
+    if (!upcomingSubscriptions) {
+      const error = new Error("There are no upcoming renewals!");
+      error.statusCode = 404;
+      throw error;
+    }
+
+    res
+      .status(200)
+      .json({
+        success: true,
+        message: "Successfully retrieved upcoming subscription renewals!",
+        data: upcomingSubscriptions,
+      });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const createSubscription = async (req, res, next) => {
   try {
     const subscription = await Subscription.create({

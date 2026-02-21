@@ -112,7 +112,7 @@ subscriptionSchema.pre("save", function () {
   }
 
   // Auto-updates the status if the renewal date is in the past (today)
-  if (this.renewalDay < new Date()) {
+  if (this.renewalDate < new Date()) {
     this.status = "expired";
   }
 
