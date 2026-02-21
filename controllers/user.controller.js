@@ -1,8 +1,7 @@
 import User from "../models/user.model.js";
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
-import { JWT_SECRET, JWT_EXPIRES_IN, NODE_ENV } from "../config/env.js";
+
 
 export const getUsers = async (req, res, next) => {
   // Available only to admin roles
