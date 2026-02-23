@@ -47,9 +47,9 @@ export const getUpcomingRenewals = async (req, res, next) => {
 };
 
 export const getSubscription = async (req, res, next) => {
-  try {
-    const subscriptionId = req.params.id;
+  const subscriptionId = req.params.id;
 
+  try {
     const subscription = await Subscription.findById(subscriptionId);
     if (!subscription) {
       const error = new Error("Subscription not found!");
@@ -99,17 +99,15 @@ export const createSubscription = async (req, res, next) => {
 };
 
 export const deleteSubscription = async (req, res, next) => {
-  try {
-    const subscriptionId = req.params.id;
+  const subscriptionId = req.params.id;
 
+  try {
     await Subscription.findByIdAndDelete(subscriptionId);
 
-    res
-      .status(204)
-      .json({
-        success: true,
-        message: `Successfully deleted subscription ID - ${subscriptionId}`,
-      });
+    res.status(204).json({
+      success: true,
+      message: `Successfully deleted subscription ID - ${subscriptionId}`,
+    });
   } catch (error) {
     next(error);
   }
@@ -128,6 +126,30 @@ export const getUserSubscriptions = async (req, res, next) => {
     const subscriptions = await Subscription.find({ user: req.params.id });
 
     res.status(200).json({ success: true, data: subscriptions });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const cancelSubscription = async (req, res, next) => {
+  const subscriptionId = req.params.id;
+  try {
+    const subscription = await Subscription.findByIdAndUpdate(subscriptionId, {
+      status: "cancelled",
+    });
+    if (!subscription) {
+      const error = new Error("Subscription not found");
+      error.statusCode = 404;
+      throw error;
+    }
+
+    res
+      .status(200)
+      .json({
+        success: true,
+        message: `Subscription ID - ${subscriptionId} cancelled!`,
+        data: subscription,
+      });
   } catch (error) {
     next(error);
   }
