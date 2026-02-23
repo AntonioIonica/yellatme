@@ -57,13 +57,11 @@ export const getSubscription = async (req, res, next) => {
       throw error;
     }
 
-    res
-      .status(200)
-      .json({
-        success: true,
-        message: `Subscription ID: ${subscriptionId} successfully retrieved!`,
-        data: subscription,
-      });
+    res.status(200).json({
+      success: true,
+      message: `Subscription ID: ${subscriptionId} successfully retrieved!`,
+      data: subscription,
+    });
   } catch (error) {
     next(error);
   }
@@ -95,6 +93,23 @@ export const createSubscription = async (req, res, next) => {
 
     // Attach the subscription created and the tied workflow id to it
     res.status(201).json({ success: true, data: subscription, workflowRunId });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deleteSubscription = async (req, res, next) => {
+  try {
+    const subscriptionId = req.params.id;
+
+    await Subscription.findByIdAndDelete(subscriptionId);
+
+    res
+      .status(204)
+      .json({
+        success: true,
+        message: `Successfully deleted subscription ID - ${subscriptionId}`,
+      });
   } catch (error) {
     next(error);
   }
