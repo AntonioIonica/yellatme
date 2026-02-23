@@ -1,0 +1,20 @@
+import cron from "node-cron";
+import Subscription from "../models/subscription.model.js";
+
+export const expireSubscriptionJob = cron.schedule("0 */12 * * *", async () => {
+  console.log("Running cron job for expired subscriptions.");
+
+  // Set subscriptions with passed renewalDate and not updated status to status: "expired"
+  await Subscription.updateMany(
+    {
+      renewalDate: { $lt: new Date() },
+      // Status not equal
+      status: { $ne: "expired" },
+    },
+    {
+      $set: {
+        status: "expired",
+      },
+    },
+  );
+});

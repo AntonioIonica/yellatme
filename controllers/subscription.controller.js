@@ -27,8 +27,8 @@ export const getUpcomingRenewals = async (req, res, next) => {
     // req.user._id because mongo need an ObjectId, not a plain id
     const upcomingSubscriptions = await Subscription.find({
       user: req.user._id,
-      status: "active",
-    }).sort({renewalDate: 1});
+      renewalDate: { $gte: new Date() },
+    }).sort({ renewalDate: 1 });
 
     if (!upcomingSubscriptions) {
       const error = new Error("There are no upcoming renewals!");
@@ -36,13 +36,11 @@ export const getUpcomingRenewals = async (req, res, next) => {
       throw error;
     }
 
-    res
-      .status(200)
-      .json({
-        success: true,
-        message: "Successfully retrieved upcoming subscription renewals!",
-        data: upcomingSubscriptions,
-      });
+    res.status(200).json({
+      success: true,
+      message: "Successfully retrieved upcoming subscription renewals!",
+      data: upcomingSubscriptions,
+    });
   } catch (error) {
     next(error);
   }
