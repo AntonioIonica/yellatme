@@ -8,6 +8,7 @@ import {
   getSubscription,
   getUpcomingRenewals,
   getUserSubscriptions,
+  updateSubscription,
 } from "../controllers/subscription.controller.js";
 import admin from "../middlewares/admin.middleware.js";
 
@@ -21,14 +22,12 @@ subscriptionRouter.get("/:id", authorize, getSubscription);
 
 subscriptionRouter.post("/", authorize, createSubscription);
 
-subscriptionRouter.put("/:id", authorize, (req, res) => {
-  res.send({ title: "UPDATE subscription" });
-});
+subscriptionRouter.patch("/:id", authorize, updateSubscription);
 
 subscriptionRouter.delete("/:id", authorize, deleteSubscription);
 
 subscriptionRouter.get("/user/:id", authorize, getUserSubscriptions);
 
-subscriptionRouter.put("/:id/cancel", authorize, cancelSubscription);
+subscriptionRouter.patch("/:id/cancel", authorize, cancelSubscription);
 
 export default subscriptionRouter;

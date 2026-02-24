@@ -92,7 +92,67 @@ export const createSubscription = async (req, res, next) => {
     });
 
     // Attach the subscription created and the tied workflow id to it
-    res.status(201).json({ success: true, data: subscription, workflowRunId });
+    res
+      .status(201)
+      .json({ success: true, data: { subscription, workflowRunId } });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateSubscription = async (req, res, next) => {
+  const subscriptionId = req.params.id;
+
+  const updates = {};
+  const allowedUpdates = [
+    "name",
+    "description",
+    "price",
+    "currency",
+    "frequency",
+    "category",
+    "paymentMethod",
+    "status",
+    "renewalDate",
+  ];
+
+  allowedUpdates.forEach((field) => {
+    if (req.body[field] !== undefined) {
+      updates[field] = req.body[field];
+    }
+  });
+
+  try {
+    const subscription = await Subscription.findByIdAndUpdate(
+      subscriptionId,
+      {
+        $set: updates,
+      },
+      { omitUndefined: true },
+    );
+    if (!subscription) {
+      const error = new Error("There is no subscription with given ID");
+      error.statusCode = 404;
+      throw error;
+    }
+
+    const { workflowRunId } = await workflowClient.trigger({
+      // Will hit the endpoint when a new subscription is created
+      url: `${SERVER_URL}/api/v1/workflows/subscription/reminder`,
+      body: {
+        subscriptionId: subscription.id,
+      },
+      headers: {
+        "content-type": "application/json",
+      },
+      retries: 0,
+    });
+
+    res.status(201).json({
+      success: true,
+      message: "Successfully updated the subscription details!",
+      data: { subscription, workflowRunId },
+    });
   } catch (error) {
     next(error);
   }
@@ -135,7 +195,9 @@ export const cancelSubscription = async (req, res, next) => {
   const subscriptionId = req.params.id;
   try {
     const subscription = await Subscription.findByIdAndUpdate(subscriptionId, {
-      status: "cancelled",
+      $set: {
+        status: "cancelled",
+      },
     });
     if (!subscription) {
       const error = new Error("Subscription not found");
@@ -143,13 +205,11 @@ export const cancelSubscription = async (req, res, next) => {
       throw error;
     }
 
-    res
-      .status(200)
-      .json({
-        success: true,
-        message: `Subscription ID - ${subscriptionId} cancelled!`,
-        data: subscription,
-      });
+    res.status(200).json({
+      success: true,
+      message: `Subscription ID - ${subscriptionId} cancelled!`,
+      data: subscription,
+    });
   } catch (error) {
     next(error);
   }

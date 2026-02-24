@@ -11,6 +11,7 @@ export const expireSubscriptionJob = cron.schedule("0 */12 * * *", async () => {
       // Status not equal
       status: { $ne: "expired" },
     },
+    // Set is used so only the status parameter is updated, and not the whole document overwritten
     {
       $set: {
         status: "expired",
