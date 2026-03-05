@@ -1,5 +1,6 @@
 import express from "express";
 import { PORT } from "./config/env.js";
+import cors from "cors";
 
 import authRouter from "./routes/auth.routes.js";
 import subscriptionRouter from "./routes/subscription.routes.js";
@@ -15,6 +16,12 @@ const app = express();
 
 // tells the server to understand json
 app.use(express.json());
+
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+  }),
+);
 
 // Process the form data into a simple format
 app.use(express.urlencoded({ extended: false }));
