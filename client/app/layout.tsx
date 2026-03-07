@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Roboto } from "next/font/google";
 import "./globals.css";
+import { cn } from "@/lib/utils";
 import Image from "next/image";
-import NavBar from "@/components/NavBar";
+
+const roboto = Roboto({ subsets: ["latin"], variable: "--font-sans" });
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,8 +17,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "YellAtMe",
-  description: "Universal reminder for any subscription",
+  title: "YellAtMe - Get notified when subscriptions are coming",
+  description: "Get reminders before billing dates",
 };
 
 export default function RootLayout({
@@ -25,17 +27,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className={cn("font-sans", roboto.variable)}>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <div className="background">
-          <div className="overlay" />
-          <div className="content">
-            <NavBar />
-            {children}
-          </div>
-        </div>
+        {children}
       </body>
     </html>
   );
