@@ -10,8 +10,8 @@ export default function LandingPage() {
     <div className="min-h-screen text-foreground">
       {/* Navigation */}
       <header
-        className="fixed top-0 left-0 right-0 z-20 bg-background/20
-       border-b border-border backdrop-blur-sm rounded-lg m-4"
+        className="fixed top-0 left-0 right-0 z-20 bg-background/30
+       border-b border-border backdrop-blur-sm rounded-lg mx-4 mb-4"
       >
         <nav className="mx-auto flex h-14 max-w-7xl items-center justify-between px-6">
           <Link href="/" className="flex items-center">
