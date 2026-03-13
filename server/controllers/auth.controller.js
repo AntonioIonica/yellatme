@@ -35,9 +35,14 @@ export const signUp = async (req, res, next) => {
     );
 
     // Creating a token to be attached to the user using the coming id from creating the new user
-    const token = jwt.sign({ userId: newUsers[0]._id, role: newUsers[0].role }, JWT_SECRET, {
-      expiresIn: JWT_EXPIRES_IN,
-    });
+    const token = jwt.sign(
+      { userId: newUsers[0]._id, role: newUsers[0].role },
+      JWT_SECRET,
+      {
+        expiresIn: JWT_EXPIRES_IN,
+      },
+    );
+
 
     // At the end commit all the above code and end the session
     await session.commitTransaction();
@@ -103,22 +108,12 @@ export const signIn = async (req, res, next) => {
   }
 };
 
-// User logged out
 export const signOut = async (req, res, next) => {
   try {
-    const user = req.user;
-
-    if (!user) {
-      const error = new Error("Not authorized!");
-      error.statusCode = 401;
-      throw error;
-    }
-
-    res.clearCookie("token");
-
-    res
-      .status(200)
-      .json({ success: true, message: "Successfully logged out!" });
+    res.status(200).json({
+      success: true,
+      message: "Successfully logged out!",
+    });
   } catch (error) {
     next(error);
   }

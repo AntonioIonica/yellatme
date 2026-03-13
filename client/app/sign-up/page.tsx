@@ -37,7 +37,6 @@ const SignUp = () => {
       }
 
       const result = await res.json();
-      console.log(result);
       setMessage(result.message);
     } catch (error) {
       console.error(error);

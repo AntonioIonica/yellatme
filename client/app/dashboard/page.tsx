@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/card";
 import { Bell, Calendar, CreditCard, TrendingUp } from "lucide-react";
 
+
 const upcomingSubscriptions = [
   {
     name: "Netflix",

@@ -2,6 +2,7 @@
 
 import AddSubscriptionDialog from "@/components/AddSubscriptionDialog";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -33,13 +34,12 @@ import {
   LayoutDashboard,
   LogOut,
   PieChart,
-  Plus,
   Settings,
   SettingsIcon,
   User,
 } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 const mainNavItems = [
   {
@@ -79,6 +79,17 @@ const secondaryNavItems = [
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    localStorage.removeItem("token");
+
+    const res = await fetch("http://localhost:5500/api/v1/auth/sign-out", {
+      method: "POST",
+    });
+    const result = await res.json();
+    router.push("/");
+  };
 
   return (
     <SidebarProvider className="bg-background">
@@ -187,13 +198,10 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
-                    <Link
-                      href="http://localhost:5000/api/v1/auth/sign-out"
-                      className="flex"
-                    >
-                      <LogOut className="mr-2 size-4" />
+                    <Button className="flex" onClick={handleLogout}>
+                      <LogOut />
                       <span>Logout</span>
-                    </Link>
+                    </Button>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
