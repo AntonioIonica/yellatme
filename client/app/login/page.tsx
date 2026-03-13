@@ -26,7 +26,6 @@ const Login = () => {
 
     const result = await res.json();
     localStorage.setItem("token", result.data.token);
-    
     router.push("/dashboard");
   };
 

@@ -1,6 +1,12 @@
 import { Router } from "express";
 
-import { signIn, signOut, signUp } from "../controllers/auth.controller.js";
+import {
+  getJwtUser,
+  signIn,
+  signOut,
+  signUp,
+} from "../controllers/auth.controller.js";
+import authorize from "../middlewares/auth.middleware.js";
 
 const authRouter = Router();
 
@@ -10,5 +16,7 @@ authRouter.post("/sign-up", signUp);
 authRouter.post("/sign-in", signIn);
 
 authRouter.get("/sign-out", signOut);
+
+authRouter.post("/jwt", authorize, getJwtUser);
 
 export default authRouter;

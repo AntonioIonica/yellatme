@@ -43,7 +43,6 @@ export const signUp = async (req, res, next) => {
       },
     );
 
-
     // At the end commit all the above code and end the session
     await session.commitTransaction();
     session.endSession();
@@ -114,6 +113,14 @@ export const signOut = async (req, res, next) => {
       success: true,
       message: "Successfully logged out!",
     });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getJwtUser = async (req, res, next) => {
+  try {
+    res.json({ user: req.user });
   } catch (error) {
     next(error);
   }

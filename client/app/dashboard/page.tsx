@@ -8,7 +8,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Bell, Calendar, CreditCard, TrendingUp } from "lucide-react";
-
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 const upcomingSubscriptions = [
   {
@@ -96,6 +97,37 @@ const DashboardPage = () => {
   const totalYearly = totalMonthly * 12;
   const activeSubscriptions = 12;
   const upcomingPayments = 5;
+
+  const [user, setUser] = useState(null);
+  const [loaded, setLoaded] = useState(false);
+
+  const router = useRouter();
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+
+    if (!token) return;
+
+    const fetchUser = async () => {
+      const res = await fetch("http://localhost:5500/api/v1/auth/jwt", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const result = await res.json();
+      setUser(result.user);
+      setLoaded(true);
+    };
+
+    fetchUser();
+  }, []);
+
+  useEffect(() => {
+    if (loaded && !user) router.push("/login");
+  }, [user, loaded]);
 
   return (
     <div className="bg-background space-y-6">
