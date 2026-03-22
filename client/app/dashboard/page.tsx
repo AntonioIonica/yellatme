@@ -98,7 +98,7 @@ const DashboardPage = () => {
   const activeSubscriptions = 12;
   const upcomingPayments = 5;
 
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState({ userName: "", userEmail: "" });
   const [loaded, setLoaded] = useState(false);
 
   const router = useRouter();
@@ -118,7 +118,11 @@ const DashboardPage = () => {
       });
 
       const result = await res.json();
-      setUser(result.user);
+      setUser((prev) => ({
+        ...prev,
+        userName: result.userName,
+        userEmail: result.userEmail,
+      }));
       setLoaded(true);
     };
 
@@ -128,6 +132,8 @@ const DashboardPage = () => {
   useEffect(() => {
     if (loaded && !user) router.push("/login");
   }, [user, loaded]);
+
+  if (!user) return <div>Loading...</div>;
 
   return (
     <div className="bg-background space-y-6">

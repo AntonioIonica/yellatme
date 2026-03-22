@@ -40,6 +40,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 const mainNavItems = [
   {
@@ -78,6 +79,9 @@ const secondaryNavItems = [
 ];
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
+  const [user, setUser] = useState({ userName: "", userEmail: "" });
+  const [loaded, setLoaded] = useState(false);
+
   const pathname = usePathname();
   const router = useRouter();
 
@@ -90,6 +94,38 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
     const result = await res.json();
     router.push("/");
   };
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+
+    if (!token) return;
+
+    const fetchUser = async () => {
+      const res = await fetch("http://localhost:5500/api/v1/auth/jwt", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const result = await res.json();
+      setUser((prev) => ({
+        ...prev,
+        userName: result.userName,
+        userEmail: result.userEmail,
+      }));
+      setLoaded(true);
+    };
+
+    fetchUser();
+  }, []);
+
+  useEffect(() => {
+    if (loaded && !user) router.push("/login");
+  }, [user, loaded]);
+
+  if (!user) return <div>Loading...</div>;
 
   return (
     <SidebarProvider className="bg-background">
@@ -165,13 +201,13 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
                     <Avatar className="size-8">
                       <AvatarFallback className="bg-accent text-accent-foreground">
                         {/* User Name  */}
-                        UN
+                        {user.userName.substring(0, 1).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex flex-col gap-1 leading-none">
-                      <span className="font-medium">User name</span>
+                      <span className="font-medium">{user.userName}</span>
                       <span className="text-sm text-muted-foreground">
-                        user@gmail.com
+                        {user.userEmail}
                       </span>
                     </div>
                   </SidebarMenuButton>

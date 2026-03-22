@@ -120,7 +120,8 @@ export const signOut = async (req, res, next) => {
 
 export const getJwtUser = async (req, res, next) => {
   try {
-    res.json({ user: req.user });
+    // req.user comes from auth middleware
+    res.json({ userName: req.user.name, userEmail: req.user.email });
   } catch (error) {
     next(error);
   }
