@@ -10,6 +10,7 @@ import {
 import { Bell, Calendar, CreditCard, TrendingUp } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { userType } from "./layout";
 
 const upcomingSubscriptions = [
   {
@@ -95,17 +96,17 @@ const upcomingSubscriptions = [
 const DashboardPage = () => {
   const totalMonthly = 156.97;
   const totalYearly = totalMonthly * 12;
-  const activeSubscriptions = 12;
   const upcomingPayments = 5;
 
-  const [user, setUser] = useState({ userName: "", userEmail: "" });
+  const [user, setUser] = useState<userType>();
   const [loaded, setLoaded] = useState(false);
+  const [userSubs, setUserSubs] = useState([]);
+
+  const token = localStorage.getItem("token");
 
   const router = useRouter();
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-
     if (!token) return;
 
     const fetchUser = async () => {
@@ -118,16 +119,35 @@ const DashboardPage = () => {
       });
 
       const result = await res.json();
-      setUser((prev) => ({
-        ...prev,
-        userName: result.userName,
-        userEmail: result.userEmail,
-      }));
+      setUser(result.user);
       setLoaded(true);
     };
 
     fetchUser();
   }, []);
+
+  useEffect(() => {
+    if (!user) return;
+
+    const fetchUserSubs = async () => {
+      const res = await fetch(
+        `http://localhost:5500/api/v1/subscriptions/user/${user._id}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      const result = await res.json();
+      if (!result.success) return;
+      setUserSubs(result.data);
+    };
+
+    fetchUserSubs();
+  }, [loaded]);
 
   useEffect(() => {
     if (loaded && !user) router.push("/login");
@@ -177,7 +197,7 @@ const DashboardPage = () => {
             <Bell className="size-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="font-bold text-2xl">{activeSubscriptions}</div>
+            <div className="font-bold text-2xl">{userSubs.length || 0}</div>
             <div className="font-semibold text-muted-foreground mt-2">
               <span>Across 5 categories</span>
             </div>

@@ -78,8 +78,14 @@ const secondaryNavItems = [
   },
 ];
 
+export type userType = {
+  _id: String,
+  name: String,
+  email: String,
+};
+
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState({ userName: "", userEmail: "" });
+  const [user, setUser] = useState<userType>();
   const [loaded, setLoaded] = useState(false);
 
   const pathname = usePathname();
@@ -110,11 +116,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
       });
 
       const result = await res.json();
-      setUser((prev) => ({
-        ...prev,
-        userName: result.userName,
-        userEmail: result.userEmail,
-      }));
+      setUser(result.user);
       setLoaded(true);
     };
 
@@ -201,13 +203,13 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
                     <Avatar className="size-8">
                       <AvatarFallback className="bg-accent text-accent-foreground">
                         {/* User Name  */}
-                        {user.userName.substring(0, 1).toUpperCase()}
+                        {user?.name.substring(0, 1).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex flex-col gap-1 leading-none">
-                      <span className="font-medium">{user.userName}</span>
+                      <span className="font-medium">{user?.name}</span>
                       <span className="text-sm text-muted-foreground">
-                        {user.userEmail}
+                        {user?.email}
                       </span>
                     </div>
                   </SidebarMenuButton>
