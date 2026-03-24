@@ -11,6 +11,7 @@ import { Bell, Calendar, CreditCard, TrendingUp } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { userType } from "./layout";
+import { useSubscriptionStore } from "@/store/useSubscriptionsStore";
 
 const upcomingSubscriptions = [
   {
@@ -98,9 +99,13 @@ const DashboardPage = () => {
   const totalYearly = totalMonthly * 12;
   const upcomingPayments = 5;
 
+  const subscriptions = useSubscriptionStore((state) => state.subscriptions);
+  const setSubscriptions = useSubscriptionStore(
+    (state) => state.setSubscriptions,
+  );
+
   const [user, setUser] = useState<userType>();
   const [loaded, setLoaded] = useState(false);
-  const [userSubs, setUserSubs] = useState([]);
 
   const token = localStorage.getItem("token");
 
@@ -143,7 +148,7 @@ const DashboardPage = () => {
 
       const result = await res.json();
       if (!result.success) return;
-      setUserSubs(result.data);
+      setSubscriptions(result.data);
     };
 
     fetchUserSubs();
@@ -197,7 +202,9 @@ const DashboardPage = () => {
             <Bell className="size-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="font-bold text-2xl">{userSubs.length || 0}</div>
+            <div className="font-bold text-2xl">
+              {subscriptions.length || 0}
+            </div>
             <div className="font-semibold text-muted-foreground mt-2">
               <span>Across 5 categories</span>
             </div>

@@ -24,12 +24,23 @@ import {
   SelectValue,
 } from "./ui/select";
 import { Calendar } from "./ui/calendar";
-import { SubmitEventHandler, useState } from "react";
+import { SubmitEventHandler, useEffect, useState } from "react";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { DateRange } from "react-day-picker";
 import { format } from "date-fns";
+import { userType } from "@/app/dashboard/layout";
+import { useSubscriptionStore } from "@/store/useSubscriptionsStore";
 
 const AddSubscriptionDialog = () => {
+  const token = localStorage.getItem("token");
+
+  const [user, setUser] = useState<userType>();
+  const [loaded, setLoaded] = useState(false);
+
+  const addSubscription = useSubscriptionStore(
+    (state) => state.addSubscription,
+  );
+
   const [date, setDate] = useState<DateRange | undefined>({
     from: new Date(),
     to: undefined,
@@ -41,6 +52,26 @@ const AddSubscriptionDialog = () => {
     status: "active",
   });
   const [dialogOpen, setDialogOpen] = useState(false);
+
+  useEffect(() => {
+    if (!token) return;
+
+    const fetchUser = async () => {
+      const res = await fetch("http://localhost:5500/api/v1/auth/jwt", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const result = await res.json();
+      setUser(result.user);
+      setLoaded(true);
+    };
+
+    fetchUser();
+  }, []);
 
   const handleSubmitForm: SubmitEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
@@ -61,17 +92,23 @@ const AddSubscriptionDialog = () => {
       status: formSelectObj.status,
       startDate: date?.from,
       renewalDate: date?.to,
-      // user: get the user id from token?
+      user: user?._id,
     };
-    console.log(dataObject);
 
-    // const res = await fetch("http://localhost:5500/api/v1/subscriptions", {
-    //   method: "POST",
-    //   headers: { "Content-Type": "application/json" },
-    //   body: JSON.stringify(dataObject),
-    // });
+    const res = await fetch("http://localhost:5500/api/v1/subscriptions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(dataObject),
+    });
 
-    // const result = await res.json();
+    const result = await res.json();
+
+    // Add the subscription to the UI and refresh the number of them
+    addSubscription(result.data.subscription);
+
     setDialogOpen(false);
   };
 
