@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { SubmitEventHandler, useState } from "react";
 
@@ -15,6 +16,7 @@ const SignUp = () => {
     const { name, email, password, confirmPassword } = formObject;
 
     if (password !== confirmPassword) {
+      // Until toast
       console.log("The passwords are not the same!");
       return;
     }
@@ -44,27 +46,66 @@ const SignUp = () => {
   };
 
   return (
-    <div>
-      <Link href="/">Home</Link>
-      <div className="w-100 h-100 border-2 p-4 border-amber-200">
+    <div className="w-full h-screen flex flex-col">
+      <div className="px-20 h-20 w-full flex items-center justify-between">
+        <div>
+          <Link href="/">Logo</Link>
+        </div>
+        <Button asChild>
+          <Link href="/login">Do you already have an account?! Login here</Link>
+        </Button>
+      </div>
+
+      <div className="flex items-center justify-center mt-20">
         <form
           onSubmit={(e) => handleFormSubmit(e)}
           method="POST"
-          className="flex flex-col space-y-4"
+          className="flex flex-col space-y-4 bg-card rounded-xl p-8 w-80"
         >
-          <label htmlFor="name">Name: </label>
-          <input id="name" name="name" type="text" />
+          <label className="text-xl font-bold" htmlFor="name">
+            Name:{" "}
+          </label>
+          <input
+            className="bg-accent text-lg rounded-sm pl-1"
+            id="name"
+            name="name"
+            type="text"
+            placeholder="andrew"
+          />
 
-          <label htmlFor="email">Email: </label>
-          <input type="email" name="email" id="email" />
+          <label className="text-xl font-bold" htmlFor="email">
+            Email:{" "}
+          </label>
+          <input
+            className="bg-accent text-lg rounded-sm pl-1"
+            type="email"
+            name="email"
+            id="email"
+          />
 
-          <label htmlFor="password">Password: </label>
-          <input type="password" name="password" id="password" />
+          <label className="text-xl font-bold" htmlFor="password">
+            Password:{" "}
+          </label>
+          <input
+            className="bg-accent text-lg rounded-sm pl-1"
+            type="password"
+            name="password"
+            id="password"
+          />
 
-          <label htmlFor="confirmPassword">Confirm password: </label>
-          <input type="password" name="confirmPassword" id="confirmPassword" />
+          <label className="text-xl font-bold" htmlFor="confirmPassword">
+            Confirm password:{" "}
+          </label>
+          <input
+            className="bg-accent text-lg rounded-sm pl-1"
+            type="password"
+            name="confirmPassword"
+            id="confirmPassword"
+          />
 
-          <button type="submit">Submit</button>
+          <Button className="text-xl" type="submit">
+            Submit
+          </Button>
         </form>
 
         <div>{message}</div>

@@ -43,6 +43,7 @@ const Login = () => {
           <Link href="/sign-up">Need an account?! Register here</Link>
         </Button>
       </div>
+
       <div className="flex items-center justify-center mt-30">
         <form
           onSubmit={(e) => handleSubmitLogin(e)}
@@ -70,7 +71,7 @@ const Login = () => {
             className="text-lg"
           />
 
-          <Button className="mt-6" type="submit">
+          <Button className="mt-6 text-xl" type="submit">
             Submit
           </Button>
         </form>
