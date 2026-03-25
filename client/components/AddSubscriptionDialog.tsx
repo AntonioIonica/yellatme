@@ -32,8 +32,6 @@ import { userType } from "@/app/dashboard/layout";
 import { useSubscriptionStore } from "@/store/useSubscriptionsStore";
 
 const AddSubscriptionDialog = () => {
-  const token = localStorage.getItem("token");
-
   const [user, setUser] = useState<userType>();
   const [loaded, setLoaded] = useState(false);
 
@@ -54,6 +52,8 @@ const AddSubscriptionDialog = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
 
   useEffect(() => {
+    const token = localStorage.getItem("token");
+
     if (!token) return;
 
     const fetchUser = async () => {

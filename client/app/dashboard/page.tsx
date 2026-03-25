@@ -106,12 +106,12 @@ const DashboardPage = () => {
 
   const [user, setUser] = useState<userType>();
   const [loaded, setLoaded] = useState(false);
-
-  const token = localStorage.getItem("token");
+  const [activeToken, setActiveToken] = useState<string | null>(null);
 
   const router = useRouter();
 
   useEffect(() => {
+    const token = localStorage.getItem("token");
     if (!token) return;
 
     const fetchUser = async () => {
@@ -126,6 +126,7 @@ const DashboardPage = () => {
       const result = await res.json();
       setUser(result.user);
       setLoaded(true);
+      setActiveToken(token);
     };
 
     fetchUser();
@@ -141,7 +142,7 @@ const DashboardPage = () => {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${activeToken}`,
           },
         },
       );
@@ -153,12 +154,6 @@ const DashboardPage = () => {
 
     fetchUserSubs();
   }, [loaded]);
-
-  useEffect(() => {
-    if (loaded && !user) router.push("/login");
-  }, [user, loaded]);
-
-  if (!user) return <div>Loading...</div>;
 
   return (
     <div className="bg-background space-y-6">

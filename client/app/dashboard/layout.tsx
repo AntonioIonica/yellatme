@@ -79,9 +79,9 @@ const secondaryNavItems = [
 ];
 
 export type userType = {
-  _id: String,
-  name: String,
-  email: String,
+  _id: String;
+  name: String;
+  email: String;
 };
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
@@ -90,16 +90,6 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
 
   const pathname = usePathname();
   const router = useRouter();
-
-  const handleLogout = async () => {
-    localStorage.removeItem("token");
-
-    const res = await fetch("http://localhost:5500/api/v1/auth/sign-out", {
-      method: "POST",
-    });
-    const result = await res.json();
-    router.push("/");
-  };
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -119,15 +109,30 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
       setUser(result.user);
       setLoaded(true);
     };
-
     fetchUser();
   }, []);
 
   useEffect(() => {
-    if (loaded && !user) router.push("/login");
-  }, [user, loaded]);
+    if (!user && loaded) router.push("/login");
+  }, [router, loaded, user]);
 
-  if (!user) return <div>Loading...</div>;
+  // Sign-out
+  const handleLogout = async () => {
+    const res = await fetch("http://localhost:5500/api/v1/auth/sign-out", {
+      method: "GET",
+    });
+    const result = await res.json();
+    console.log(result.message);
+    localStorage.removeItem("token");
+    router.push("/");
+  };
+
+  if (!user)
+    return (
+      <div className="flex items-center justify-center text-xl h-screen w-full">
+        Not authenticated!
+      </div>
+    );
 
   return (
     <SidebarProvider className="bg-background">
@@ -235,7 +240,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
+                  <DropdownMenuItem asChild className="w-full space-x-2">
                     <Button className="flex" onClick={handleLogout}>
                       <LogOut />
                       <span>Logout</span>

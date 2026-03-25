@@ -109,6 +109,8 @@ export const signIn = async (req, res, next) => {
 
 export const signOut = async (req, res, next) => {
   try {
+    req.user = null;
+
     res.status(200).json({
       success: true,
       message: "Successfully logged out!",
