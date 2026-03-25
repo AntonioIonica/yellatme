@@ -15,13 +15,13 @@ export type Subscription = {
   user: String;
 };
 
-export type Store = {
+export type subscriptionsStore = {
   subscriptions: Subscription[];
   setSubscriptions: (subs: Subscription[]) => void;
   addSubscription: (sub: Subscription) => void;
 };
 
-export const useSubscriptionStore = create<Store>((set) => ({
+export const useSubscriptionStore = create<subscriptionsStore>((set) => ({
   subscriptions: [],
   setSubscriptions: (subs) => set({ subscriptions: subs }),
   addSubscription: (sub) =>

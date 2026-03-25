@@ -301,7 +301,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <footer className="py-12 border-border border-t">
+      <footer className="py-6 border-border border-t">
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
             <div className="flex items-center">
