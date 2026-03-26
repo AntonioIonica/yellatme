@@ -76,6 +76,8 @@ const AddSubscriptionDialog = () => {
   const handleSubmitForm: SubmitEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
 
+    const token = localStorage.getItem("token");
+
     const formData = new FormData(e.currentTarget);
     const formObject = Object.fromEntries(formData.entries());
 

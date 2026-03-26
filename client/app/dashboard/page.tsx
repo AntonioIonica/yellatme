@@ -112,7 +112,10 @@ const DashboardPage = () => {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    if (!token) return;
+    if (!token) {
+      router.push("/login");
+      return;
+    }
 
     const fetchUser = async () => {
       const res = await fetch("http://localhost:5500/api/v1/auth/jwt", {

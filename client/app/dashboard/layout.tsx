@@ -85,7 +85,7 @@ export type userType = {
 };
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<userType>();
+  const [user, setUser] = useState<userType | null>(null);
   const [loaded, setLoaded] = useState(false);
 
   const pathname = usePathname();
@@ -106,15 +106,12 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
       });
 
       const result = await res.json();
+
       setUser(result.user);
       setLoaded(true);
     };
     fetchUser();
   }, []);
-
-  useEffect(() => {
-    if (!user && loaded) router.push("/login");
-  }, [router, loaded, user]);
 
   // Sign-out
   const handleLogout = async () => {
@@ -122,17 +119,11 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
       method: "GET",
     });
     const result = await res.json();
-    console.log(result.message);
+
     localStorage.removeItem("token");
+
     router.push("/");
   };
-
-  if (!user)
-    return (
-      <div className="flex items-center justify-center text-xl h-screen w-full">
-        Not authenticated!
-      </div>
-    );
 
   return (
     <SidebarProvider className="bg-background">
