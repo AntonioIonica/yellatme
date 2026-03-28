@@ -28,16 +28,15 @@ import { SubmitEventHandler, useEffect, useState } from "react";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { DateRange } from "react-day-picker";
 import { format } from "date-fns";
-import { userType } from "@/app/dashboard/layout";
 import { useSubscriptionStore } from "@/store/useSubscriptionsStore";
+import { useAuthStore } from "@/store/useAuthStore";
 
 const AddSubscriptionDialog = () => {
-  const [user, setUser] = useState<userType>();
-  const [loaded, setLoaded] = useState(false);
-
   const addSubscription = useSubscriptionStore(
     (state) => state.addSubscription,
   );
+
+  const { user, fetchUser } = useAuthStore();
 
   const [date, setDate] = useState<DateRange | undefined>({
     from: new Date(),
@@ -52,31 +51,11 @@ const AddSubscriptionDialog = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-
-    if (!token) return;
-
-    const fetchUser = async () => {
-      const res = await fetch("http://localhost:5500/api/v1/auth/jwt", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      const result = await res.json();
-      setUser(result.user);
-      setLoaded(true);
-    };
-
     fetchUser();
   }, []);
 
   const handleSubmitForm: SubmitEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
-
-    const token = localStorage.getItem("token");
 
     const formData = new FormData(e.currentTarget);
     const formObject = Object.fromEntries(formData.entries());
@@ -99,9 +78,9 @@ const AddSubscriptionDialog = () => {
 
     const res = await fetch("http://localhost:5500/api/v1/subscriptions", {
       method: "POST",
+      credentials: "include",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(dataObject),
     });
@@ -109,7 +88,7 @@ const AddSubscriptionDialog = () => {
     const result = await res.json();
 
     // Add the subscription to the UI and refresh the number of them
-    addSubscription(result.data.subscription);
+    addSubscription(result?.data?.subscription);
 
     setDialogOpen(false);
   };

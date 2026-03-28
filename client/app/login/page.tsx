@@ -9,6 +9,7 @@ const Login = () => {
   const router = useRouter();
   const [message, setMessage] = useState("");
 
+
   const handleSubmitLogin: SubmitEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
 
@@ -18,6 +19,7 @@ const Login = () => {
 
     const res = await fetch("http://localhost:5500/api/v1/auth/sign-in", {
       method: "POST",
+      credentials: "include",
       headers: {
         "Content-Type": "application/json",
       },
@@ -28,8 +30,6 @@ const Login = () => {
     });
 
     const result = await res.json();
-
-    localStorage.setItem("token", result.data.token);
 
     if (result.success) router.push("/dashboard");
     setMessage(result.message);

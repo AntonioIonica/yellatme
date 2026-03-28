@@ -47,6 +47,13 @@ export const signUp = async (req, res, next) => {
     await session.commitTransaction();
     session.endSession();
 
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax",
+      maxAge: 24 * 60 * 60 * 1000,
+    });
+
     res.status(201).json({
       success: true,
       message: "User created successfully!",
@@ -93,6 +100,13 @@ export const signIn = async (req, res, next) => {
       expiresIn: JWT_EXPIRES_IN,
     });
 
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: false, // ! set true when production !
+      sameSite: "lax",
+      maxAge: 24 * 60 * 60 * 1000,
+    });
+
     // Return a res status and object if logged in successfully
     res.status(200).json({
       success: true,
@@ -109,7 +123,11 @@ export const signIn = async (req, res, next) => {
 
 export const signOut = async (req, res, next) => {
   try {
-    req.user = null;
+    res.clearCookie("token", {
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax",
+    });
 
     res.status(200).json({
       success: true,
@@ -121,10 +139,5 @@ export const signOut = async (req, res, next) => {
 };
 
 export const getJwtUser = async (req, res, next) => {
-  try {
-    // req.user comes from auth middleware
-    res.json({ user: req.user });
-  } catch (error) {
-    next(error);
-  }
+  res.json({ user: req.user });
 };

@@ -5,15 +5,8 @@ import User from "../models/user.model.js";
 
 const authorize = async (req, res, next) => {
   try {
-    let token;
-
-    if (
-      req.headers.authorization &&
-      // 1. Bearer 54523423423426fdfsfsdfsfdsf
-      req.headers.authorization.startsWith("Bearer")
-    ) {
-      token = req.headers.authorization.split(" ")[1];
-    }
+    const token =
+      req.cookies?.token || req.header("Authorization")?.replace("Bearer ", "");
 
     if (!token) return res.status(401).json({ message: "Unauthorized!" });
 
@@ -22,6 +15,7 @@ const authorize = async (req, res, next) => {
 
     // 3. Getting the user by the id from the decoded token
     const user = await User.findById(decoded.userId);
+
     if (!user) return res.status(401).json({ message: "Unauthorized!" });
 
     // 4. If the user is valid, attach the user to the request being made

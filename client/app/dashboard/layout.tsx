@@ -27,6 +27,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
+import { useAuthStore } from "@/store/useAuthStore";
 import {
   Bell,
   Calendar,
@@ -85,42 +86,22 @@ export type userType = {
 };
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<userType | null>(null);
-  const [loaded, setLoaded] = useState(false);
-
   const pathname = usePathname();
   const router = useRouter();
 
+  const { user, fetchUser, clearUser } = useAuthStore();
+
   useEffect(() => {
-    const token = localStorage.getItem("token");
-
-    if (!token) return;
-
-    const fetchUser = async () => {
-      const res = await fetch("http://localhost:5500/api/v1/auth/jwt", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      const result = await res.json();
-
-      setUser(result.user);
-      setLoaded(true);
-    };
     fetchUser();
   }, []);
 
   // Sign-out
   const handleLogout = async () => {
     const res = await fetch("http://localhost:5500/api/v1/auth/sign-out", {
-      method: "GET",
+      credentials: "include",
     });
-    const result = await res.json();
 
-    localStorage.removeItem("token");
+    clearUser();
 
     router.push("/");
   };

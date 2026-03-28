@@ -30,6 +30,7 @@ const SignUp = () => {
     try {
       const res = await fetch("http://localhost:5500/api/v1/auth/sign-up", {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(userData),
       });

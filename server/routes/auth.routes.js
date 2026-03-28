@@ -17,6 +17,6 @@ authRouter.post("/sign-in", signIn);
 
 authRouter.get("/sign-out", signOut);
 
-authRouter.post("/jwt", authorize, getJwtUser);
+authRouter.get("/jwt", authorize, getJwtUser);
 
 export default authRouter;

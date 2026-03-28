@@ -12,6 +12,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { userType } from "./layout";
 import { useSubscriptionStore } from "@/store/useSubscriptionsStore";
+import { useAuthStore } from "@/store/useAuthStore";
 
 const upcomingSubscriptions = [
   {
@@ -104,34 +105,11 @@ const DashboardPage = () => {
     (state) => state.setSubscriptions,
   );
 
-  const [user, setUser] = useState<userType>();
-  const [loaded, setLoaded] = useState(false);
-  const [activeToken, setActiveToken] = useState<string | null>(null);
+  const { user, loading, fetchUser } = useAuthStore();
 
   const router = useRouter();
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      router.push("/login");
-      return;
-    }
-
-    const fetchUser = async () => {
-      const res = await fetch("http://localhost:5500/api/v1/auth/jwt", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      const result = await res.json();
-      setUser(result.user);
-      setLoaded(true);
-      setActiveToken(token);
-    };
-
     fetchUser();
   }, []);
 
@@ -142,21 +120,23 @@ const DashboardPage = () => {
       const res = await fetch(
         `http://localhost:5500/api/v1/subscriptions/user/${user._id}`,
         {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${activeToken}`,
-          },
+          credentials: "include",
         },
       );
 
       const result = await res.json();
+
       if (!result.success) return;
+
       setSubscriptions(result.data);
     };
 
     fetchUserSubs();
-  }, [loaded]);
+  }, [user, loading]);
+
+  useEffect(() => {
+    if (!user && !loading) router.push("/login");
+  }, [user, loading]);
 
   return (
     <div className="bg-background space-y-6">

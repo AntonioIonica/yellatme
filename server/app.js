@@ -17,17 +17,18 @@ const app = express();
 // tells the server to understand json
 app.use(express.json());
 
+// Reads cookies from requests
+app.use(cookieParser());
+
 app.use(
   cors({
     origin: "http://localhost:3000",
+    credentials: true, // allow sending cookies
   }),
 );
 
 // Process the form data into a simple format
 app.use(express.urlencoded({ extended: false }));
-
-// Reads cookies from requests
-app.use(cookieParser());
 
 // Arcjet middleware - rate limiter
 app.use(arcjetMiddleware);
