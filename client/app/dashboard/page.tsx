@@ -208,11 +208,13 @@ const DashboardPage = () => {
             </div>
             <div className="font-semibold text-muted-foreground mt-2">
               <span>
-                across {
+                across{" "}
+                {
                   new Set(
                     subscriptions.map((subscription) => subscription.category),
                   ).size
-                } categories
+                }{" "}
+                categories
               </span>
             </div>
           </CardContent>
@@ -263,20 +265,20 @@ const DashboardPage = () => {
           </CardHeader>
           <CardContent className="overflow-auto">
             <div className="space-y-3">
-              {upcomingSubscriptions.map((sub) => (
+              {subscriptions?.map((sub, index) => (
                 <div
-                  key={sub.name}
+                  key={index}
                   className="flex items-center justify-between rounded-lg border-border bg-accent/90 px-4 py-3"
                 >
                   <div className="gap-4 flex items-center">
-                    <div className="text-sm font-bold w-30">{sub.name}</div>
+                    <div className="text-sm font-bold w-30">{sub?.name}</div>
                     <div className="text-muted-foreground text-sm">
-                      {sub.renewalDate}
+                      {new Date(sub?.renewalDate).toDateString()}
                     </div>
-                    <div className="ml-15">"{sub.description}"</div>
+                    <div className="ml-15">"{sub?.description}"</div>
                   </div>
                   <div className="flex items-center gap-4">
-                    <div className="mr-4 text-xs">{sub.paymentMethod}</div>
+                    <div className="mr-4 text-xs">{sub?.paymentMethod}</div>
                     {/* Diference of days from today until renewal date */}
                     <div className="text-muted-foreground font-semibold">
                       7 days
@@ -284,11 +286,13 @@ const DashboardPage = () => {
                     <div className="text-right">
                       <div className="flex">
                         {/* compute currency to $ */}
-                        <div className="font-bold">{sub.currency}</div>
-                        <div className="font-bold">{sub.price.toFixed(2)}</div>
+                        <div className="font-bold">{sub?.currency}</div>
+                        <div className="font-bold">{sub?.price.toFixed(2)}</div>
                       </div>
                       <div className="text-xs text-muted-foreground">
-                        {sub.category}
+                        {sub?.category.length > 4
+                          ? sub.category.slice(0, 4)
+                          : sub?.category}
                       </div>
                     </div>
                   </div>
