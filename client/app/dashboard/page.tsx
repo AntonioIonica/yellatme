@@ -95,6 +95,16 @@ const upcomingSubscriptions = [
   },
 ];
 
+// Checks if the passed date is less than 30 days from today
+function upcomingMonth(date: Date) {
+  const now = new Date();
+
+  const nextMonth = new Date();
+  nextMonth.setDate(now.getDate() + 30);
+
+  return date >= now && date <= nextMonth;
+}
+
 const DashboardPage = () => {
   const totalMonthly = 156.97;
   const totalYearly = totalMonthly * 12;
@@ -150,7 +160,18 @@ const DashboardPage = () => {
             <CreditCard className="size-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="font-bold text-2xl">${totalMonthly.toFixed(2)}</div>
+            <div className="font-bold text-2xl">
+              $
+              {subscriptions
+                ?.filter(
+                  (subscription) =>
+                    new Date(subscription?.renewalDate).getMonth() ==
+                      new Date().getMonth() ||
+                    new Date(subscription?.startDate).getMonth() ==
+                      new Date().getMonth(),
+                )
+                .reduce((sum, current) => sum + +current?.price, 0)}
+            </div>
             <div className="flex items-center font-semibold text-muted-foreground mt-2">
               <span className="text-red-600">12% more</span>
               <span className="ml-1">than last month</span>
@@ -181,10 +202,18 @@ const DashboardPage = () => {
           </CardHeader>
           <CardContent>
             <div className="font-bold text-2xl">
-              {subscriptions.length || 0}
+              {subscriptions.filter(
+                (subscription) => subscription.status == "active",
+              ).length || 0}
             </div>
             <div className="font-semibold text-muted-foreground mt-2">
-              <span>Across 5 categories</span>
+              <span>
+                across {
+                  new Set(
+                    subscriptions.map((subscription) => subscription.category),
+                  ).size
+                } categories
+              </span>
             </div>
           </CardContent>
         </Card>
@@ -196,9 +225,28 @@ const DashboardPage = () => {
             <Calendar className="size-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="font-bold text-2xl">${(65.433).toFixed(2)}</div>
+            <div className="font-bold text-2xl">
+              $
+              {
+                subscriptions
+                  ?.filter((subscription) => {
+                    // parsed to new Date() because coming as a db date from MongoDB
+                    if (upcomingMonth(new Date(subscription?.renewalDate))) {
+                      return subscription;
+                    }
+                  })
+                  .reduce((sum, current) => sum + +current?.price, 0) as any
+              }
+            </div>
             <div className="flex items-center font-semibold text-muted-foreground mt-2">
-              <span>{upcomingPayments} payments scheduled</span>
+              <span>
+                {
+                  subscriptions?.filter((subscription) =>
+                    upcomingMonth(new Date(subscription?.renewalDate)),
+                  ).length as any
+                }{" "}
+                payments scheduled
+              </span>
             </div>
           </CardContent>
         </Card>

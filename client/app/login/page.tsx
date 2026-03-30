@@ -7,8 +7,6 @@ import { SubmitEventHandler, useState } from "react";
 
 const Login = () => {
   const router = useRouter();
-  const [message, setMessage] = useState("");
-
 
   const handleSubmitLogin: SubmitEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
@@ -32,7 +30,6 @@ const Login = () => {
     const result = await res.json();
 
     if (result.success) router.push("/dashboard");
-    setMessage(result.message);
   };
 
   return (
@@ -45,7 +42,6 @@ const Login = () => {
           <Link href="/sign-up">Need an account?! Register here</Link>
         </Button>
       </div>
-      <div>{message}</div>
       <div className="flex items-center justify-center mt-30">
         <form
           onSubmit={(e) => handleSubmitLogin(e)}
