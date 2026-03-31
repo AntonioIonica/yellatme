@@ -9,106 +9,14 @@ import {
 } from "@/components/ui/card";
 import { Bell, Calendar, CreditCard, TrendingUp } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { userType } from "./layout";
+import { useEffect } from "react";
 import { useSubscriptionStore } from "@/store/useSubscriptionsStore";
 import { useAuthStore } from "@/store/useAuthStore";
-
-const upcomingSubscriptions = [
-  {
-    name: "Netflix",
-    description: "Netflix family plan",
-    price: 15.99,
-    currency: "USD",
-    startDate: "Mar 01, 2026",
-    renewalDate: "Mar 30 2026",
-    frequency: "monthly",
-    daysUntil: 20,
-    category: "entertainment",
-    status: "active",
-    paymentMethod: "Credit card",
-  },
-  {
-    name: "HBO max",
-    description: "Hbo premium",
-    price: 12.99,
-    currency: "USD",
-    startDate: "Mar 05, 2026",
-    renewalDate: "Apr 04 2026",
-    frequency: "monthly",
-    daysUntil: 25,
-    category: "entertainment",
-    status: "active",
-    paymentMethod: "Credit card",
-  },
-  {
-    name: "HBO Great max",
-    description: "Hbo premium",
-    price: 12.99,
-    currency: "USD",
-    startDate: "Mar 05, 2026",
-    renewalDate: "Apr 04 2026",
-    frequency: "monthly",
-    daysUntil: 25,
-    category: "entertainment",
-    status: "active",
-    paymentMethod: "Credit card",
-  },
-  {
-    name: "HBO Small max",
-    description: "Hbo premium",
-    price: 12.99,
-    currency: "USD",
-    startDate: "Mar 05, 2026",
-    renewalDate: "Apr 04 2026",
-    frequency: "monthly",
-    daysUntil: 25,
-    category: "entertainment",
-    status: "active",
-    paymentMethod: "Credit card",
-  },
-  {
-    name: "HBO BIg max",
-    description: "Hbo premium",
-    price: 12.99,
-    currency: "USD",
-    startDate: "Mar 05, 2026",
-    renewalDate: "Apr 04 2026",
-    frequency: "monthly",
-    daysUntil: 25,
-    category: "entertainment",
-    status: "active",
-    paymentMethod: "Credit card",
-  },
-  {
-    name: "HBO PRO max",
-    description: "Hbo premium",
-    price: 12.99,
-    currency: "USD",
-    startDate: "Mar 05, 2026",
-    renewalDate: "Apr 04 2026",
-    frequency: "monthly",
-    daysUntil: 25,
-    category: "entertainment",
-    status: "active",
-    paymentMethod: "Credit card",
-  },
-];
-
-// Checks if the passed date is less than 30 days from today
-function upcomingMonth(date: Date) {
-  const now = new Date();
-
-  const nextMonth = new Date();
-  nextMonth.setDate(now.getDate() + 30);
-
-  return date >= now && date <= nextMonth;
-}
+import { upcomingMonth } from "@/lib/utils";
 
 const DashboardPage = () => {
   const totalMonthly = 156.97;
   const totalYearly = totalMonthly * 12;
-  const upcomingPayments = 5;
 
   const subscriptions = useSubscriptionStore((state) => state.subscriptions);
   const setSubscriptions = useSubscriptionStore(
