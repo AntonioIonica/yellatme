@@ -5,8 +5,8 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-// Checks if the passed date is less than given days from today
 export function upcomingInterval(date: Date, days: number) {
+  // Checks if the passed date is less than given days from today
   const now = new Date();
 
   const nextMonth = new Date();

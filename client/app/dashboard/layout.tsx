@@ -64,11 +64,6 @@ const mainNavItems = [
     href: "/dashboard/analytics",
     icon: PieChart,
   },
-  {
-    title: "Notifications",
-    href: "/dashboard/notifications",
-    icon: Bell,
-  },
 ];
 
 const secondaryNavItems = [

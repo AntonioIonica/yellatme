@@ -212,7 +212,7 @@ const Calendar = () => {
                         30,
                       ) &&
                       new Date(subscription.renewalDate).getDate() + 7 >
-                        new Date(subscription.renewalDate).getDate(),
+                        new Date().getDate(),
                   )
                   .map((subscription, index) => (
                     <div
