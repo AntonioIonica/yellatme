@@ -1,7 +1,14 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { upcomingInterval } from "@/lib/utils";
 import { useSubscriptionStore } from "@/store/useSubscriptionsStore";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
@@ -150,6 +157,86 @@ const Calendar = () => {
       </Card>
 
       {/* Upcoming list */}
+      <div className="grid gap-6 md:grid-cols-2">
+        <Card className="border-border bg-card">
+          <CardHeader>
+            <CardTitle>This week</CardTitle>
+            <CardDescription>
+              Upcoming subscriptions in the next 7 days
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {
+                subscriptions
+                  .filter((subscription) =>
+                    upcomingInterval(new Date(subscription.renewalDate), 7),
+                  )
+                  .map((subscription, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center justify-between
+                   bg-secondary/30 border-border border p-3 rounded-lg"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div>
+                          <div className="font-medium">{subscription.name}</div>
+                          <div className="text-sm text-muted-foreground">
+                            {subscription.renewalDate.toString().split("T")[0]}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="font-semibold">
+                        {subscription.currency} {+subscription.price.toFixed(2)}
+                      </div>
+                    </div>
+                  )) as any
+              }
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-border bg-card">
+          <CardHeader>
+            <CardTitle>Later this month</CardTitle>
+            <CardDescription>Payments after this next week</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {
+                subscriptions
+                  .filter(
+                    (subscription) =>
+                      upcomingInterval(
+                        new Date(subscription.renewalDate),
+                        30,
+                      ) &&
+                      new Date(subscription.renewalDate).getDate() + 7 >
+                        new Date(subscription.renewalDate).getDate(),
+                  )
+                  .map((subscription, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center justify-between rounded-lg border border-border p-3 bg-secondary/30"
+                    >
+                      <div className="flex items-center gap3">
+                        <div>
+                          <div className="font-medium">{subscription.name}</div>
+                          <div className="text-sm text-muted-foreground">
+                            {subscription.renewalDate.toString().split("T")[0]}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="font-semibold">
+                        {subscription.currency} {+subscription.price.toFixed(2)}
+                      </div>
+                    </div>
+                  )) as any
+              }
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };

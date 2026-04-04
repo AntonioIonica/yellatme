@@ -16,9 +16,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import { upcomingMonth } from "@/lib/utils";
+import { upcomingInterval } from "@/lib/utils";
 import {
-  Subscription,
   useSubscriptionStore,
 } from "@/store/useSubscriptionsStore";
 import {
@@ -89,7 +88,7 @@ const Subscriptions = () => {
             <div className="font-bold text-2xl mt-1">
               {
                 subscriptions?.filter((subscription) =>
-                  upcomingMonth(new Date(subscription.renewalDate)),
+                  upcomingInterval(new Date(subscription.renewalDate), 30),
                 ).length as any
               }
             </div>

@@ -12,7 +12,7 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useSubscriptionStore } from "@/store/useSubscriptionsStore";
 import { useAuthStore } from "@/store/useAuthStore";
-import { upcomingMonth } from "@/lib/utils";
+import { upcomingInterval } from "@/lib/utils";
 
 const DashboardPage = () => {
   const totalMonthly = 156.97;
@@ -141,7 +141,9 @@ const DashboardPage = () => {
                 subscriptions
                   ?.filter((subscription) => {
                     // parsed to new Date() because coming as a db date from MongoDB
-                    if (upcomingMonth(new Date(subscription?.renewalDate))) {
+                    if (
+                      upcomingInterval(new Date(subscription?.renewalDate), 30)
+                    ) {
                       return subscription;
                     }
                   })
@@ -152,7 +154,7 @@ const DashboardPage = () => {
               <span>
                 {
                   subscriptions?.filter((subscription) =>
-                    upcomingMonth(new Date(subscription?.renewalDate)),
+                    upcomingInterval(new Date(subscription?.renewalDate), 30),
                   ).length as any
                 }{" "}
                 payments scheduled
