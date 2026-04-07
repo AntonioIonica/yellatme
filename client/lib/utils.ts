@@ -6,11 +6,10 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function upcomingInterval(date: Date, days: number) {
-  // Checks if the passed date is less than given days from today
   const now = new Date();
 
-  const nextMonth = new Date();
-  nextMonth.setDate(now.getDate() + days);
+  const momentaryDate = new Date();
+  momentaryDate.setDate(now.getDate() + days);
 
-  return date >= now && date <= nextMonth;
+  return date >= now && date <= momentaryDate;
 }
