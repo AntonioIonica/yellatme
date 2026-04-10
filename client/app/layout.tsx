@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Roboto } from "next/font/google";
-import "./globals.css";
+import "../app/globals.css";
 import { cn } from "@/lib/utils";
 
 const roboto = Roboto({ subsets: ["latin"], variable: "--font-sans" });
@@ -27,6 +27,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={cn("font-sans", roboto.variable)}>
+      <meta name="apple-mobile-web-app-title" content="YellAtMe" />
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >

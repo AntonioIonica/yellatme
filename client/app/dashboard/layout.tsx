@@ -1,6 +1,7 @@
 "use client";
 
 import AddSubscriptionDialog from "@/components/AddSubscriptionDialog";
+import Logo from "@/components/Logo";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -29,7 +30,6 @@ import {
 } from "@/components/ui/sidebar";
 import { useAuthStore } from "@/store/useAuthStore";
 import {
-  Bell,
   Calendar,
   CreditCard,
   LayoutDashboard,
@@ -110,7 +110,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
               <SidebarMenuButton asChild size="lg">
                 <Link href="/" className="flex items-center justify-between">
                   <div className="flex items-center justify-center rounded-lg size-8 bg-accent">
-                    Logo
+                    <Logo />
                   </div>
                   <div className="leading-none">
                     <span>Free plan</span>

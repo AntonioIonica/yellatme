@@ -1,5 +1,6 @@
 "use client";
 
+import Logo from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Check } from "lucide-react";
@@ -15,7 +16,7 @@ export default function LandingPage() {
       >
         <nav className="mx-auto flex h-14 max-w-7xl items-center justify-between px-6">
           <Link href="/" className="flex items-center">
-            Logo
+            <Logo />
           </Link>
 
           <div className="md:flex items-center gap-10 hidden">

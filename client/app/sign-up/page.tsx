@@ -1,5 +1,6 @@
 "use client";
 
+import Logo from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { SubmitEventHandler, useState } from "react";
@@ -50,7 +51,9 @@ const SignUp = () => {
     <div className="w-full h-screen flex flex-col">
       <div className="px-20 h-20 w-full flex items-center justify-between">
         <div>
-          <Link href="/">Logo</Link>
+          <Link href="/">
+            <Logo />
+          </Link>
         </div>
         <Button asChild>
           <Link href="/login">Do you already have an account?! Login here</Link>
