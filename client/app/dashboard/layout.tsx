@@ -195,13 +195,13 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
-                    <Link href="/dashboard/profile" className="flex">
+                    <Link href="/dashboard/settings#profile" className="flex">
                       <User className="mr-2 size-4" />
                       <span>Profile</span>
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
-                    <Link href="/dashboard/settings" className="flex">
+                    <Link href="/dashboard/settings#payment" className="flex">
                       <SettingsIcon className="mr-2 size-4" />
                       <span>Settings</span>
                     </Link>

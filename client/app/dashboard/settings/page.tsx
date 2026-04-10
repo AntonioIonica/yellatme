@@ -46,7 +46,7 @@ const SettingsPage = () => {
   return (
     <div className="space-y-6">
       {/* Profile */}
-      <Card className="border-border bg-card">
+      <Card id="profile" className="border-border bg-card">
         <CardHeader>
           <CardTitle>Profile</CardTitle>
           <CardDescription>Manage your account</CardDescription>
@@ -55,8 +55,7 @@ const SettingsPage = () => {
           <div className="flex items-center gap-4">
             <Avatar className="size-16">
               <AvatarFallback className="bg-accent text-lg text-accent-foreground">
-                {`${user?.name.split(" ")[0].toUpperCase().substring(0, 1) || ""}
-                  ${user?.name.split(" ")[1].toUpperCase().substring(0, 1) || ""}`}
+                {`${user?.name.split(" ")[0].toUpperCase().substring(0, 1) || ""}`}
               </AvatarFallback>
             </Avatar>
             <div className="space-y-2">
@@ -102,7 +101,7 @@ const SettingsPage = () => {
       </Card>
 
       {/* Subscription plan */}
-      <Card className="border-border bg-card">
+      <Card id="payment" className="border-border bg-card">
         <CardHeader>
           <CardTitle>Subscription plan</CardTitle>
           <CardDescription>Manage your type of plan</CardDescription>
