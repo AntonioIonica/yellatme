@@ -74,7 +74,6 @@ const SignUp = () => {
             id="name"
             name="name"
             type="text"
-            placeholder="andrew"
           />
 
           <label className="text-xl font-bold" htmlFor="email">

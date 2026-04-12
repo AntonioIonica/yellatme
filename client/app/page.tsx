@@ -192,7 +192,7 @@ export default function LandingPage() {
                   <li className="flex items-center gap-2 text-sm">
                     <Check className="text-black size-4" />
                     <span className="text-muted-foreground">
-                      Up to 2 subscriptions
+                      Up to 5 subscriptions
                     </span>
                   </li>
                   <li className="flex items-center gap-2 text-sm">

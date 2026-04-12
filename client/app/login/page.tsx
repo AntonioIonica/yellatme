@@ -59,7 +59,7 @@ const Login = () => {
             name="email"
             type="email"
             placeholder="name@gmail.com"
-            className="text-lg"
+            className="text-lg pl-1 rounded-sm"
           />
 
           <label className="text-xl font-bold" htmlFor="password">
@@ -69,7 +69,7 @@ const Login = () => {
             type="password"
             name="password"
             id="password"
-            className="text-lg"
+            className="text-lg pl-1 rounded-sm"
           />
 
           <Button className="mt-6 text-xl" type="submit">
