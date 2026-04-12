@@ -106,7 +106,7 @@ const SignUp = () => {
             id="confirmPassword"
           />
 
-          <Button className="text-xl" type="submit">
+          <Button className="text-xl hover:cursor-pointer" type="submit">
             Submit
           </Button>
         </form>
