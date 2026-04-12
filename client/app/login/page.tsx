@@ -72,7 +72,7 @@ const Login = () => {
             className="text-lg pl-1 rounded-sm"
           />
 
-          <Button className="mt-6 text-xl" type="submit">
+          <Button className="mt-6 text-xl hover:cursor-pointer" type="submit">
             Submit
           </Button>
         </form>
