@@ -162,7 +162,9 @@ const DashboardPage = () => {
                 across{" "}
                 {
                   new Set(
-                    subscriptions.map((subscription) => subscription.category),
+                    subscriptions
+                      .filter((sub) => sub.status == "active")
+                      .map((subscription) => subscription.category),
                   ).size
                 }{" "}
                 categories
