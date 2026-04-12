@@ -9,13 +9,19 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { upcomingInterval } from "@/lib/utils";
+import { useAuthStore } from "@/store/useAuthStore";
 import { useSubscriptionStore } from "@/store/useSubscriptionsStore";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 const Calendar = () => {
   const { subscriptions } = useSubscriptionStore();
+
+  const { user, loading, fetchUser } = useAuthStore();
+  const router = useRouter();
 
   const currentDate = new Date();
   const currentMonth = currentDate.getMonth();
@@ -62,6 +68,23 @@ const Calendar = () => {
     const random = Math.floor(Math.random() * colors.length);
     return colors[random];
   };
+
+  useEffect(() => {
+    fetchUser();
+  }, []);
+
+  useEffect(() => {
+    if (!user && !loading) router.push("/login");
+  }, [user, loading]);
+
+  if (!user)
+    return (
+      <div className="bg-background space-y-6">
+        <div className="flex items-center justify-center text-lg">
+          Loading...
+        </div>
+      </div>
+    );
 
   return (
     <div className="space-y-6">

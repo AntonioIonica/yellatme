@@ -26,6 +26,7 @@ import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { useAuthStore } from "@/store/useAuthStore";
 import { Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 const proPlanFeatures = [
@@ -37,11 +38,25 @@ const proPlanFeatures = [
 ];
 
 const SettingsPage = () => {
-  const { user, fetchUser } = useAuthStore();
+  const { user, loading, fetchUser } = useAuthStore();
+  const router = useRouter();
 
   useEffect(() => {
     fetchUser();
   }, []);
+
+  useEffect(() => {
+    if (!user && !loading) router.push("/login");
+  }, [user, loading]);
+
+  if (!user)
+    return (
+      <div className="bg-background space-y-6">
+        <div className="flex items-center justify-center text-lg">
+          Loading...
+        </div>
+      </div>
+    );
 
   return (
     <div className="space-y-6">

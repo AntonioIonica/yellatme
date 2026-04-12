@@ -56,6 +56,15 @@ const DashboardPage = () => {
     if (!user && !loading) router.push("/login");
   }, [user, loading]);
 
+  if (!user)
+    return (
+      <div className="bg-background space-y-6">
+        <div className="flex items-center justify-center text-lg">
+          Loading...
+        </div>
+      </div>
+    );
+
   return (
     <div className="bg-background space-y-6">
       {/* Stats grid */}

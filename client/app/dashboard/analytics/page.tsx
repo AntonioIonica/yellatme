@@ -8,8 +8,11 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { upcomingInterval } from "@/lib/utils";
+import { useAuthStore } from "@/store/useAuthStore";
 import { useSubscriptionStore } from "@/store/useSubscriptionsStore";
 import { ArrowUp, Badge } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 const categoryData = [
   { name: "Entertainment", amount: 43.97, percentage: 28, color: "bg-red-500" },
@@ -53,9 +56,29 @@ const savingsOpportunities = [
 
 const Analytics = () => {
   const { subscriptions } = useSubscriptionStore();
+  const { user, loading, fetchUser } = useAuthStore();
+
+  const router = useRouter();
 
   const totalSpending = categoryData.reduce((acc, cat) => acc + cat.amount, 0);
   const maxAmount = Math.max(...monthlySpending.map((m) => m.amount));
+
+  useEffect(() => {
+    fetchUser();
+  }, []);
+
+  useEffect(() => {
+    if (!user && !loading) router.push("/login");
+  }, [user, loading]);
+
+  if (!user)
+    return (
+      <div className="bg-background space-y-6">
+        <div className="flex items-center justify-center text-lg">
+          Loading...
+        </div>
+      </div>
+    );
 
   return (
     <div className="space-y-6">

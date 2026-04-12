@@ -17,9 +17,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { upcomingInterval } from "@/lib/utils";
-import {
-  useSubscriptionStore,
-} from "@/store/useSubscriptionsStore";
+import { useAuthStore } from "@/store/useAuthStore";
+import { useSubscriptionStore } from "@/store/useSubscriptionsStore";
 import {
   Activity,
   ChartColumnStacked,
@@ -31,12 +30,33 @@ import {
   Search,
   Trash2,
 } from "lucide-react";
-import { ChangeEvent, useState } from "react";
+import { useRouter } from "next/navigation";
+import { ChangeEvent, useEffect, useState } from "react";
 
 const Subscriptions = () => {
   const subscriptions = useSubscriptionStore((state) => state.subscriptions);
   const [searchResult, setSearchResult] =
     useState<ChangeEvent<HTMLInputElement, HTMLInputElement>>();
+
+  const { user, loading, fetchUser } = useAuthStore();
+  const router = useRouter();
+
+  useEffect(() => {
+    fetchUser();
+  }, []);
+
+  useEffect(() => {
+    if (!user && !loading) router.push("/login");
+  }, [user, loading]);
+
+  if (!user)
+    return (
+      <div className="bg-background space-y-6">
+        <div className="flex items-center justify-center text-lg">
+          Loading...
+        </div>
+      </div>
+    );
 
   return (
     <div className="space-y-6">
