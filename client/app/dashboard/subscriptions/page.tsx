@@ -108,7 +108,11 @@ const Subscriptions = () => {
             <div className="font-bold text-2xl mt-1">
               {
                 subscriptions?.filter((subscription) =>
-                  upcomingInterval(new Date(subscription.renewalDate), 30),
+                  upcomingInterval(
+                    new Date(subscription.renewalDate),
+                    30,
+                    "more",
+                  ),
                 ).length as any
               }
             </div>

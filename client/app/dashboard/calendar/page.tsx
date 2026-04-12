@@ -193,7 +193,11 @@ const Calendar = () => {
               {
                 subscriptions
                   .filter((subscription) =>
-                    upcomingInterval(new Date(subscription.renewalDate), 7),
+                    upcomingInterval(
+                      new Date(subscription.renewalDate),
+                      7,
+                      "more",
+                    ),
                   )
                   .map((subscription, index) => (
                     <div
@@ -233,6 +237,7 @@ const Calendar = () => {
                       upcomingInterval(
                         new Date(subscription.renewalDate),
                         30,
+                        "more",
                       ) &&
                       new Date(subscription.renewalDate).getDate() + 7 >
                         new Date().getDate(),

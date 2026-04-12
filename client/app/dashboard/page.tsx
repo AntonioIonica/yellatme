@@ -12,20 +12,20 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useSubscriptionStore } from "@/store/useSubscriptionsStore";
 import { useAuthStore } from "@/store/useAuthStore";
-import { upcomingInterval } from "@/lib/utils";
+import { comparePay, upcomingInterval } from "@/lib/utils";
 
 const DashboardPage = () => {
-  const totalMonthly = 156.97;
-  const totalYearly = totalMonthly * 12;
-
   const subscriptions = useSubscriptionStore((state) => state.subscriptions);
   const setSubscriptions = useSubscriptionStore(
     (state) => state.setSubscriptions,
   );
-
   const { user, loading, fetchUser } = useAuthStore();
 
   const router = useRouter();
+
+  const totalYearly = subscriptions
+    .filter((sub) => upcomingInterval(new Date(sub.renewalDate), 365, "more"))
+    .reduce((sum, curr) => sum + +curr.price, 0);
 
   useEffect(() => {
     fetchUser();
@@ -90,8 +90,25 @@ const DashboardPage = () => {
                 .reduce((sum, current) => sum + +current?.price, 0)}
             </div>
             <div className="flex items-center font-semibold text-muted-foreground mt-2">
-              <span className="text-red-600">12% more</span>
-              <span className="ml-1">than last month</span>
+              <span className="text-muted-foreground">
+                {comparePay(
+                  subscriptions
+                    .filter(
+                      (sub) =>
+                        new Date(sub.renewalDate).getDate() - 60 <
+                          new Date(sub.renewalDate).getDate() &&
+                        new Date(sub.renewalDate).getDate() - 30 >
+                          new Date(sub.renewalDate).getDate(),
+                    )
+                    .reduce((sum, curr) => sum + +curr.price, 0),
+                  subscriptions
+                    .filter((sub) =>
+                      upcomingInterval(new Date(sub.renewalDate), 30, "less"),
+                    )
+                    .reduce((sum, curr) => sum + +curr.price, 0),
+                  "month",
+                )}
+              </span>
             </div>
           </CardContent>
         </Card>
@@ -105,8 +122,25 @@ const DashboardPage = () => {
           <CardContent>
             <div className="font-bold text-2xl">${totalYearly.toFixed(2)}</div>
             <div className="flex items-center font-semibold text-muted-foreground mt-2">
-              <span className="text-red-600">5% more</span>
-              <span className="ml-1">than last year</span>
+              <span className="text-muted-foreground">
+                {comparePay(
+                  subscriptions
+                    .filter(
+                      (sub) =>
+                        new Date(sub.renewalDate).getDate() - 730 <
+                          new Date(sub.renewalDate).getDate() &&
+                        new Date(sub.renewalDate).getDate() - 365 >
+                          new Date(sub.renewalDate).getDate(),
+                    )
+                    .reduce((sum, curr) => sum + +curr.price, 0),
+                  subscriptions
+                    .filter((sub) =>
+                      upcomingInterval(new Date(sub.renewalDate), 365, "less"),
+                    )
+                    .reduce((sum, curr) => sum + +curr.price, 0),
+                  "year",
+                )}
+              </span>
             </div>
           </CardContent>
         </Card>
@@ -151,7 +185,11 @@ const DashboardPage = () => {
                   ?.filter((subscription) => {
                     // parsed to new Date() because coming as a db date from MongoDB
                     if (
-                      upcomingInterval(new Date(subscription?.renewalDate), 30)
+                      upcomingInterval(
+                        new Date(subscription?.renewalDate),
+                        30,
+                        "more",
+                      )
                     ) {
                       return subscription;
                     }
@@ -163,7 +201,11 @@ const DashboardPage = () => {
               <span>
                 {
                   subscriptions?.filter((subscription) =>
-                    upcomingInterval(new Date(subscription?.renewalDate), 30),
+                    upcomingInterval(
+                      new Date(subscription?.renewalDate),
+                      30,
+                      "more",
+                    ),
                   ).length as any
                 }{" "}
                 payments scheduled
@@ -186,7 +228,7 @@ const DashboardPage = () => {
             <div className="space-y-3">
               {subscriptions
                 ?.filter((sub) =>
-                  upcomingInterval(new Date(sub.renewalDate), 180),
+                  upcomingInterval(new Date(sub.renewalDate), 180, "more"),
                 )
                 .map((sub, index) => (
                   <div

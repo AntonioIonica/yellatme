@@ -92,7 +92,11 @@ const Analytics = () => {
               {
                 subscriptions
                   .filter((subscription) =>
-                    upcomingInterval(new Date(subscription.renewalDate), 7),
+                    upcomingInterval(
+                      new Date(subscription.renewalDate),
+                      7,
+                      "more",
+                    ),
                   )
                   .reduce((sum, sub) => sum + +sub.price, 0) as any
               }
@@ -111,7 +115,11 @@ const Analytics = () => {
               {
                 subscriptions
                   .filter((subscription) =>
-                    upcomingInterval(new Date(subscription.renewalDate), 30),
+                    upcomingInterval(
+                      new Date(subscription.renewalDate),
+                      30,
+                      "more",
+                    ),
                   )
                   .reduce((sum, sub) => sum + +sub.price, 0) as any
               }
