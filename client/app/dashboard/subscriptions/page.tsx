@@ -24,7 +24,6 @@ import {
   ChartColumnStacked,
   ClipboardClock,
   Edit,
-  Filter,
   MonitorCheck,
   MoreHorizontal,
   Search,
@@ -32,7 +31,18 @@ import {
   Trash2,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+
+function debounce(func: any) {
+  let timer: NodeJS.Timeout;
+
+  return (...args: any[]) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      func(...args);
+    }, 500);
+  };
+}
 
 const Subscriptions = () => {
   const { subscriptions, setSubscriptions } = useSubscriptionStore();
@@ -91,6 +101,10 @@ const Subscriptions = () => {
     if (!user && !loading) router.push("/login");
   }, [user, loading]);
 
+  const debouncedSearch = useMemo(() => {
+    return debounce((value: string) => setSearchBar(value));
+  }, []);
+
   if (!user)
     return (
       <div className="bg-background space-y-6">
@@ -108,7 +122,7 @@ const Subscriptions = () => {
           <Search className="absolute left-3 top-1/2 size-4 text-muted-foreground -translate-y-1/2" />
           <Input
             placeholder="Search subscriptions..."
-            onChange={(e) => setSearchBar(e.target.value)}
+            onChange={(e) => debouncedSearch(e.target.value)}
             className="pl-9 bg-secondary/30"
           />
         </div>
