@@ -28,18 +28,60 @@ import {
   MonitorCheck,
   MoreHorizontal,
   Search,
+  SortAscIcon,
   Trash2,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { ChangeEvent, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 const Subscriptions = () => {
-  const subscriptions = useSubscriptionStore((state) => state.subscriptions);
-  const [searchResult, setSearchResult] =
-    useState<ChangeEvent<HTMLInputElement, HTMLInputElement>>();
+  const { subscriptions, setSubscriptions } = useSubscriptionStore();
+  const [searchBar, setSearchBar] = useState<string>();
+  const [category, setCategory] = useState<string>();
+  const [status, setStatus] = useState<string>();
+  const [sortDir, setSortDir] = useState<string>();
 
   const { user, loading, fetchUser } = useAuthStore();
   const router = useRouter();
+
+  // Fetch subscriptions
+  useEffect(() => {
+    if (!user) return;
+
+    const fetchUserSubs = async () => {
+      const params = new URLSearchParams();
+
+      if (searchBar) {
+        params.append("search", searchBar);
+      }
+
+      if (category) {
+        params.append("category", category);
+      }
+
+      if (status) {
+        params.append("status", status);
+      }
+
+      if (sortDir) {
+        params.append("sortDir", sortDir);
+      }
+
+      let query = `http://localhost:5500/api/v1/subscriptions/user/${user._id}?${params.toString()}`;
+
+      const res = await fetch(query, {
+        credentials: "include",
+      });
+
+      const result = await res.json();
+
+      if (!result.success) return;
+
+      setSubscriptions(result.data);
+    };
+
+    fetchUserSubs();
+  }, [sortDir, status, searchBar, category, user, loading]);
 
   useEffect(() => {
     fetchUser();
@@ -62,27 +104,95 @@ const Subscriptions = () => {
     <div className="space-y-6">
       {/* Search/Filter section */}
       <div className="flex flex-col md:flex-row gap-4 md:items-center md:justify-between">
-        <div className="relative flex-1 md:max-w-sm">
+        <div className="relative flex-1 md:max-w-98">
           <Search className="absolute left-3 top-1/2 size-4 text-muted-foreground -translate-y-1/2" />
           <Input
             placeholder="Search subscriptions..."
-            onChange={(e) => setSearchResult(e)}
+            onChange={(e) => setSearchBar(e.target.value)}
             className="pl-9 bg-secondary/30"
           />
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" className="gap-2">
-            <Filter className="size-4" />
-            Filter
-          </Button>
-          <Button variant="outline" size="sm" className="gap-2">
-            <ChartColumnStacked className="size-4" />
-            Category
-          </Button>
-          <Button variant="outline" size="sm" className="gap-2">
-            <MonitorCheck className="size-4" />
-            Status
-          </Button>
+          {/* Category */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="gap-2">
+                <ChartColumnStacked className="size-4" />
+                Category
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem onSelect={() => setCategory("technology")}>
+                Technology
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => setCategory("auto")}>
+                Auto
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => setCategory("lifestyle")}>
+                Lifestyle
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => setCategory("entertainment")}>
+                Entertainment
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => setCategory("finance")}>
+                Finance
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => setCategory("house")}>
+                House
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => setCategory("work")}>
+                Work
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => setCategory("garden")}>
+                Garden
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => setCategory("tools")}>
+                Tools
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => setCategory("other")}>
+                Others
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          {/* Status */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="gap-2">
+                <MonitorCheck className="size-4" />
+                Status
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem onSelect={() => setStatus("active")}>
+                Active
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => setStatus("expired")}>
+                Expired
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => setStatus("cancelled")}>
+                Cancelled
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          {/* Sort */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="gap-2">
+                <SortAscIcon className="size-4" />
+                Sort
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem onSelect={() => setSortDir("asc")}>
+                Asc
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => setSortDir("desc")}>
+                Desc
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
 

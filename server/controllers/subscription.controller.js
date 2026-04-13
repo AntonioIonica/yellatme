@@ -173,17 +173,39 @@ export const deleteSubscription = async (req, res, next) => {
   }
 };
 
+// Get all user subscriptions
 export const getUserSubscriptions = async (req, res, next) => {
   try {
     // Check if user is trying to fetch his own subs (token: user id)
     // _id.toString() because here is an ObjectId
+    const { search, category, status, sortDir = "asc" } = req.query;
+
     if (req.params.id !== req.user._id.toString()) {
       const error = new Error("Not authorized!");
       error.statusCode = 401;
       throw error;
     }
 
-    const subscriptions = await Subscription.find({ user: req.params.id });
+    const filterOptions = { user: req.params.id };
+    let sortOptions = {};
+
+    sortOptions = { renewalDate: sortDir == "asc" ? 1 : -1 };
+
+    if (search) {
+      filterOptions.name = { $regex: search, $options: "i" };
+    }
+
+    if (status) {
+      filterOptions.status = status;
+    }
+
+    if (category) {
+      filterOptions.category = { $in: category.split(",") };
+    }
+
+    const subscriptions = await Subscription.find(filterOptions)
+      .sort(sortOptions)
+      .limit(12);
 
     res.status(200).json({ success: true, data: subscriptions });
   } catch (error) {

@@ -31,6 +31,7 @@ const DashboardPage = () => {
     fetchUser();
   }, []);
 
+  // Fetch subscriptions
   useEffect(() => {
     if (!user) return;
 
