@@ -282,16 +282,18 @@ const Subscriptions = () => {
               <div className="flex items-start justify-between">
                 <div className="flex justify-between items-center w-full">
                   <div className="flex flex-col items-center justify-between">
-                    <CardTitle className="text-bold">
+                    <CardTitle className="text-bold text-lg">
                       {subscription?.name}
                     </CardTitle>
-                    <CardDescription className="text-sm">
-                      {subscription?.category.slice(0, 4)}
-                    </CardDescription>
                   </div>
-                  <div className="text-lg font-semibold mr-6">
-                    {subscription?.currency}
-                    {+subscription?.price}
+                  <div className="text-lg font-semibold mr-6 flex items-center justify-between space-x-16">
+                    <span className="text-xs uppercase">
+                      {subscription?.category.slice(0, 4)}
+                    </span>
+                    <span className="text-muted-foreground">
+                      {subscription?.currency}
+                      {+subscription?.price}
+                    </span>
                   </div>
                 </div>
                 <DropdownMenu>
