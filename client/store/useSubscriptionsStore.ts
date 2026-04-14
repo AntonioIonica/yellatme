@@ -1,3 +1,4 @@
+import { SubscriptionId } from "@/app/dashboard/subscriptions/page";
 import { create } from "zustand";
 
 export type Subscription = {
@@ -19,6 +20,7 @@ export type subscriptionsStore = {
   subscriptions: Subscription[];
   setSubscriptions: (subs: Subscription[]) => void;
   addSubscription: (sub: Subscription) => void;
+  deleteSubscription: (subId: SubscriptionId) => void;
 };
 
 export const useSubscriptionStore = create<subscriptionsStore>((set) => ({
@@ -26,4 +28,10 @@ export const useSubscriptionStore = create<subscriptionsStore>((set) => ({
   setSubscriptions: (subs) => set({ subscriptions: subs }),
   addSubscription: (sub) =>
     set((state) => ({ subscriptions: [...state.subscriptions, sub] })),
+  deleteSubscription: (subId) =>
+    set((state) => ({
+      subscriptions: [
+        ...state?.subscriptions?.filter((subItem) => subItem?.id !== subId),
+      ],
+    })),
 }));

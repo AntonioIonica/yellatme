@@ -207,7 +207,13 @@ export const getUserSubscriptions = async (req, res, next) => {
       .sort(sortOptions)
       .limit(12);
 
-    res.status(200).json({ success: true, data: subscriptions });
+    res.status(200).json({
+      success: true,
+      data: subscriptions.map((sub) => ({
+        ...sub.toObject(),
+        id: sub._id.toString(),
+      })),
+    });
   } catch (error) {
     next(error);
   }

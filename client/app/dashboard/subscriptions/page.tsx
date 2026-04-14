@@ -18,7 +18,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { upcomingInterval } from "@/lib/utils";
 import { useAuthStore } from "@/store/useAuthStore";
-import { useSubscriptionStore } from "@/store/useSubscriptionsStore";
+import {
+  Subscription,
+  useSubscriptionStore,
+} from "@/store/useSubscriptionsStore";
 import {
   Activity,
   ChartColumnStacked,
@@ -33,6 +36,8 @@ import {
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
+export type SubscriptionId = Subscription["id"];
+
 function debounce(func: any) {
   let timer: NodeJS.Timeout;
 
@@ -45,13 +50,15 @@ function debounce(func: any) {
 }
 
 const Subscriptions = () => {
-  const { subscriptions, setSubscriptions } = useSubscriptionStore();
+  const { subscriptions, setSubscriptions, deleteSubscription } =
+    useSubscriptionStore();
+  const { user, loading, fetchUser } = useAuthStore();
+
   const [searchBar, setSearchBar] = useState<string>();
   const [category, setCategory] = useState<string>();
   const [status, setStatus] = useState<string>();
   const [sortDir, setSortDir] = useState<string>();
 
-  const { user, loading, fetchUser } = useAuthStore();
   const router = useRouter();
 
   // Fetch subscriptions
@@ -104,6 +111,17 @@ const Subscriptions = () => {
   const debouncedSearch = useMemo(() => {
     return debounce((value: string) => setSearchBar(value));
   }, []);
+
+  const handleDeleteSub = async (subId: SubscriptionId) => {
+    const res = await fetch(
+      `http://localhost:5500/api/v1/subscriptions/${subId}`,
+      {
+        method: "DELETE",
+        credentials: "include",
+      },
+    );
+    deleteSubscription(subId);
+  };
 
   if (!user)
     return (
@@ -218,7 +236,7 @@ const Subscriptions = () => {
             <div className="font-bold text-2xl mt-1">
               {
                 subscriptions?.filter(
-                  (subscription) => subscription.status == "active",
+                  (subscription) => subscription?.status === "active",
                 ).length as any
               }
             </div>
@@ -233,7 +251,7 @@ const Subscriptions = () => {
               {
                 subscriptions?.filter((subscription) =>
                   upcomingInterval(
-                    new Date(subscription.renewalDate),
+                    new Date(subscription?.renewalDate),
                     30,
                     "more",
                   ),
@@ -265,15 +283,15 @@ const Subscriptions = () => {
                 <div className="flex justify-between items-center w-full">
                   <div className="flex flex-col items-center justify-between">
                     <CardTitle className="text-bold">
-                      {subscription.name}
+                      {subscription?.name}
                     </CardTitle>
                     <CardDescription className="text-sm">
-                      {subscription.category.slice(0, 4)}
+                      {subscription?.category.slice(0, 4)}
                     </CardDescription>
                   </div>
                   <div className="text-lg font-semibold mr-6">
-                    {subscription.currency}
-                    {+subscription.price}
+                    {subscription?.currency}
+                    {+subscription?.price}
                   </div>
                 </div>
                 <DropdownMenu>
@@ -289,10 +307,10 @@ const Subscriptions = () => {
                       Edit
                     </DropdownMenuItem>
                     <DropdownMenuItem>
-                      {subscription.status === "active" ? (
+                      {subscription?.status === "active" ? (
                         <>
                           <ClipboardClock className="mr-2 size-4" />
-                          Inactive
+                          Cancel
                         </>
                       ) : (
                         <>
@@ -301,7 +319,12 @@ const Subscriptions = () => {
                         </>
                       )}
                     </DropdownMenuItem>
-                    <DropdownMenuItem className="text-destructive">
+                    <DropdownMenuItem
+                      className="text-destructive"
+                      onClick={() => {
+                        handleDeleteSub(subscription?.id);
+                      }}
+                    >
                       <Trash2 className="mr-2 size-4" />
                       Delete
                     </DropdownMenuItem>
@@ -312,14 +335,14 @@ const Subscriptions = () => {
             <CardContent className="space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">Frequency</span>
-                <span className="text-sm">{subscription.frequency}</span>
+                <span className="text-sm">{subscription?.frequency}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">
                   Description
                 </span>
                 <span className="text-sm">
-                  {subscription.description.slice(0, 20)}
+                  {subscription?.description.slice(0, 20)}
                 </span>
               </div>
               <div className="flex items-center justify-between">
@@ -328,21 +351,21 @@ const Subscriptions = () => {
                 </span>
                 <span className="text-sm">
                   {/* First is parsed to date from db date, then formated for estetics */}
-                  {new Date(subscription.renewalDate).toDateString()}
+                  {new Date(subscription?.renewalDate).toDateString()}
                 </span>
               </div>
               <div className="flex items-center justify-between pt-2">
                 <Badge
                   variant={
-                    subscription.status === "active" ? "default" : "secondary"
+                    subscription?.status === "active" ? "default" : "secondary"
                   }
                   className={
-                    subscription.status === "active"
+                    subscription?.status === "active"
                       ? "text-accent-foreground bg-green-300"
                       : ""
                   }
                 >
-                  {subscription.status}
+                  {subscription?.status}
                 </Badge>
               </div>
             </CardContent>
