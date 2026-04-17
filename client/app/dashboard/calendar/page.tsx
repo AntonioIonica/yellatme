@@ -121,9 +121,9 @@ const Calendar = () => {
           <Button variant="outline" size="icon" onClick={handlePreviousMonth}>
             <ChevronLeft className="size-4" />
           </Button>
-          <Button variant="outline" size="default">
+          <div className="flex items-center justify-center rounded-2xl w-24 px-4 py-3 bg-secondary">
             {monthName}
-          </Button>
+          </div>
           <Button variant="outline" size="icon" onClick={handleNextMonth}>
             <ChevronRight className="size-4" />
           </Button>
