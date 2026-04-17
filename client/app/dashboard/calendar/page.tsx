@@ -13,7 +13,7 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { useSubscriptionStore } from "@/store/useSubscriptionsStore";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
@@ -23,9 +23,10 @@ const Calendar = () => {
   const { user, loading, fetchUser } = useAuthStore();
   const router = useRouter();
 
-  const currentDate = new Date();
-  const currentMonth = currentDate.getMonth();
-  const currentYear = currentDate.getFullYear();
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [currentMonth, setCurrentMonth] = useState(currentDate.getMonth());
+  const [currentYear, setCurrentYear] = useState(currentDate.getFullYear());
+
   const firstDayOfMonth = new Date(currentYear, currentMonth, 1).getDay(); // parsing to set the format to 1st
   // to get the maximum number of days from the end of the month (+1 the next month but still the current (0))
   const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate(); // will return 28/29/30/31 in date format
@@ -77,6 +78,24 @@ const Calendar = () => {
     if (!user && !loading) router.push("/login");
   }, [user, loading]);
 
+  const handleNextMonth = () => {
+    if (currentMonth == 11) {
+      setCurrentMonth(0);
+      setCurrentYear((prev) => prev + 1);
+    } else {
+      setCurrentMonth((prev) => prev + 1);
+    }
+  };
+
+  const handlePreviousMonth = () => {
+    if (currentMonth == 0) {
+      setCurrentMonth(11);
+      setCurrentYear((prev) => prev - 1);
+    } else {
+      setCurrentMonth((prev) => prev - 1);
+    }
+  };
+
   if (!user)
     return (
       <div className="bg-background space-y-6">
@@ -99,13 +118,13 @@ const Calendar = () => {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="icon">
+          <Button variant="outline" size="icon" onClick={handlePreviousMonth}>
             <ChevronLeft className="size-4" />
           </Button>
-          <Button variant="outline" size="sm">
-            Today
+          <Button variant="outline" size="default">
+            {monthName}
           </Button>
-          <Button variant="outline" size="icon">
+          <Button variant="outline" size="icon" onClick={handleNextMonth}>
             <ChevronRight className="size-4" />
           </Button>
         </div>
