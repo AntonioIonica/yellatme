@@ -58,11 +58,11 @@ const Calendar = () => {
 
   const randomColor = () => {
     const colors = [
-      "bg-red-700",
-      "bg-blue-700",
-      "bg-green-700",
-      "bg-yellow-700",
-      "bg-purple-700",
+      "bg-red-700/50",
+      "bg-blue-700/50",
+      "bg-green-700/50",
+      "bg-yellow-700/50",
+      "bg-purple-700/50",
     ];
 
     const random = Math.floor(Math.random() * colors.length);
@@ -188,7 +188,7 @@ const Calendar = () => {
               Upcoming subscriptions in the next 7 days
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="overflow-y-auto">
             <div className="space-y-3">
               {
                 subscriptions
@@ -202,8 +202,8 @@ const Calendar = () => {
                   .map((subscription, index) => (
                     <div
                       key={index}
-                      className="flex items-center justify-between
-                   bg-secondary/30 border-border border p-3 rounded-lg"
+                      className={`flex items-center justify-between
+                    border-border border p-3 rounded-lg ${randomColor()}`}
                     >
                       <div className="flex items-center gap-3">
                         <div>
@@ -228,7 +228,7 @@ const Calendar = () => {
             <CardTitle>Later this month</CardTitle>
             <CardDescription>Payments after this next week</CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="overflow-y-auto">
             <div className="space-y-3">
               {
                 subscriptions
@@ -239,13 +239,13 @@ const Calendar = () => {
                         30,
                         "more",
                       ) &&
-                      new Date(subscription.renewalDate).getDate() + 7 >
-                        new Date().getDate(),
+                      new Date(subscription.renewalDate).getDate() >
+                        new Date().getDate() + 7,
                   )
                   .map((subscription, index) => (
                     <div
                       key={index}
-                      className="flex items-center justify-between rounded-lg border border-border p-3 bg-secondary/30"
+                      className={`flex items-center justify-between rounded-lg border border-border p-3 ${randomColor()}`}
                     >
                       <div className="flex items-center gap3">
                         <div>
