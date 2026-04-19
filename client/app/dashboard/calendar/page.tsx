@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/card";
 import { parseCurrency, upcomingInterval } from "@/lib/utils";
 import { useAuthStore } from "@/store/useAuthStore";
-import { useSubscriptionStore } from "@/store/useSubscriptionsStore";
+import { Subscription } from "@/store/useSubscriptionsStore";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -18,14 +18,15 @@ import { useEffect, useState } from "react";
 const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 const Calendar = () => {
-  const { subscriptions } = useSubscriptionStore();
-
-  const { user, loading, fetchUser } = useAuthStore();
-  const router = useRouter();
-
+  // fetch only initial mount subscription (default date) using a state to lock the date
+  const [subscriptions, setSubscriptions] = useState<Subscription[] | null>([]);
+  const [dateSubs, setDateSubs] = useState<Subscription[] | null>([]);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [currentMonth, setCurrentMonth] = useState(currentDate.getMonth());
   const [currentYear, setCurrentYear] = useState(currentDate.getFullYear());
+
+  const { user, loading, fetchUser } = useAuthStore();
+  const router = useRouter();
 
   const firstDayOfMonth = new Date(currentYear, currentMonth, 1).getDay(); // parsing to set the format to 1st
   // to get the maximum number of days from the end of the month (+1 the next month but still the current (0))
@@ -36,14 +37,18 @@ const Calendar = () => {
     { month: "long" },
   );
 
-  const totalCostThisMonth = subscriptions.reduce(
+  const totalCostThisMonth = dateSubs?.reduce(
     (sum, sub) => sum + +sub.price,
     0,
   );
 
   const getPaymentsForDay = (day: number) => {
-    return subscriptions?.filter(
-      (subscription) => new Date(subscription.renewalDate).getDay() === day,
+    if (!dateSubs) return [];
+
+    return (
+      dateSubs?.filter(
+        (subscription) => new Date(subscription.renewalDate).getDay() === day,
+      ) || []
     );
   };
 
@@ -69,6 +74,39 @@ const Calendar = () => {
     const random = Math.floor(Math.random() * colors.length);
     return colors[random];
   };
+
+  // Fetch subscriptions by date filter
+  useEffect(() => {
+    if (!user) return;
+
+    const fetchSubsDate = async () => {
+      const params = new URLSearchParams();
+
+      const from = new Date(currentYear, currentMonth, firstDayOfMonth);
+      params.set("from", from.toString());
+
+      const to = new Date(currentYear, currentMonth, daysInMonth);
+      params.set("to", to.toString());
+
+      let query = `http://localhost:5500/api/v1/subscriptions/user/${user._id}?${params.toString()}`;
+
+      const res = await fetch(query, {
+        credentials: "include",
+      });
+
+      const result = await res.json();
+
+      if (!result.success) return;
+
+      setDateSubs(result.data);
+    };
+
+    fetchSubsDate();
+  }, [currentYear, currentMonth]);
+
+  useEffect(() => {
+    setSubscriptions(dateSubs);
+  }, []);
 
   useEffect(() => {
     fetchUser();
@@ -114,7 +152,7 @@ const Calendar = () => {
             {monthName} - {currentYear}
           </h2>
           <p className="text-muted-foreground font-semibold">
-            ${totalCostThisMonth.toFixed(2)} in payments
+            ${totalCostThisMonth?.toFixed(2)} in payments
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -170,7 +208,7 @@ const Calendar = () => {
                           {day}
                         </div>
                         <div className="space-y-1">
-                          {payments.map((payment, index) => (
+                          {payments?.map((payment, index) => (
                             <div
                               key={index}
                               className={`flex items-center
@@ -182,9 +220,9 @@ const Calendar = () => {
                             </div>
                           ))}
                           {/* more than 4 won't shown in cards */}
-                          {payments.length > 4 && (
+                          {payments!.length > 4 && (
                             <div className="text-xs text-muted-foreground">
-                              +{payments.length - 4} more
+                              +{payments!.length - 4} more
                             </div>
                           )}
                         </div>
@@ -211,7 +249,7 @@ const Calendar = () => {
             <div className="space-y-3">
               {
                 subscriptions
-                  .filter((subscription) =>
+                  ?.filter((subscription) =>
                     upcomingInterval(
                       new Date(subscription.renewalDate),
                       7,
@@ -252,7 +290,7 @@ const Calendar = () => {
             <div className="space-y-3">
               {
                 subscriptions
-                  .filter(
+                  ?.filter(
                     (subscription) =>
                       upcomingInterval(
                         new Date(subscription.renewalDate),

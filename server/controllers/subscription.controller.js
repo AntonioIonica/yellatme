@@ -178,7 +178,7 @@ export const getUserSubscriptions = async (req, res, next) => {
   try {
     // Check if user is trying to fetch his own subs (token: user id)
     // _id.toString() because here is an ObjectId
-    const { search, category, status, sortDir = "asc" } = req.query;
+    const { search, category, status, from, to, sortDir = "asc" } = req.query;
 
     if (req.params.id !== req.user._id.toString()) {
       const error = new Error("Not authorized!");
@@ -187,8 +187,8 @@ export const getUserSubscriptions = async (req, res, next) => {
     }
 
     const filterOptions = { user: req.params.id };
-    let sortOptions = {};
 
+    let sortOptions = {};
     sortOptions = { renewalDate: sortDir == "asc" ? 1 : -1 };
 
     if (search) {
@@ -197,6 +197,10 @@ export const getUserSubscriptions = async (req, res, next) => {
 
     if (status) {
       filterOptions.status = status;
+    }
+
+    if (from && to) {
+      filterOptions.renewalDate = { $lte: to, $gte: from };
     }
 
     if (category) {
