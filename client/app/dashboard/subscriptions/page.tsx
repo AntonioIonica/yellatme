@@ -16,7 +16,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import { upcomingInterval } from "@/lib/utils";
+import { parseCurrency, upcomingInterval } from "@/lib/utils";
 import { useAuthStore } from "@/store/useAuthStore";
 import {
   Subscription,
@@ -291,7 +291,7 @@ const Subscriptions = () => {
                       {subscription?.category.slice(0, 4)}
                     </span>
                     <span className="text-muted-foreground">
-                      {subscription?.currency}
+                      {parseCurrency(subscription?.currency)}
                       {+subscription?.price}
                     </span>
                   </div>

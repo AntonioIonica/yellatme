@@ -8,7 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { upcomingInterval } from "@/lib/utils";
+import { parseCurrency, upcomingInterval } from "@/lib/utils";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useSubscriptionStore } from "@/store/useSubscriptionsStore";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -121,7 +121,7 @@ const Calendar = () => {
           <Button variant="outline" size="icon" onClick={handlePreviousMonth}>
             <ChevronLeft className="size-4" />
           </Button>
-          <div className="flex items-center justify-center rounded-2xl w-24 px-4 py-3 bg-secondary">
+          <div className="flex items-center justify-center rounded-2xl w-24 px-4 py-3 bg-secondary font-semibold">
             {monthName}
           </div>
           <Button variant="outline" size="icon" onClick={handleNextMonth}>
@@ -233,7 +233,8 @@ const Calendar = () => {
                         </div>
                       </div>
                       <div className="font-semibold">
-                        {subscription.currency} {+subscription.price.toFixed(2)}
+                        {parseCurrency(subscription.currency)}{" "}
+                        {+subscription.price.toFixed(2)}
                       </div>
                     </div>
                   )) as any
@@ -275,7 +276,8 @@ const Calendar = () => {
                         </div>
                       </div>
                       <div className="font-semibold">
-                        {subscription.currency} {+subscription.price.toFixed(2)}
+                        {parseCurrency(subscription.currency)}{" "}
+                        {+subscription.price.toFixed(2)}
                       </div>
                     </div>
                   )) as any

@@ -38,3 +38,17 @@ export function comparePay(
     return `Same cost as last ${dateType}`;
   }
 }
+
+// "EUR", "USD", "GBP", "LEI"
+export function parseCurrency(currency: String) {
+  switch (currency) {
+    case "EUR":
+      return "€";
+    case "USD":
+      return "$";
+    case "GBP":
+      return "£";
+    default:
+      return "RON";
+  }
+}
