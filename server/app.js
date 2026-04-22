@@ -1,6 +1,7 @@
 import express from "express";
 import { PORT } from "./config/env.js";
 import cors from "cors";
+import dns from "node:dns/promises";
 
 import authRouter from "./routes/auth.routes.js";
 import subscriptionRouter from "./routes/subscription.routes.js";
@@ -12,6 +13,7 @@ import arcjetMiddleware from "./middlewares/arcjet.middleware.js";
 import workflowRouter from "./routes/workflow.routes.js";
 import "./cron/subscriptions.cron.js";
 
+dns.setServers(["8.8.8.8", "1.1.1.1"]); // Google + Cloudflare
 const app = express();
 
 // tells the server to understand json
