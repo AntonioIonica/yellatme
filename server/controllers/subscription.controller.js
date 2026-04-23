@@ -128,7 +128,7 @@ export const updateSubscription = async (req, res, next) => {
       {
         $set: updates,
       },
-      { omitUndefined: true },
+      { new: true, runValidators: true },
     );
     if (!subscription) {
       const error = new Error("There is no subscription with given ID");

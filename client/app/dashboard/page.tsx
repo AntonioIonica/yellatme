@@ -12,7 +12,7 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useSubscriptionStore } from "@/store/useSubscriptionsStore";
 import { useAuthStore } from "@/store/useAuthStore";
-import { comparePay, upcomingInterval } from "@/lib/utils";
+import { comparePay, parseCurrency, upcomingInterval } from "@/lib/utils";
 
 const DashboardPage = () => {
   const subscriptions = useSubscriptionStore((state) => state.subscriptions);
@@ -254,7 +254,7 @@ const DashboardPage = () => {
                       <div className="text-right">
                         <div className="flex space-x-1">
                           {/* compute currency to $ */}
-                          <div className="font-bold">{sub?.currency}</div>
+                          <div className="font-bold">{parseCurrency(sub?.currency)}</div>
                           <div className="font-bold">
                             {sub?.price.toFixed(2)}
                           </div>

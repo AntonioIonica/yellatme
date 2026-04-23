@@ -2,13 +2,7 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -112,15 +106,15 @@ const Subscriptions = () => {
     return debounce((value: string) => setSearchBar(value));
   }, []);
 
-  const handleDeleteSub = async (subId: SubscriptionId) => {
+  const handleDeleteSub = async (id: SubscriptionId) => {
     const res = await fetch(
-      `http://localhost:5500/api/v1/subscriptions/${subId}`,
+      `http://localhost:5500/api/v1/subscriptions/${id}`,
       {
         method: "DELETE",
         credentials: "include",
       },
     );
-    deleteSubscription(subId);
+    deleteSubscription(id);
   };
 
   if (!user)
@@ -308,7 +302,11 @@ const Subscriptions = () => {
                       <Edit className="mr-2 size-4" />
                       Edit
                     </DropdownMenuItem>
-                    <DropdownMenuItem>
+
+                    <DropdownMenuItem
+                      
+                      disabled={subscription.status === "expired"}
+                    >
                       {subscription?.status === "active" ? (
                         <>
                           <ClipboardClock className="mr-2 size-4" />
@@ -321,6 +319,7 @@ const Subscriptions = () => {
                         </>
                       )}
                     </DropdownMenuItem>
+
                     <DropdownMenuItem
                       className="text-destructive"
                       onClick={() => {
