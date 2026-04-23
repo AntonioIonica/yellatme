@@ -304,18 +304,22 @@ const Subscriptions = () => {
                     </DropdownMenuItem>
 
                     <DropdownMenuItem
-                      
-                      disabled={subscription.status === "expired"}
+                      disabled={subscription?.status === "expired" || subscription?.status === "cancelled"}
                     >
                       {subscription?.status === "active" ? (
                         <>
                           <ClipboardClock className="mr-2 size-4" />
                           Cancel
                         </>
+                      ) : subscription?.status === "cancelled" ? (
+                        <>
+                          <Activity className="mr-2 size-4" />
+                          Cancelled
+                        </>
                       ) : (
                         <>
                           <Activity className="mr-2 size-4" />
-                          Active
+                          Expired
                         </>
                       )}
                     </DropdownMenuItem>
