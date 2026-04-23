@@ -226,11 +226,21 @@ export const getUserSubscriptions = async (req, res, next) => {
 export const cancelSubscription = async (req, res, next) => {
   const subscriptionId = req.params.id;
   try {
-    const subscription = await Subscription.findByIdAndUpdate(subscriptionId, {
-      $set: {
-        status: "cancelled",
+    if (!subscriptionId) {
+      const error = new Error("Subscription ID not sent");
+      error.statusCode = 404;
+      throw error;
+    }
+
+    const subscription = await Subscription.findByIdAndUpdate(
+      subscriptionId,
+      {
+        $set: {
+          status: "cancelled",
+        },
       },
-    });
+      { returnDocument: "after" },
+    );
     if (!subscription) {
       const error = new Error("Subscription not found");
       error.statusCode = 404;

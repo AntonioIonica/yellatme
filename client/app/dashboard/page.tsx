@@ -15,10 +15,7 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { comparePay, parseCurrency, upcomingInterval } from "@/lib/utils";
 
 const DashboardPage = () => {
-  const subscriptions = useSubscriptionStore((state) => state.subscriptions);
-  const setSubscriptions = useSubscriptionStore(
-    (state) => state.setSubscriptions,
-  );
+  const { subscriptions, setSubscriptions } = useSubscriptionStore();
   const { user, loading, fetchUser } = useAuthStore();
 
   const router = useRouter();
@@ -135,8 +132,14 @@ const DashboardPage = () => {
                     )
                     .reduce((sum, curr) => sum + +curr.price, 0),
                   subscriptions
-                    .filter((sub) =>
-                      upcomingInterval(new Date(sub.renewalDate), 365, "less"),
+                    .filter(
+                      (sub) =>
+                        sub.status === "active" &&
+                        upcomingInterval(
+                          new Date(sub.renewalDate),
+                          365,
+                          "less",
+                        ),
                     )
                     .reduce((sum, curr) => sum + +curr.price, 0),
                   "year",
@@ -192,7 +195,8 @@ const DashboardPage = () => {
                         new Date(subscription?.renewalDate),
                         30,
                         "more",
-                      )
+                      ) &&
+                      subscription.status === "active"
                     ) {
                       return subscription;
                     }
@@ -203,12 +207,14 @@ const DashboardPage = () => {
             <div className="flex items-center font-semibold text-muted-foreground mt-2">
               <span>
                 {
-                  subscriptions?.filter((subscription) =>
-                    upcomingInterval(
-                      new Date(subscription?.renewalDate),
-                      30,
-                      "more",
-                    ),
+                  subscriptions?.filter(
+                    (subscription) =>
+                      subscription.status === "active" &&
+                      upcomingInterval(
+                        new Date(subscription?.renewalDate),
+                        30,
+                        "more",
+                      ),
                   ).length as any
                 }{" "}
                 payments scheduled
@@ -230,8 +236,10 @@ const DashboardPage = () => {
           <CardContent className="overflow-auto">
             <div className="space-y-3">
               {subscriptions
-                ?.filter((sub) =>
-                  upcomingInterval(new Date(sub.renewalDate), 180, "more"),
+                ?.filter(
+                  (sub) =>
+                    sub.status === "active" &&
+                    upcomingInterval(new Date(sub.renewalDate), 180, "more"),
                 )
                 .map((sub, index) => (
                   <div
@@ -254,7 +262,9 @@ const DashboardPage = () => {
                       <div className="text-right">
                         <div className="flex space-x-1">
                           {/* compute currency to $ */}
-                          <div className="font-bold">{parseCurrency(sub?.currency)}</div>
+                          <div className="font-bold">
+                            {parseCurrency(sub?.currency)}
+                          </div>
                           <div className="font-bold">
                             {sub?.price.toFixed(2)}
                           </div>

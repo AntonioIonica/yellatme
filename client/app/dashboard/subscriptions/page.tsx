@@ -44,8 +44,12 @@ function debounce(func: any) {
 }
 
 const Subscriptions = () => {
-  const { subscriptions, setSubscriptions, deleteSubscription } =
-    useSubscriptionStore();
+  const {
+    subscriptions,
+    setSubscriptions,
+    editSubscription,
+    deleteSubscription,
+  } = useSubscriptionStore();
   const { user, loading, fetchUser } = useAuthStore();
 
   const [searchBar, setSearchBar] = useState<string>();
@@ -115,6 +119,21 @@ const Subscriptions = () => {
       },
     );
     deleteSubscription(id);
+  };
+
+  const handleCancelSub = async (id: SubscriptionId) => {
+    const res = await fetch(
+      `http://localhost:5500/api/v1/subscriptions/${id}/cancel`,
+      {
+        method: "PATCH",
+        credentials: "include",
+      },
+    );
+
+    const result = await res.json();
+    if (result.success) {
+      editSubscription(result.data);
+    }
   };
 
   if (!user)
@@ -243,12 +262,14 @@ const Subscriptions = () => {
             </div>
             <div className="font-bold text-2xl mt-1">
               {
-                subscriptions?.filter((subscription) =>
-                  upcomingInterval(
-                    new Date(subscription?.renewalDate),
-                    30,
-                    "more",
-                  ),
+                subscriptions?.filter(
+                  (subscription) =>
+                    subscription.status === "active" &&
+                    upcomingInterval(
+                      new Date(subscription?.renewalDate),
+                      30,
+                      "more",
+                    ),
                 ).length as any
               }
             </div>
@@ -304,7 +325,11 @@ const Subscriptions = () => {
                     </DropdownMenuItem>
 
                     <DropdownMenuItem
-                      disabled={subscription?.status === "expired" || subscription?.status === "cancelled"}
+                      disabled={
+                        subscription?.status === "expired" ||
+                        subscription?.status === "cancelled"
+                      }
+                      onClick={() => handleCancelSub(subscription?._id)}
                     >
                       {subscription?.status === "active" ? (
                         <>
@@ -327,7 +352,7 @@ const Subscriptions = () => {
                     <DropdownMenuItem
                       className="text-destructive"
                       onClick={() => {
-                        handleDeleteSub(subscription?.id);
+                        handleDeleteSub(subscription?._id);
                       }}
                     >
                       <Trash2 className="mr-2 size-4" />
