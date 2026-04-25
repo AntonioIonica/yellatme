@@ -2,18 +2,18 @@ import { SubscriptionId } from "@/app/dashboard/subscriptions/page";
 import { create } from "zustand";
 
 export type Subscription = {
-  _id: String;
-  name: String;
-  description: String;
-  price: Number;
-  currency: String;
-  frequency: String;
-  category: String;
-  paymentMethod: String;
-  status: String;
+  _id: string;
+  name: string;
+  description: string;
+  price: number;
+  currency: string;
+  frequency: string;
+  category: string;
+  paymentMethod: string;
+  status: string;
   startDate: Date;
   renewalDate: Date;
-  user: String;
+  user: string;
 };
 
 export type subscriptionsStore = {
@@ -34,7 +34,9 @@ export const useSubscriptionStore = create<subscriptionsStore>((set) => ({
       // map to iterate every object and check for condition
       subscriptions: state.subscriptions.map((subscription) =>
         // destructurate all the subscription field and destructurate all the updatedSub fields
-        subscription._id === sub._id ? { ...subscription, ...sub } : subscription,
+        subscription._id === sub._id
+          ? { ...subscription, ...sub }
+          : subscription,
       ),
     })),
   deleteSubscription: (subId) =>

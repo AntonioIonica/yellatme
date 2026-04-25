@@ -112,7 +112,6 @@ export const updateSubscription = async (req, res, next) => {
     "frequency",
     "category",
     "paymentMethod",
-    "status",
     "renewalDate",
   ];
 
@@ -128,7 +127,7 @@ export const updateSubscription = async (req, res, next) => {
       {
         $set: updates,
       },
-      { new: true, runValidators: true },
+      { returnDocument: "after" },
     );
     if (!subscription) {
       const error = new Error("There is no subscription with given ID");
