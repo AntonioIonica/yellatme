@@ -28,6 +28,7 @@ export const getUpcomingRenewals = async (req, res, next) => {
     const upcomingSubscriptions = await Subscription.find({
       user: req.user._id,
       renewalDate: { $gte: new Date() },
+      status: "active",
     }).sort({ renewalDate: 1 });
 
     if (!upcomingSubscriptions) {

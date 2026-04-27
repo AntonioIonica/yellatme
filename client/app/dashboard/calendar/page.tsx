@@ -15,11 +15,13 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 const Calendar = () => {
   // fetch only initial mount subscription (default date) using a state to lock the date
-  const [subscriptions, setSubscriptions] = useState<Subscription[] | null>([]);
+  const [upcomingRenewals, setUpcomingRenewals] = useState<
+    Subscription[] | null
+  >([]);
   const [dateSubs, setDateSubs] = useState<Subscription[] | null>([]);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [currentMonth, setCurrentMonth] = useState(currentDate.getMonth());
@@ -47,7 +49,7 @@ const Calendar = () => {
 
     return (
       dateSubs?.filter(
-        (subscription) => new Date(subscription.renewalDate).getDay() === day,
+        (subscription) => new Date(subscription.renewalDate).getDate() === day,
       ) || []
     );
   };
@@ -82,7 +84,7 @@ const Calendar = () => {
     const fetchSubsDate = async () => {
       const params = new URLSearchParams();
 
-      const from = new Date(currentYear, currentMonth, firstDayOfMonth);
+      const from = new Date(currentYear, currentMonth, 1);
       params.set("from", from.toString());
 
       const to = new Date(currentYear, currentMonth, daysInMonth);
@@ -98,14 +100,28 @@ const Calendar = () => {
 
       if (!result.success) return;
 
-      setDateSubs(result.data);
+      setDateSubs(
+        result?.data?.filter((sub: Subscription) => sub.status === "active"),
+      );
     };
 
     fetchSubsDate();
   }, [currentYear, currentMonth]);
 
   useEffect(() => {
-    setSubscriptions(dateSubs);
+    const fetchUpcomingRenewals = async () => {
+      const res = await fetch(
+        `http://localhost:5500/api/v1/subscriptions/upcoming-renewals`,
+        {
+          credentials: "include",
+        },
+      );
+
+      const result = await res.json();
+      setUpcomingRenewals(result.data);
+    };
+
+    fetchUpcomingRenewals();
   }, []);
 
   useEffect(() => {
@@ -185,8 +201,11 @@ const Calendar = () => {
             {
               calendarDays.map((day, index) => {
                 const payments = day ? getPaymentsForDay(day) : [];
-                const isToday = day === currentDate.getDay();
-                const isPast = day !== null && day < currentDate.getDay();
+                const isToday = day === currentDate.getDate();
+                const isPast =
+                  day !== null &&
+                  day < new Date().getDate() &&
+                  currentMonth <= new Date().getMonth();
 
                 return (
                   <div
@@ -194,7 +213,7 @@ const Calendar = () => {
                     className={`min-h-24 border-b border-r border-border p-2 transition-colors
                    last:border-r-0 hover:bg-secondary/30 ${day === null ? "bg-secondary/10" : ""}
                     ${isToday ? "bg-accent/10" : ""}
-                     ${isPast ? "opacity-50" : ""}`}
+                     ${isPast ? "opacity-40" : ""}`}
                   >
                     {day && (
                       <>
@@ -220,7 +239,7 @@ const Calendar = () => {
                             </div>
                           ))}
                           {/* more than 4 won't shown in cards */}
-                          {payments!.length > 4 && (
+                          {payments.length > 4 && (
                             <div className="text-xs text-muted-foreground">
                               +{payments!.length - 4} more
                             </div>
@@ -248,7 +267,7 @@ const Calendar = () => {
           <CardContent className="overflow-y-auto">
             <div className="space-y-3">
               {
-                subscriptions
+                upcomingRenewals
                   ?.filter((subscription) =>
                     upcomingInterval(
                       new Date(subscription.renewalDate),
@@ -289,7 +308,7 @@ const Calendar = () => {
           <CardContent className="overflow-y-auto">
             <div className="space-y-3">
               {
-                subscriptions
+                upcomingRenewals
                   ?.filter(
                     (subscription) =>
                       upcomingInterval(
