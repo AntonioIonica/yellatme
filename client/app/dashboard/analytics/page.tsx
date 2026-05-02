@@ -7,13 +7,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { upcomingInterval } from "@/lib/utils";
+import { getIntervalSubs } from "@/lib/utils";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useSubscriptionStore } from "@/store/useSubscriptionsStore";
 import { ArrowUp, Badge } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
+// To programmaticaly get "amount"
 const categoryData = [
   { name: "Entertainment", amount: 43.97, percentage: 28, color: "bg-red-500" },
   { name: "Software", amount: 54.99, percentage: 35, color: "bg-blue-500" },
@@ -24,6 +25,7 @@ const categoryData = [
   { name: "Other", amount: 28.98, percentage: 18, color: "bg-orange-500" },
 ];
 
+// To programmatically get "amount"
 const monthlySpending = [
   { month: "Oct", amount: 142.5 },
   { month: "Nov", amount: 158.32 },
@@ -31,27 +33,6 @@ const monthlySpending = [
   { month: "Jan", amount: 172.45 },
   { month: "Feb", amount: 178.5 },
   { month: "Mar", amount: 156.97 },
-];
-
-const savingsOpportunities = [
-  {
-    name: "YouTube Premium",
-    currentPlan: "Individual ($13.99/mo)",
-    suggestedPlan: "Family ($22.99/mo split 5 ways)",
-    savings: "$9.39/mo",
-  },
-  {
-    name: "Adobe CC",
-    currentPlan: "Monthly ($54.99/mo)",
-    suggestedPlan: "Annual ($29.99/mo)",
-    savings: "$25.00/mo",
-  },
-  {
-    name: "Spotify",
-    currentPlan: "Premium ($9.99/mo)",
-    suggestedPlan: "Student ($4.99/mo)",
-    savings: "$5.00/mo",
-  },
 ];
 
 const Analytics = () => {
@@ -92,7 +73,7 @@ const Analytics = () => {
               {
                 subscriptions
                   .filter((subscription) =>
-                    upcomingInterval(
+                    getIntervalSubs(
                       new Date(subscription.renewalDate),
                       7,
                       "more",
@@ -115,7 +96,7 @@ const Analytics = () => {
               {
                 subscriptions
                   .filter((subscription) =>
-                    upcomingInterval(
+                    getIntervalSubs(
                       new Date(subscription.renewalDate),
                       30,
                       "more",
@@ -255,41 +236,6 @@ const Analytics = () => {
           </CardContent>
         </Card>
       </div>
-
-      {/* Savings Opportunities */}
-      <Card className="border-border bg-card">
-        <CardHeader>
-          <CardTitle>Savings Opportunities</CardTitle>
-          <CardDescription>
-            We found some ways you could save money on your subscriptions
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {savingsOpportunities.map((opportunity) => (
-              <div
-                key={opportunity.name}
-                className="flex flex-col gap-4 rounded-lg border border-border bg-secondary/30 p-4 md:flex-row md:items-center md:justify-between"
-              >
-                <div className="space-y-1">
-                  <div className="font-medium">{opportunity.name}</div>
-                  <div className="text-sm text-muted-foreground">
-                    Current: {opportunity.currentPlan}
-                  </div>
-                  <div className="text-sm text-accent">
-                    Suggested: {opportunity.suggestedPlan}
-                  </div>
-                </div>
-                <div className="flex items-center gap-4">
-                  <Badge className="bg-accent text-accent-foreground">
-                    Save {opportunity.savings}
-                  </Badge>
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
 
       {/* Year Over Year */}
       <Card className="border-border bg-card">

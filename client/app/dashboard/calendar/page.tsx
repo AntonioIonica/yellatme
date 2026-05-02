@@ -8,7 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { parseCurrency, upcomingInterval } from "@/lib/utils";
+import { parseCurrency, getIntervalSubs } from "@/lib/utils";
 import { useAuthStore } from "@/store/useAuthStore";
 import { Subscription } from "@/store/useSubscriptionsStore";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -269,7 +269,7 @@ const Calendar = () => {
               {
                 upcomingRenewals
                   ?.filter((subscription) =>
-                    upcomingInterval(
+                    getIntervalSubs(
                       new Date(subscription.renewalDate),
                       7,
                       "more",
@@ -311,7 +311,7 @@ const Calendar = () => {
                 upcomingRenewals
                   ?.filter(
                     (subscription) =>
-                      upcomingInterval(
+                      getIntervalSubs(
                         new Date(subscription.renewalDate),
                         30,
                         "more",

@@ -41,7 +41,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { parseCurrency, upcomingInterval } from "@/lib/utils";
+import { parseCurrency, getIntervalSubs } from "@/lib/utils";
 import { useAuthStore } from "@/store/useAuthStore";
 import {
   Subscription,
@@ -352,7 +352,7 @@ const Subscriptions = () => {
                 subscriptions?.filter(
                   (subscription) =>
                     subscription.status === "active" &&
-                    upcomingInterval(
+                    getIntervalSubs(
                       new Date(subscription?.renewalDate),
                       30,
                       "more",
@@ -574,7 +574,6 @@ const Subscriptions = () => {
                             }
                           />
                         </Field>
-
 
                         {/* Dates*/}
                         <Field>

@@ -12,7 +12,7 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useSubscriptionStore } from "@/store/useSubscriptionsStore";
 import { useAuthStore } from "@/store/useAuthStore";
-import { comparePay, parseCurrency, upcomingInterval } from "@/lib/utils";
+import { comparePay, parseCurrency, getIntervalSubs } from "@/lib/utils";
 
 const DashboardPage = () => {
   const { subscriptions, setSubscriptions } = useSubscriptionStore();
@@ -21,7 +21,7 @@ const DashboardPage = () => {
   const router = useRouter();
 
   const totalYearly = subscriptions
-    .filter((sub) => upcomingInterval(new Date(sub.renewalDate), 365, "more"))
+    .filter((sub) => getIntervalSubs(new Date(sub.renewalDate), 365, "more"))
     .reduce((sum, curr) => sum + +curr.price, 0);
 
   useEffect(() => {
@@ -101,7 +101,7 @@ const DashboardPage = () => {
                     .reduce((sum, curr) => sum + +curr.price, 0),
                   subscriptions
                     .filter((sub) =>
-                      upcomingInterval(new Date(sub.renewalDate), 30, "less"),
+                      getIntervalSubs(new Date(sub.renewalDate), 30, "less"),
                     )
                     .reduce((sum, curr) => sum + +curr.price, 0),
                   "month",
@@ -135,11 +135,7 @@ const DashboardPage = () => {
                     .filter(
                       (sub) =>
                         sub.status === "active" &&
-                        upcomingInterval(
-                          new Date(sub.renewalDate),
-                          365,
-                          "less",
-                        ),
+                        getIntervalSubs(new Date(sub.renewalDate), 365, "less"),
                     )
                     .reduce((sum, curr) => sum + +curr.price, 0),
                   "year",
@@ -191,7 +187,7 @@ const DashboardPage = () => {
                   ?.filter((subscription) => {
                     // parsed to new Date() because coming as a db date from MongoDB
                     if (
-                      upcomingInterval(
+                      getIntervalSubs(
                         new Date(subscription?.renewalDate),
                         30,
                         "more",
@@ -210,7 +206,7 @@ const DashboardPage = () => {
                   subscriptions?.filter(
                     (subscription) =>
                       subscription.status === "active" &&
-                      upcomingInterval(
+                      getIntervalSubs(
                         new Date(subscription?.renewalDate),
                         30,
                         "more",
@@ -239,7 +235,7 @@ const DashboardPage = () => {
                 ?.filter(
                   (sub) =>
                     sub.status === "active" &&
-                    upcomingInterval(new Date(sub.renewalDate), 180, "more"),
+                    getIntervalSubs(new Date(sub.renewalDate), 180, "more"),
                 )
                 .map((sub, index) => (
                   <div

@@ -5,7 +5,7 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function upcomingInterval(date: Date, days: number, direction: string) {
+export function getIntervalSubs(date: Date, days: number, direction: string) {
   const now = new Date();
 
   const momentaryDate = new Date();
