@@ -15,6 +15,15 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { comparePay, parseCurrency, getIntervalSubs } from "@/lib/utils";
 
 const DashboardPage = () => {
+  const now = new Date();
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(now.getDate() - 7);
+  const fourteenDaysAgo = new Date();
+  fourteenDaysAgo.setDate(now.getDate() - 14);
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(now.getDate() - 30);
+  const sixtyDaysAgo = new Date();
+  sixtyDaysAgo.setDate(now.getDate() - 60);
   const { subscriptions, setSubscriptions } = useSubscriptionStore();
   const { user, loading, fetchUser } = useAuthStore();
 
@@ -91,18 +100,16 @@ const DashboardPage = () => {
               <span className="text-muted-foreground">
                 {comparePay(
                   subscriptions
-                    .filter(
-                      (sub) =>
-                        new Date(sub.renewalDate).getDate() - 60 <
-                          new Date(sub.renewalDate).getDate() &&
-                        new Date(sub.renewalDate).getDate() - 30 >
-                          new Date(sub.renewalDate).getDate(),
-                    )
+                    .filter((sub) => {
+                      const date = new Date(sub.renewalDate);
+                      return date >= sixtyDaysAgo && date <= thirtyDaysAgo;
+                    })
                     .reduce((sum, curr) => sum + +curr.price, 0),
                   subscriptions
-                    .filter((sub) =>
-                      getIntervalSubs(new Date(sub.renewalDate), 30, "less"),
-                    )
+                    .filter((sub) => {
+                      const date = new Date(sub.renewalDate);
+                      return date >= thirtyDaysAgo && date <= now;
+                    })
                     .reduce((sum, curr) => sum + +curr.price, 0),
                   "month",
                 )}

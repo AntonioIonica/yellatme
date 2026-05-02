@@ -7,12 +7,15 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { getIntervalSubs } from "@/lib/utils";
+import { comparePay, getIntervalSubs } from "@/lib/utils";
 import { useAuthStore } from "@/store/useAuthStore";
-import { useSubscriptionStore } from "@/store/useSubscriptionsStore";
-import { ArrowUp, Badge } from "lucide-react";
+import {
+  Subscription,
+  useSubscriptionStore,
+} from "@/store/useSubscriptionsStore";
+import { ArrowUp } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 // To programmaticaly get "amount"
 const categoryData = [
@@ -36,6 +39,9 @@ const monthlySpending = [
 ];
 
 const Analytics = () => {
+  const [upcomingRenewals, setUpcomingRenewals] = useState<
+    Subscription[] | null
+  >(null);
   const { subscriptions } = useSubscriptionStore();
   const { user, loading, fetchUser } = useAuthStore();
 
@@ -46,6 +52,22 @@ const Analytics = () => {
 
   useEffect(() => {
     fetchUser();
+  }, []);
+
+  useEffect(() => {
+    const fetchUpcomingRenewals = async () => {
+      const res = await fetch(
+        `http://localhost:5500/api/v1/subscriptions/upcoming-renewals`,
+        {
+          credentials: "include",
+        },
+      );
+
+      const result = await res.json();
+      setUpcomingRenewals(result.data);
+    };
+
+    fetchUpcomingRenewals();
   }, []);
 
   useEffect(() => {
@@ -71,8 +93,8 @@ const Analytics = () => {
             <div className="font-bold mt-1 text-2xl">
               $
               {
-                subscriptions
-                  .filter((subscription) =>
+                upcomingRenewals
+                  ?.filter((subscription) =>
                     getIntervalSubs(
                       new Date(subscription.renewalDate),
                       7,
@@ -83,7 +105,25 @@ const Analytics = () => {
               }
             </div>
             <div className="mt-1 flex items-center text-xs text-accent-foreground">
-              12% less than last week
+              <span>
+                {comparePay(
+                  subscriptions
+                    .filter(
+                      (sub) =>
+                        new Date(sub.renewalDate).getDate() - 60 <
+                          new Date(sub.renewalDate).getDate() &&
+                        new Date(sub.renewalDate).getDate() - 30 >
+                          new Date(sub.renewalDate).getDate(),
+                    )
+                    .reduce((sum, curr) => sum + +curr.price, 0),
+                  subscriptions
+                    .filter((sub) =>
+                      getIntervalSubs(new Date(sub.renewalDate), 30, "less"),
+                    )
+                    .reduce((sum, curr) => sum + +curr.price, 0),
+                  "weekly",
+                )}
+              </span>
             </div>
           </CardContent>
         </Card>

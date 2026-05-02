@@ -18,7 +18,6 @@ import { useEffect, useState } from "react";
 const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 const Calendar = () => {
-  // fetch only initial mount subscription (default date) using a state to lock the date
   const [upcomingRenewals, setUpcomingRenewals] = useState<
     Subscription[] | null
   >([]);
