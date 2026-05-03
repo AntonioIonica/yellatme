@@ -30,7 +30,7 @@ const categoryData = [
 
 // To programmatically get "amount"
 const monthlySpending = [
-  { month: "Oct", amount: 142.5 },
+  { month: "Oct", amount: 1242.5 },
   { month: "Nov", amount: 158.32 },
   { month: "Dec", amount: 165.99 },
   { month: "Jan", amount: 172.45 },
@@ -45,9 +45,22 @@ const Analytics = () => {
   const { subscriptions } = useSubscriptionStore();
   const { user, loading, fetchUser } = useAuthStore();
 
+  const now = new Date();
+  const lastSixtyDays = new Date();
+  lastSixtyDays.setDate(now.getDate() - 60);
+  const lastThirtyDays = new Date();
+  lastThirtyDays.setDate(now.getDate() - 30);
+  const lastFourteenDays = new Date();
+  lastFourteenDays.setDate(now.getDate() - 14);
+  const lastSevenDays = new Date();
+  lastSevenDays.setDate(now.getDate() - 7);
+  const lastYear = new Date();
+  lastYear.setDate(now.getDate() - 365);
+  const lastSixMonths = new Date();
+  lastSixMonths.setDate(now.getDate() - 182);
+
   const router = useRouter();
 
-  const totalSpending = categoryData.reduce((acc, cat) => acc + cat.amount, 0);
   const maxAmount = Math.max(...monthlySpending.map((m) => m.amount));
 
   useEffect(() => {
@@ -94,34 +107,44 @@ const Analytics = () => {
               $
               {
                 upcomingRenewals
-                  ?.filter((subscription) =>
-                    getIntervalSubs(
-                      new Date(subscription.renewalDate),
-                      7,
-                      "more",
-                    ),
+                  ?.filter(
+                    (subscription) =>
+                      getIntervalSubs(
+                        new Date(subscription.renewalDate),
+                        7,
+                        "more",
+                      ) && subscription.status === "active",
                   )
-                  .reduce((sum, sub) => sum + +sub.price, 0) as any
+                  .reduce((sum, sub) => sum + +sub.price, 0)
+                  .toFixed(2) as any
               }
             </div>
             <div className="mt-1 flex items-center text-xs text-accent-foreground">
               <span>
                 {comparePay(
                   subscriptions
-                    .filter(
-                      (sub) =>
-                        new Date(sub.renewalDate).getDate() - 60 <
-                          new Date(sub.renewalDate).getDate() &&
-                        new Date(sub.renewalDate).getDate() - 30 >
-                          new Date(sub.renewalDate).getDate(),
-                    )
+                    .filter((sub) => {
+                      const date = new Date(sub.renewalDate);
+
+                      return (
+                        lastFourteenDays <= date &&
+                        lastSevenDays >= date &&
+                        sub.status === "active"
+                      );
+                    })
                     .reduce((sum, curr) => sum + +curr.price, 0),
                   subscriptions
-                    .filter((sub) =>
-                      getIntervalSubs(new Date(sub.renewalDate), 30, "less"),
-                    )
+                    .filter((sub) => {
+                      const date = new Date(sub.renewalDate);
+
+                      return (
+                        lastSevenDays <= date &&
+                        date <= now &&
+                        sub.status === "active"
+                      );
+                    })
                     .reduce((sum, curr) => sum + +curr.price, 0),
-                  "weekly",
+                  "week",
                 )}
               </span>
             </div>
@@ -142,11 +165,38 @@ const Analytics = () => {
                       "more",
                     ),
                   )
-                  .reduce((sum, sub) => sum + +sub.price, 0) as any
+                  .reduce((sum, sub) => sum + +sub.price, 0)
+                  .toFixed(2) as any
               }
             </div>
             <div className="mt-1 flex items-center text-xs text-accent-foreground">
-              12% less than last month
+              <span>
+                {comparePay(
+                  subscriptions
+                    .filter((sub) => {
+                      const date = new Date(sub.renewalDate);
+
+                      return (
+                        lastSixtyDays <= date &&
+                        lastThirtyDays >= date &&
+                        sub.status === "active"
+                      );
+                    })
+                    .reduce((sum, curr) => sum + +curr.price, 0),
+                  subscriptions
+                    .filter((sub) => {
+                      const date = new Date(sub.renewalDate);
+
+                      return (
+                        lastThirtyDays <= date &&
+                        date <= now &&
+                        sub.status === "active"
+                      );
+                    })
+                    .reduce((sum, curr) => sum + +curr.price, 0),
+                  "month",
+                )}
+              </span>
             </div>
           </CardContent>
         </Card>
@@ -160,21 +210,45 @@ const Analytics = () => {
                 subscriptions
                   .filter((subscription) => {
                     const currentDate = new Date();
-                    const lastSixMonths = new Date();
-                    lastSixMonths.setDate(currentDate.getDate() - 182);
+                    const date = new Date(subscription.renewalDate);
 
                     return (
-                      new Date(subscription.renewalDate).getDate() >=
-                        lastSixMonths.getDate() &&
-                      new Date(subscription.renewalDate).getDate() <=
-                        currentDate.getDate()
+                      date >= lastSixMonths &&
+                      date <= currentDate
                     );
                   })
-                  .reduce((sum, sub) => sum + +sub.price, 0) as any
+                  .reduce((sum, sub) => sum + +sub.price, 0)
+                  .toFixed(2) as any
               }
             </div>
             <div className="mt-1 flex items-center text-xs text-accent-foreground">
-              12% less than last half the year
+              <span>
+                {comparePay(
+                  subscriptions
+                    .filter((sub) => {
+                      const date = new Date(sub.renewalDate);
+
+                      return (
+                        lastYear <= date &&
+                        lastSixMonths >= date &&
+                        sub.status === "active"
+                      );
+                    })
+                    .reduce((sum, curr) => sum + +curr.price, 0),
+                  subscriptions
+                    .filter((sub) => {
+                      const date = new Date(sub.renewalDate);
+
+                      return (
+                        lastSixMonths <= date &&
+                        date <= now &&
+                        sub.status === "active"
+                      );
+                    })
+                    .reduce((sum, curr) => sum + +curr.price, 0),
+                  "month",
+                )}
+              </span>
             </div>
           </CardContent>
         </Card>
@@ -185,20 +259,20 @@ const Analytics = () => {
             <div className="font-bold mt-1 text-2xl">
               $
               {
-                subscriptions
-                  .filter((subscription) => {
+                (subscriptions
+                  ?.filter((subscription) => {
                     const currentDate = new Date();
-                    const lastSixMonths = new Date();
-                    lastSixMonths.setDate(currentDate.getDate() - 182);
+                    const date = new Date(subscription.renewalDate);
 
                     return (
-                      new Date(subscription.renewalDate).getDate() >=
-                        lastSixMonths.getDate() &&
-                      new Date(subscription.renewalDate).getDate() <=
-                        currentDate.getDate()
+                      date >= lastYear &&
+                      date <= currentDate
                     );
                   })
-                  .reduce((sum, sub) => (sum + +sub.price) / 6, 0)
+                  .reduce(
+                    (sum, sub, _, arr) => sum + Number(sub.price) / arr.length,
+                    0,
+                  ) || 0)
                   .toFixed(2) as any
               }
             </div>
