@@ -9,8 +9,11 @@ import {
 } from "@/components/ui/card";
 import { Bell, Calendar, CreditCard, TrendingUp } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
-import { useSubscriptionStore } from "@/store/useSubscriptionsStore";
+import { useEffect, useState } from "react";
+import {
+  Subscription,
+  useSubscriptionStore,
+} from "@/store/useSubscriptionsStore";
 import { useAuthStore } from "@/store/useAuthStore";
 import { comparePay, parseCurrency, getIntervalSubs } from "@/lib/utils";
 
@@ -26,15 +29,34 @@ const DashboardPage = () => {
   sixtyDaysAgo.setDate(now.getDate() - 60);
   const { subscriptions, setSubscriptions } = useSubscriptionStore();
   const { user, loading, fetchUser } = useAuthStore();
+  const [upcomingRenewals, setUpcomingRenewals] = useState<
+    Subscription[] | null
+  >([]);
 
   const router = useRouter();
 
   const totalYearly = subscriptions
-    .filter((sub) => getIntervalSubs(new Date(sub.renewalDate), 365, "more"))
+    .filter((sub) => getIntervalSubs(new Date(sub.renewalDate), 365, "less"))
     .reduce((sum, curr) => sum + +curr.price, 0);
 
   useEffect(() => {
     fetchUser();
+  }, []);
+
+  useEffect(() => {
+    const fetchUpcomingRenewals = async () => {
+      const res = await fetch(
+        `http://localhost:5500/api/v1/subscriptions/upcoming-renewals`,
+        {
+          credentials: "include",
+        },
+      );
+
+      const result = await res.json();
+      setUpcomingRenewals(result.data);
+    };
+
+    fetchUpcomingRenewals();
   }, []);
 
   // Fetch subscriptions
@@ -94,7 +116,8 @@ const DashboardPage = () => {
                     new Date(subscription?.startDate).getMonth() ==
                       new Date().getMonth(),
                 )
-                .reduce((sum, current) => sum + +current?.price, 0)}
+                .reduce((sum, current) => sum + +current?.price, 0)
+                .toFixed(2)}
             </div>
             <div className="flex items-center font-semibold text-muted-foreground mt-2">
               <span className="text-muted-foreground">
@@ -130,20 +153,28 @@ const DashboardPage = () => {
               <span className="text-muted-foreground">
                 {comparePay(
                   subscriptions
-                    .filter(
-                      (sub) =>
-                        new Date(sub.renewalDate).getDate() - 730 <
-                          new Date(sub.renewalDate).getDate() &&
-                        new Date(sub.renewalDate).getDate() - 365 >
-                          new Date(sub.renewalDate).getDate(),
-                    )
+                    .filter((sub) => {
+                      const twoYearsAgo = new Date();
+                      twoYearsAgo.setDate(now.getDate() - 730);
+                      const oneYearAgo = new Date();
+                      oneYearAgo.setDate(now.getDate() - 365);
+                      const date = new Date(sub.renewalDate);
+
+                      return (
+                        twoYearsAgo <= date &&
+                        date <= oneYearAgo &&
+                        sub.status === "active"
+                      );
+                    })
                     .reduce((sum, curr) => sum + +curr.price, 0),
                   subscriptions
-                    .filter(
-                      (sub) =>
-                        sub.status === "active" &&
-                        getIntervalSubs(new Date(sub.renewalDate), 365, "less"),
-                    )
+                    .filter((sub) => {
+                      const oneYearAgo = new Date();
+                      oneYearAgo.setDate(now.getDate() - 365);
+                      const date = new Date(sub.renewalDate);
+
+                      return date >= oneYearAgo && sub.status === "active";
+                    })
                     .reduce((sum, curr) => sum + +curr.price, 0),
                   "year",
                 )}
@@ -204,7 +235,8 @@ const DashboardPage = () => {
                       return subscription;
                     }
                   })
-                  .reduce((sum, current) => sum + +current?.price, 0) as any
+                  .reduce((sum, current) => sum + +current?.price, 0)
+                  .toFixed(2) as any
               }
             </div>
             <div className="flex items-center font-semibold text-muted-foreground mt-2">
@@ -238,7 +270,7 @@ const DashboardPage = () => {
           </CardHeader>
           <CardContent className="overflow-auto">
             <div className="space-y-3">
-              {subscriptions
+              {upcomingRenewals
                 ?.filter(
                   (sub) =>
                     sub.status === "active" &&
