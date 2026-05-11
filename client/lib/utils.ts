@@ -26,7 +26,7 @@ export function comparePay(
   subsPrice2: number,
   dateType: string,
 ) {
-  if (subsPrice1 == 0 || subsPrice2 == 0) {
+  if (subsPrice1 == undefined || subsPrice2 == undefined) {
     return `No previous ${dateType}ly data available`;
   }
 
