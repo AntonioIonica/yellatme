@@ -47,17 +47,17 @@ const Analytics = () => {
 
   const now = new Date();
   const lastSixtyDays = new Date();
-  lastSixtyDays.setDate(now.getDate() - 60);
+  lastSixtyDays.setDate(lastSixtyDays.getDate() - 60);
   const lastThirtyDays = new Date();
-  lastThirtyDays.setDate(now.getDate() - 30);
+  lastThirtyDays.setDate(lastThirtyDays.getDate() - 30);
   const lastFourteenDays = new Date();
-  lastFourteenDays.setDate(now.getDate() - 14);
+  lastFourteenDays.setDate(lastFourteenDays.getDate() - 14);
   const lastSevenDays = new Date();
-  lastSevenDays.setDate(now.getDate() - 7);
+  lastSevenDays.setDate(lastSevenDays.getDate() - 7);
   const lastYear = new Date();
-  lastYear.setDate(now.getDate() - 365);
+  lastYear.setDate(lastYear.getDate() - 365);
   const lastSixMonths = new Date();
-  lastSixMonths.setDate(now.getDate() - 182);
+  lastSixMonths.setDate(lastSixMonths.getDate() - 182);
 
   const router = useRouter();
 
@@ -107,13 +107,12 @@ const Analytics = () => {
               $
               {
                 upcomingRenewals
-                  ?.filter(
-                    (subscription) =>
-                      getIntervalSubs(
-                        new Date(subscription.renewalDate),
-                        7,
-                        "more",
-                      ) && subscription.status === "active",
+                  ?.filter((subscription) =>
+                    getIntervalSubs(
+                      new Date(subscription.renewalDate),
+                      7,
+                      "more",
+                    ),
                   )
                   .reduce((sum, sub) => sum + +sub.price, 0)
                   .toFixed(2) as any
@@ -123,25 +122,17 @@ const Analytics = () => {
               <span>
                 {comparePay(
                   subscriptions
-                    .filter((sub) => {
+                    ?.filter((sub) => {
                       const date = new Date(sub.renewalDate);
 
-                      return (
-                        lastFourteenDays <= date &&
-                        lastSevenDays >= date &&
-                        sub.status === "active"
-                      );
+                      return lastFourteenDays <= date && lastSevenDays >= date;
                     })
                     .reduce((sum, curr) => sum + +curr.price, 0),
                   subscriptions
-                    .filter((sub) => {
+                    ?.filter((sub) => {
                       const date = new Date(sub.renewalDate);
 
-                      return (
-                        lastSevenDays <= date &&
-                        date <= now &&
-                        sub.status === "active"
-                      );
+                      return lastSevenDays <= date && date <= now;
                     })
                     .reduce((sum, curr) => sum + +curr.price, 0),
                   "week",
@@ -158,13 +149,11 @@ const Analytics = () => {
               $
               {
                 subscriptions
-                  .filter((subscription) =>
-                    getIntervalSubs(
-                      new Date(subscription.renewalDate),
-                      30,
-                      "more",
-                    ),
-                  )
+                  ?.filter((subscription) => {
+                    const date = new Date(subscription.renewalDate);
+
+                    return date >= lastThirtyDays && date <= now;
+                  })
                   .reduce((sum, sub) => sum + +sub.price, 0)
                   .toFixed(2) as any
               }
@@ -173,25 +162,17 @@ const Analytics = () => {
               <span>
                 {comparePay(
                   subscriptions
-                    .filter((sub) => {
+                    ?.filter((sub) => {
                       const date = new Date(sub.renewalDate);
 
-                      return (
-                        lastSixtyDays <= date &&
-                        lastThirtyDays >= date &&
-                        sub.status === "active"
-                      );
+                      return lastSixtyDays <= date && lastThirtyDays > date;
                     })
                     .reduce((sum, curr) => sum + +curr.price, 0),
                   subscriptions
-                    .filter((sub) => {
+                    ?.filter((sub) => {
                       const date = new Date(sub.renewalDate);
 
-                      return (
-                        lastThirtyDays <= date &&
-                        date <= now &&
-                        sub.status === "active"
-                      );
+                      return lastThirtyDays <= date && date <= now;
                     })
                     .reduce((sum, curr) => sum + +curr.price, 0),
                   "month",
@@ -208,14 +189,11 @@ const Analytics = () => {
               $
               {
                 subscriptions
-                  .filter((subscription) => {
+                  ?.filter((subscription) => {
                     const currentDate = new Date();
                     const date = new Date(subscription.renewalDate);
 
-                    return (
-                      date >= lastSixMonths &&
-                      date <= currentDate
-                    );
+                    return date >= lastSixMonths && date <= currentDate;
                   })
                   .reduce((sum, sub) => sum + +sub.price, 0)
                   .toFixed(2) as any
@@ -225,28 +203,20 @@ const Analytics = () => {
               <span>
                 {comparePay(
                   subscriptions
-                    .filter((sub) => {
+                    ?.filter((sub) => {
                       const date = new Date(sub.renewalDate);
 
-                      return (
-                        lastYear <= date &&
-                        lastSixMonths >= date &&
-                        sub.status === "active"
-                      );
+                      return lastYear <= date && lastSixMonths >= date;
                     })
                     .reduce((sum, curr) => sum + +curr.price, 0),
                   subscriptions
-                    .filter((sub) => {
+                    ?.filter((sub) => {
                       const date = new Date(sub.renewalDate);
 
-                      return (
-                        lastSixMonths <= date &&
-                        date <= now &&
-                        sub.status === "active"
-                      );
+                      return lastSixMonths <= date && date <= now;
                     })
                     .reduce((sum, curr) => sum + +curr.price, 0),
-                  "month",
+                  "6 months",
                 )}
               </span>
             </div>
@@ -259,21 +229,20 @@ const Analytics = () => {
             <div className="font-bold mt-1 text-2xl">
               $
               {
-                (subscriptions
-                  ?.filter((subscription) => {
-                    const currentDate = new Date();
-                    const date = new Date(subscription.renewalDate);
+                (
+                  subscriptions
+                    ?.filter((subscription) => {
+                      const currentDate = new Date();
+                      const date = new Date(subscription.renewalDate);
 
-                    return (
-                      date >= lastYear &&
-                      date <= currentDate
-                    );
-                  })
-                  .reduce(
-                    (sum, sub, _, arr) => sum + Number(sub.price) / arr.length,
-                    0,
-                  ) || 0)
-                  .toFixed(2) as any
+                      return date >= lastYear && date <= currentDate;
+                    })
+                    .reduce(
+                      (sum, sub, _, arr) =>
+                        sum + Number(sub.price) / arr.length,
+                      0,
+                    ) || 0
+                ).toFixed(2) as any
               }
             </div>
             <div className="mt-1 flex items-center text-xs text-accent-foreground">

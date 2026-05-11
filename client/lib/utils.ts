@@ -10,32 +10,37 @@ export function getIntervalSubs(date: Date, days: number, direction: string) {
 
   const momentaryDate = new Date();
 
-  if (direction == "less") {
-    momentaryDate.setDate(now.getDate() - days);
+  if (direction === "less") {
+    momentaryDate.setDate(momentaryDate.getDate() - days);
 
     return date <= now && momentaryDate <= date;
   }
 
-  momentaryDate.setDate(now.getDate() + days);
+  momentaryDate.setDate(momentaryDate.getDate() + days);
 
   return date >= now && date <= momentaryDate;
 }
 
 export function comparePay(
-  subsPrice1: number,
-  subsPrice2: number,
+  previous: number,
+  current: number,
   dateType: string,
 ) {
-  if (subsPrice1 == undefined || subsPrice2 == undefined) {
-    return `No previous ${dateType}ly data available`;
+  if (previous === 0) {
+    if (current === 0) {
+      return "No costs in both periods";
+    }
+    return `+$${current} from last ${dateType}`;
   }
 
-  if (subsPrice1 > subsPrice2) {
-    return `${((subsPrice2 / subsPrice1) * 100).toFixed(1)}% less than last ${dateType}`;
-  } else if (subsPrice1 < subsPrice2) {
-    return `${((subsPrice1 / subsPrice2) * 100).toFixed(1)}% more than last ${dateType}`;
+  const change = ((current - previous) / previous) * 100;
+
+  if (change > 0) {
+    return `${change.toFixed(1)}% more than last ${dateType}`;
+  } else if (change < 0) {
+    return `${Math.abs(change).toFixed(1)}% less than last ${dateType}`;
   } else {
-    return `Same cost as last ${dateType}`;
+    return `Same costs as last ${dateType}`;
   }
 }
 
