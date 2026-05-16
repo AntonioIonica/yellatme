@@ -17,6 +17,19 @@ import { useEffect, useState } from "react";
 
 const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
+export const randomColor = () => {
+  const colors = [
+    "bg-red-700/50",
+    "bg-blue-700/50",
+    "bg-green-700/50",
+    "bg-yellow-700/50",
+    "bg-purple-700/50",
+  ];
+
+  const random = Math.floor(Math.random() * colors.length);
+  return colors[random];
+};
+
 const Calendar = () => {
   const [upcomingRenewals, setUpcomingRenewals] = useState<
     Subscription[] | null
@@ -62,19 +75,6 @@ const Calendar = () => {
   for (let day = 1; day <= daysInMonth; day++) {
     calendarDays.push(day);
   }
-
-  const randomColor = () => {
-    const colors = [
-      "bg-red-700/50",
-      "bg-blue-700/50",
-      "bg-green-700/50",
-      "bg-yellow-700/50",
-      "bg-purple-700/50",
-    ];
-
-    const random = Math.floor(Math.random() * colors.length);
-    return colors[random];
-  };
 
   // Fetch subscriptions by date filter
   useEffect(() => {

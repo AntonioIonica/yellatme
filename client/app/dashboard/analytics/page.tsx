@@ -16,17 +16,7 @@ import {
 import { ArrowUp } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-
-// To programmaticaly get "amount"
-const categoryData = [
-  { name: "Entertainment", amount: 43.97, percentage: 28, color: "bg-red-500" },
-  { name: "Software", amount: 54.99, percentage: 35, color: "bg-blue-500" },
-  { name: "Music", amount: 9.99, percentage: 6, color: "bg-green-500" },
-  { name: "Design", amount: 12.0, percentage: 8, color: "bg-purple-500" },
-  { name: "Development", amount: 4.0, percentage: 3, color: "bg-gray-600" },
-  { name: "Storage", amount: 2.99, percentage: 2, color: "bg-sky-500" },
-  { name: "Other", amount: 28.98, percentage: 18, color: "bg-orange-500" },
-];
+import { randomColor } from "../calendar/page";
 
 // To programmatically get "amount"
 const monthlySpending = [
@@ -36,6 +26,19 @@ const monthlySpending = [
   { month: "Jan", amount: 172.45 },
   { month: "Feb", amount: 178.5 },
   { month: "Mar", amount: 156.97 },
+];
+
+const categories = [
+  "technology",
+  "auto",
+  "lifestyle",
+  "entertainment",
+  "finance",
+  "house",
+  "work",
+  "garden",
+  "tools",
+  "other",
 ];
 
 const Analytics = () => {
@@ -62,6 +65,11 @@ const Analytics = () => {
   const router = useRouter();
 
   const maxAmount = Math.max(...monthlySpending.map((m) => m.amount));
+
+  const subscriptionsTotalPrice = subscriptions.reduce(
+    (sum, curr) => sum + +curr.price,
+    0,
+  );
 
   useEffect(() => {
     fetchUser();
@@ -294,23 +302,33 @@ const Analytics = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {categoryData.map((category) => (
-                <div key={category.name} className="space-y-1">
+              {categories.map((cat) => (
+                <div key={cat} className="space-y-1 overflow-auto">
                   <div className="flex items-center justify-between text-sm">
                     <div className="flex items-center gap-2">
-                      <div
-                        className={`size-3 rounded-full ${category.color}`}
-                      />
-                      <span>{category.name}</span>
+                      
+                      <span>{cat}</span>
                     </div>
                     <span className="font-medium">
-                      ${category.amount.toFixed(2)}
+                      $
+                      {subscriptions
+                        .filter((sub) => sub.category == cat)
+                        .reduce((sum, curr) => sum + +curr.price, 0)
+                        .toFixed(1)}
                     </span>
                   </div>
                   <div className="h-2 overflow-hidden rounded-full bg-secondary">
                     <div
-                      className={`h-full rounded-full ${category.color}`}
-                      style={{ width: `${category.percentage}%` }}
+                      className={`h-full rounded-full ${randomColor()}`}
+                      style={{
+                        width: `${
+                          (subscriptions
+                            .filter((sub) => sub.category == cat)
+                            .reduce((sum, curr) => sum + +curr.price, 0) /
+                            subscriptionsTotalPrice) *
+                          100
+                        }%`,
+                      }}
                     />
                   </div>
                 </div>
