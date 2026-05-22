@@ -7,7 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { comparePay, getIntervalSubs } from "@/lib/utils";
+import { comparePay, getIntervalSubs, getSubsByInterval } from "@/lib/utils";
 import { useAuthStore } from "@/store/useAuthStore";
 import {
   Subscription,
@@ -114,14 +114,7 @@ const Analytics = () => {
             <div className="font-bold mt-1 text-2xl">
               $
               {
-                upcomingRenewals
-                  ?.filter((subscription) =>
-                    getIntervalSubs(
-                      new Date(subscription.renewalDate),
-                      7,
-                      "more",
-                    ),
-                  )
+                getSubsByInterval(subscriptions!, "currentWeek")
                   .reduce((sum, sub) => sum + +sub.price, 0)
                   .toFixed(2) as any
               }
@@ -129,20 +122,15 @@ const Analytics = () => {
             <div className="mt-1 flex items-center text-xs text-accent-foreground">
               <span>
                 {comparePay(
-                  subscriptions
-                    ?.filter((sub) => {
-                      const date = new Date(sub.renewalDate);
+                  getSubsByInterval(subscriptions, "prevWeek").reduce(
+                    (sum, curr) => sum + +curr.price,
+                    0,
+                  ),
 
-                      return lastFourteenDays <= date && lastSevenDays >= date;
-                    })
-                    .reduce((sum, curr) => sum + +curr.price, 0),
-                  subscriptions
-                    ?.filter((sub) => {
-                      const date = new Date(sub.renewalDate);
-
-                      return lastSevenDays <= date && date <= now;
-                    })
-                    .reduce((sum, curr) => sum + +curr.price, 0),
+                  getSubsByInterval(subscriptions, "currentWeek").reduce(
+                    (sum, curr) => sum + +curr.price,
+                    0,
+                  ),
                   "week",
                 )}
               </span>
@@ -156,12 +144,7 @@ const Analytics = () => {
             <div className="font-bold mt-1 text-2xl">
               $
               {
-                subscriptions
-                  ?.filter((subscription) => {
-                    const date = new Date(subscription.renewalDate);
-
-                    return date >= lastThirtyDays && date <= now;
-                  })
+                getSubsByInterval(subscriptions, "currentMonth")
                   .reduce((sum, sub) => sum + +sub.price, 0)
                   .toFixed(2) as any
               }
@@ -169,20 +152,14 @@ const Analytics = () => {
             <div className="mt-1 flex items-center text-xs text-accent-foreground">
               <span>
                 {comparePay(
-                  subscriptions
-                    ?.filter((sub) => {
-                      const date = new Date(sub.renewalDate);
-
-                      return lastSixtyDays <= date && lastThirtyDays > date;
-                    })
-                    .reduce((sum, curr) => sum + +curr.price, 0),
-                  subscriptions
-                    ?.filter((sub) => {
-                      const date = new Date(sub.renewalDate);
-
-                      return lastThirtyDays <= date && date <= now;
-                    })
-                    .reduce((sum, curr) => sum + +curr.price, 0),
+                  getSubsByInterval(subscriptions, "prevMonth").reduce(
+                    (sum, curr) => sum + +curr.price,
+                    0,
+                  ),
+                  getSubsByInterval(subscriptions, "currentMonth").reduce(
+                    (sum, curr) => sum + +curr.price,
+                    0,
+                  ),
                   "month",
                 )}
               </span>
@@ -196,13 +173,7 @@ const Analytics = () => {
             <div className="font-bold mt-1 text-2xl">
               $
               {
-                subscriptions
-                  ?.filter((subscription) => {
-                    const currentDate = new Date();
-                    const date = new Date(subscription.renewalDate);
-
-                    return date >= lastSixMonths && date <= currentDate;
-                  })
+                getSubsByInterval(subscriptions, "pastSixMonths")
                   .reduce((sum, sub) => sum + +sub.price, 0)
                   .toFixed(2) as any
               }
@@ -210,21 +181,15 @@ const Analytics = () => {
             <div className="mt-1 flex items-center text-xs text-accent-foreground">
               <span>
                 {comparePay(
-                  subscriptions
-                    ?.filter((sub) => {
-                      const date = new Date(sub.renewalDate);
-
-                      return lastYear <= date && lastSixMonths >= date;
-                    })
-                    .reduce((sum, curr) => sum + +curr.price, 0),
-                  subscriptions
-                    ?.filter((sub) => {
-                      const date = new Date(sub.renewalDate);
-
-                      return lastSixMonths <= date && date <= now;
-                    })
-                    .reduce((sum, curr) => sum + +curr.price, 0),
-                  "6 months",
+                  getSubsByInterval(subscriptions, "prevSixMonths").reduce(
+                    (sum, curr) => sum + +curr.price,
+                    0,
+                  ),
+                  getSubsByInterval(subscriptions, "pastSixMonths").reduce(
+                    (sum, curr) => sum + +curr.price,
+                    0,
+                  ),
+                  "12 months",
                 )}
               </span>
             </div>
@@ -238,18 +203,10 @@ const Analytics = () => {
               $
               {
                 (
-                  subscriptions
-                    ?.filter((subscription) => {
-                      const currentDate = new Date();
-                      const date = new Date(subscription.renewalDate);
-
-                      return date >= lastYear && date <= currentDate;
-                    })
-                    .reduce(
-                      (sum, sub, _, arr) =>
-                        sum + Number(sub.price) / arr.length,
-                      0,
-                    ) || 0
+                  getSubsByInterval(subscriptions, "pastSixMonths").reduce(
+                    (sum, sub, _, arr) => sum + Number(sub.price) / arr.length,
+                    0,
+                  ) || 0
                 ).toFixed(2) as any
               }
             </div>
@@ -306,7 +263,6 @@ const Analytics = () => {
                 <div key={cat} className="space-y-1 overflow-auto">
                   <div className="flex items-center justify-between text-sm">
                     <div className="flex items-center gap-2">
-                      
                       <span>{cat}</span>
                     </div>
                     <span className="font-medium">
@@ -349,23 +305,45 @@ const Analytics = () => {
         <CardContent>
           <div className="grid gap-4 md:grid-cols-3">
             <div className="rounded-lg border border-border bg-secondary/30 p-4">
-              <div className="text-sm text-muted-foreground">2025 Total</div>
-              <div className="mt-1 text-2xl font-bold">$1,856.32</div>
-            </div>
-            <div className="rounded-lg border border-border bg-secondary/30 p-4">
-              <div className="text-sm text-muted-foreground">2026 YTD</div>
-              <div className="mt-1 text-2xl font-bold">$507.92</div>
+              <div className="text-sm text-muted-foreground">
+                {new Date().getFullYear() - 1} Total
+              </div>
+              <div className="mt-1 text-2xl font-bold">
+                $
+                {getSubsByInterval(subscriptions, "prevYear")
+                  .reduce((sum, curr) => sum + +curr.price, 0)
+                  .toFixed(2)}
+              </div>
             </div>
             <div className="rounded-lg border border-border bg-secondary/30 p-4">
               <div className="text-sm text-muted-foreground">
-                Projected 2026
+                {new Date().getFullYear()} YTD
+              </div>
+              <div className="mt-1 text-2xl font-bold">
+                $
+                {getSubsByInterval(subscriptions, "pastYear")
+                  .reduce((sum, curr) => sum + +curr.price, 0)
+                  .toFixed(2)}
+              </div>
+            </div>
+            <div className="rounded-lg border border-border bg-secondary/30 p-4">
+              <div className="text-sm text-muted-foreground">
+                Projected {new Date().getFullYear()}
               </div>
               <div className="mt-1 flex items-center gap-2">
-                <span className="text-2xl font-bold">$1,949.64</span>
-                <div className="flex items-center text-sm text-red-500">
-                  <ArrowUp className="size-3" />
-                  5%
-                </div>
+                <span className="text-2xl font-bold">
+                  $
+                  {(
+                    getSubsByInterval(subscriptions, "pastYear").reduce(
+                      (sum, curr) => sum + +curr.price,
+                      0,
+                    ) +
+                    getSubsByInterval(subscriptions, "currentYear").reduce(
+                      (sum, curr) => sum + +curr.price,
+                      0,
+                    )
+                  ).toFixed(2)}
+                </span>
               </div>
             </div>
           </div>
