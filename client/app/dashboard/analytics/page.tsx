@@ -7,13 +7,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { comparePay, getIntervalSubs, getSubsByInterval } from "@/lib/utils";
+import { comparePay, getSubsByInterval } from "@/lib/utils";
 import { useAuthStore } from "@/store/useAuthStore";
 import {
   Subscription,
   useSubscriptionStore,
 } from "@/store/useSubscriptionsStore";
-import { ArrowUp } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { randomColor } from "../calendar/page";
@@ -47,20 +46,6 @@ const Analytics = () => {
   >(null);
   const { subscriptions } = useSubscriptionStore();
   const { user, loading, fetchUser } = useAuthStore();
-
-  const now = new Date();
-  const lastSixtyDays = new Date();
-  lastSixtyDays.setDate(lastSixtyDays.getDate() - 60);
-  const lastThirtyDays = new Date();
-  lastThirtyDays.setDate(lastThirtyDays.getDate() - 30);
-  const lastFourteenDays = new Date();
-  lastFourteenDays.setDate(lastFourteenDays.getDate() - 14);
-  const lastSevenDays = new Date();
-  lastSevenDays.setDate(lastSevenDays.getDate() - 7);
-  const lastYear = new Date();
-  lastYear.setDate(lastYear.getDate() - 365);
-  const lastSixMonths = new Date();
-  lastSixMonths.setDate(lastSixMonths.getDate() - 182);
 
   const router = useRouter();
 
@@ -115,6 +100,7 @@ const Analytics = () => {
               $
               {
                 getSubsByInterval(subscriptions!, "currentWeek")
+                  .filter((sub) => sub.status == "active")
                   .reduce((sum, sub) => sum + +sub.price, 0)
                   .toFixed(2) as any
               }
@@ -127,10 +113,9 @@ const Analytics = () => {
                     0,
                   ),
 
-                  getSubsByInterval(subscriptions, "currentWeek").reduce(
-                    (sum, curr) => sum + +curr.price,
-                    0,
-                  ),
+                  getSubsByInterval(subscriptions, "currentWeek")
+                    .filter((sub) => sub.status === "active")
+                    .reduce((sum, curr) => sum + +curr.price, 0),
                   "week",
                 )}
               </span>
@@ -145,6 +130,7 @@ const Analytics = () => {
               $
               {
                 getSubsByInterval(subscriptions, "currentMonth")
+                  .filter((sub) => sub.status === "active")
                   .reduce((sum, sub) => sum + +sub.price, 0)
                   .toFixed(2) as any
               }
@@ -156,10 +142,9 @@ const Analytics = () => {
                     (sum, curr) => sum + +curr.price,
                     0,
                   ),
-                  getSubsByInterval(subscriptions, "currentMonth").reduce(
-                    (sum, curr) => sum + +curr.price,
-                    0,
-                  ),
+                  getSubsByInterval(subscriptions, "currentMonth")
+                    .filter((sub) => sub.status === "active")
+                    .reduce((sum, curr) => sum + +curr.price, 0),
                   "month",
                 )}
               </span>

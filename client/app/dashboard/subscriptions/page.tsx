@@ -12,7 +12,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   DropdownMenu,
@@ -41,7 +40,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { parseCurrency, getIntervalSubs } from "@/lib/utils";
+import { parseCurrency, getSubsByInterval } from "@/lib/utils";
 import { useAuthStore } from "@/store/useAuthStore";
 import {
   Subscription,
@@ -349,14 +348,8 @@ const Subscriptions = () => {
             </div>
             <div className="font-bold text-2xl mt-1">
               {
-                subscriptions?.filter(
-                  (subscription) =>
-                    subscription.status === "active" &&
-                    getIntervalSubs(
-                      new Date(subscription?.renewalDate),
-                      30,
-                      "more",
-                    ),
+                getSubsByInterval(subscriptions, "currentMonth").filter(
+                  (sub) => sub.status == "active",
                 ).length as any
               }
             </div>

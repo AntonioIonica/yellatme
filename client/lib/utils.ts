@@ -19,23 +19,24 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function getIntervalSubs(date: Date, days: number, direction: string) {
-  const now = new Date();
 
-  const momentaryDate = new Date();
+// Type for getSubsByInterval func
+type getSubsByIntervalTypes = (
+  subs: Subscription[],
+  interval:
+    | "prevWeek"
+    | "prevMonth"
+    | "prevSixMonths"
+    | "prevYear"
+    | "currentWeek"
+    | "currentMonth"
+    | "pastSixMonths"
+    | "pastYear"
+    | "currentYear"
+    | "wholeCurrYear",
+) => Subscription[];
 
-  if (direction === "less") {
-    momentaryDate.setDate(momentaryDate.getDate() - days);
-
-    return date <= now && momentaryDate <= date;
-  }
-
-  momentaryDate.setDate(momentaryDate.getDate() + days);
-
-  return date >= now && date <= momentaryDate;
-}
-
-export function getSubsByInterval(subs: Subscription[], interval: string) {
+export const getSubsByInterval: getSubsByIntervalTypes = (subs, interval) => {
   const now = new Date();
 
   let start: Date;
@@ -88,8 +89,14 @@ export function getSubsByInterval(subs: Subscription[], interval: string) {
       end = endOfYear(now);
       break;
 
+    case "wholeCurrYear":
+      start = startOfYear(now);
+      end = endOfYear(now);
+      break;
+
     default:
       console.log(`You should choose an interval`);
+      break;
   }
 
   const filteredSubs = subs?.filter((sub) =>
@@ -97,7 +104,7 @@ export function getSubsByInterval(subs: Subscription[], interval: string) {
   );
 
   return filteredSubs;
-}
+};
 
 export function comparePay(
   previous: number,

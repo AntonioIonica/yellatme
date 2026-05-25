@@ -15,18 +15,13 @@ import {
   useSubscriptionStore,
 } from "@/store/useSubscriptionsStore";
 import { useAuthStore } from "@/store/useAuthStore";
-import { comparePay, parseCurrency, getIntervalSubs } from "@/lib/utils";
+import {
+  comparePay,
+  parseCurrency,
+  getSubsByInterval,
+} from "@/lib/utils";
 
 const DashboardPage = () => {
-  const now = new Date();
-  const sevenDaysAgo = new Date();
-  sevenDaysAgo.setDate(now.getDate() - 7);
-  const fourteenDaysAgo = new Date();
-  fourteenDaysAgo.setDate(now.getDate() - 14);
-  const thirtyDaysAgo = new Date();
-  thirtyDaysAgo.setDate(now.getDate() - 30);
-  const sixtyDaysAgo = new Date();
-  sixtyDaysAgo.setDate(now.getDate() - 60);
   const { subscriptions, setSubscriptions } = useSubscriptionStore();
   const { user, loading, fetchUser } = useAuthStore();
   const [upcomingRenewals, setUpcomingRenewals] = useState<
@@ -35,9 +30,10 @@ const DashboardPage = () => {
 
   const router = useRouter();
 
-  const totalYearly = subscriptions
-    .filter((sub) => getIntervalSubs(new Date(sub.renewalDate), 365, "less"))
-    .reduce((sum, curr) => sum + +curr.price, 0);
+  const totalYearly = getSubsByInterval(subscriptions, "wholeCurrYear").reduce(
+    (sum, curr) => sum + +curr.price,
+    0,
+  );
 
   useEffect(() => {
     fetchUser();
@@ -108,32 +104,22 @@ const DashboardPage = () => {
           <CardContent>
             <div className="font-bold text-2xl">
               $
-              {subscriptions
-                ?.filter(
-                  (subscription) =>
-                    new Date(subscription?.renewalDate).getMonth() ==
-                      new Date().getMonth() ||
-                    new Date(subscription?.startDate).getMonth() ==
-                      new Date().getMonth(),
-                )
+              {getSubsByInterval(subscriptions, "currentMonth")
                 .reduce((sum, current) => sum + +current?.price, 0)
                 .toFixed(2)}
             </div>
             <div className="flex items-center font-semibold text-muted-foreground mt-2">
               <span className="text-muted-foreground">
                 {comparePay(
-                  subscriptions
-                    .filter((sub) => {
-                      const date = new Date(sub.renewalDate);
-                      return date >= sixtyDaysAgo && date <= thirtyDaysAgo;
-                    })
-                    .reduce((sum, curr) => sum + +curr.price, 0),
-                  subscriptions
-                    .filter((sub) => {
-                      const date = new Date(sub.renewalDate);
-                      return date >= thirtyDaysAgo && date <= now;
-                    })
-                    .reduce((sum, curr) => sum + +curr.price, 0),
+                  getSubsByInterval(subscriptions, "prevMonth").reduce(
+                    (sum, curr) => sum + +curr.price,
+                    0,
+                  ),
+
+                  getSubsByInterval(subscriptions, "currentMonth").reduce(
+                    (sum, curr) => sum + +curr.price,
+                    0,
+                  ),
                   "month",
                 )}
               </span>
@@ -152,30 +138,14 @@ const DashboardPage = () => {
             <div className="flex items-center font-semibold text-muted-foreground mt-2">
               <span className="text-muted-foreground">
                 {comparePay(
-                  subscriptions
-                    .filter((sub) => {
-                      const twoYearsAgo = new Date();
-                      twoYearsAgo.setDate(now.getDate() - 730);
-                      const oneYearAgo = new Date();
-                      oneYearAgo.setDate(now.getDate() - 365);
-                      const date = new Date(sub.renewalDate);
-
-                      return (
-                        twoYearsAgo <= date &&
-                        date <= oneYearAgo &&
-                        sub.status === "active"
-                      );
-                    })
-                    .reduce((sum, curr) => sum + +curr.price, 0),
-                  subscriptions
-                    .filter((sub) => {
-                      const oneYearAgo = new Date();
-                      oneYearAgo.setDate(now.getDate() - 365);
-                      const date = new Date(sub.renewalDate);
-
-                      return date >= oneYearAgo && sub.status === "active";
-                    })
-                    .reduce((sum, curr) => sum + +curr.price, 0),
+                  getSubsByInterval(subscriptions, "prevYear").reduce(
+                    (sum, curr) => sum + +curr.price,
+                    0,
+                  ),
+                  getSubsByInterval(subscriptions, "wholeCurrYear").reduce(
+                    (sum, curr) => sum + +curr.price,
+                    0,
+                  ),
                   "year",
                 )}
               </span>
@@ -221,20 +191,7 @@ const DashboardPage = () => {
             <div className="font-bold text-2xl">
               $
               {
-                subscriptions
-                  ?.filter((subscription) => {
-                    // parsed to new Date() because coming as a db date from MongoDB
-                    if (
-                      getIntervalSubs(
-                        new Date(subscription?.renewalDate),
-                        30,
-                        "more",
-                      ) &&
-                      subscription.status === "active"
-                    ) {
-                      return subscription;
-                    }
-                  })
+                getSubsByInterval(upcomingRenewals!, "currentMonth")
                   .reduce((sum, current) => sum + +current?.price, 0)
                   .toFixed(2) as any
               }
@@ -242,15 +199,8 @@ const DashboardPage = () => {
             <div className="flex items-center font-semibold text-muted-foreground mt-2">
               <span>
                 {
-                  subscriptions?.filter(
-                    (subscription) =>
-                      subscription.status === "active" &&
-                      getIntervalSubs(
-                        new Date(subscription?.renewalDate),
-                        30,
-                        "more",
-                      ),
-                  ).length as any
+                  getSubsByInterval(upcomingRenewals!, "currentMonth")
+                    .length as any
                 }{" "}
                 payments scheduled
               </span>
@@ -270,13 +220,8 @@ const DashboardPage = () => {
           </CardHeader>
           <CardContent className="overflow-auto">
             <div className="space-y-3">
-              {upcomingRenewals
-                ?.filter(
-                  (sub) =>
-                    sub.status === "active" &&
-                    getIntervalSubs(new Date(sub.renewalDate), 180, "more"),
-                )
-                .map((sub, index) => (
+              {getSubsByInterval(upcomingRenewals!, "currentYear").map(
+                (sub, index) => (
                   <div
                     key={index}
                     className="flex items-center justify-between rounded-lg border-border bg-accent/90 px-4 py-3"
@@ -312,7 +257,8 @@ const DashboardPage = () => {
                       </div>
                     </div>
                   </div>
-                ))}
+                ),
+              )}
             </div>
           </CardContent>
         </Card>

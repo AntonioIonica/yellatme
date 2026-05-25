@@ -8,7 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { parseCurrency, getIntervalSubs } from "@/lib/utils";
+import { parseCurrency, getSubsByInterval } from "@/lib/utils";
 import { useAuthStore } from "@/store/useAuthStore";
 import { Subscription } from "@/store/useSubscriptionsStore";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -35,7 +35,7 @@ const Calendar = () => {
     Subscription[] | null
   >([]);
   const [dateSubs, setDateSubs] = useState<Subscription[] | null>([]);
-  const [currentDate, setCurrentDate] = useState(new Date());
+  const currentDate = new Date();
   const [currentMonth, setCurrentMonth] = useState(currentDate.getMonth());
   const [currentYear, setCurrentYear] = useState(currentDate.getFullYear());
 
@@ -259,22 +259,13 @@ const Calendar = () => {
         <Card className="border-border bg-card">
           <CardHeader>
             <CardTitle>This week</CardTitle>
-            <CardDescription>
-              Upcoming subscriptions in the next 7 days
-            </CardDescription>
+            <CardDescription>Upcoming subscriptions this week</CardDescription>
           </CardHeader>
           <CardContent className="overflow-y-auto">
             <div className="space-y-3">
               {
-                upcomingRenewals
-                  ?.filter((subscription) =>
-                    getIntervalSubs(
-                      new Date(subscription.renewalDate),
-                      7,
-                      "more",
-                    ),
-                  )
-                  .map((subscription, index) => (
+                getSubsByInterval(upcomingRenewals!, "currentWeek").map(
+                  (subscription, index) => (
                     <div
                       key={index}
                       className={`flex items-center justify-between
@@ -293,7 +284,8 @@ const Calendar = () => {
                         {+subscription.price.toFixed(2)}
                       </div>
                     </div>
-                  )) as any
+                  ),
+                ) as any
               }
             </div>
           </CardContent>
@@ -302,23 +294,13 @@ const Calendar = () => {
         <Card className="border-border bg-card">
           <CardHeader>
             <CardTitle>Later this month</CardTitle>
-            <CardDescription>Payments after this next week</CardDescription>
+            <CardDescription>Later payments this month</CardDescription>
           </CardHeader>
           <CardContent className="overflow-y-auto">
             <div className="space-y-3">
               {
-                upcomingRenewals
-                  ?.filter(
-                    (subscription) =>
-                      getIntervalSubs(
-                        new Date(subscription.renewalDate),
-                        30,
-                        "more",
-                      ) &&
-                      new Date(subscription.renewalDate).getDate() >
-                        new Date().getDate() + 7,
-                  )
-                  .map((subscription, index) => (
+                getSubsByInterval(upcomingRenewals!, "currentMonth").map(
+                  (subscription, index) => (
                     <div
                       key={index}
                       className={`flex items-center justify-between rounded-lg border border-border p-3 ${randomColor()}`}
@@ -336,7 +318,8 @@ const Calendar = () => {
                         {+subscription.price.toFixed(2)}
                       </div>
                     </div>
-                  )) as any
+                  ),
+                ) as any
               }
             </div>
           </CardContent>
