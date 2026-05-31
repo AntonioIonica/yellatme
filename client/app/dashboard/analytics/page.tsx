@@ -16,16 +16,8 @@ import {
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { randomColor } from "../calendar/page";
-
-// To programmatically get "amount"
-const monthlySpending = [
-  { month: "Oct", amount: 1242.5 },
-  { month: "Nov", amount: 158.32 },
-  { month: "Dec", amount: 165.99 },
-  { month: "Jan", amount: 172.45 },
-  { month: "Feb", amount: 178.5 },
-  { month: "Mar", amount: 156.97 },
-];
+import { Bar, BarChart, XAxis, YAxis } from "recharts";
+import { subMonths, format } from "date-fns";
 
 const categories = [
   "technology",
@@ -41,39 +33,45 @@ const categories = [
 ];
 
 const Analytics = () => {
-  const [upcomingRenewals, setUpcomingRenewals] = useState<
-    Subscription[] | null
-  >(null);
   const { subscriptions } = useSubscriptionStore();
   const { user, loading, fetchUser } = useAuthStore();
 
   const router = useRouter();
-
-  const maxAmount = Math.max(...monthlySpending.map((m) => m.amount));
 
   const subscriptionsTotalPrice = subscriptions.reduce(
     (sum, curr) => sum + +curr.price,
     0,
   );
 
+  const groupByMonth = (subscriptions: Subscription[]) => {
+    const now = new Date();
+
+    const months = Array.from({ length: 6 }, (_, i) => {
+      const date = subMonths(now, 5 - i);
+
+      return {
+        key: format(date, "yyyy-MM"),
+        month: format(date, "MMM"),
+        total: 0,
+      };
+    });
+
+    // to be able to generate total prices for months
+    const monthMap = new Map(months.map((m) => [m.key, m]));
+
+    for (const sub of subscriptions) {
+      const key = format(sub.renewalDate, "yyyy-MM");
+
+      if (monthMap.has(key)) {
+        monthMap.get(key)!.total += sub.price;
+      }
+    }
+
+    return Array.from(monthMap.values());
+  };
+
   useEffect(() => {
     fetchUser();
-  }, []);
-
-  useEffect(() => {
-    const fetchUpcomingRenewals = async () => {
-      const res = await fetch(
-        `http://localhost:5500/api/v1/subscriptions/upcoming-renewals`,
-        {
-          credentials: "include",
-        },
-      );
-
-      const result = await res.json();
-      setUpcomingRenewals(result.data);
-    };
-
-    fetchUpcomingRenewals();
   }, []);
 
   useEffect(() => {
@@ -211,27 +209,18 @@ const Analytics = () => {
             <CardDescription>Monthly subscription spending</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="flex h-48 items-end gap-2">
-              {monthlySpending.map((month) => {
-                const height = (month.amount / maxAmount) * 100;
-                const isCurrentMonth = month.month === "Mar";
-                return (
-                  <div
-                    key={month.month}
-                    className="flex flex-1 flex-col items-center gap-2"
-                  >
-                    <div
-                      className={`w-full rounded-t-md transition-all ${
-                        isCurrentMonth ? "bg-accent" : "bg-secondary"
-                      }`}
-                      style={{ height: `${height}%` }}
-                    />
-                    <div className="text-xs text-muted-foreground">
-                      {month.month}
-                    </div>
-                  </div>
-                );
-              })}
+            <div className="flex items-center justify-center">
+              <BarChart
+                className="text-lg font-semibold"
+                width={700}
+                height={450}
+                data={groupByMonth(subscriptions)}
+
+              >
+                <XAxis dataKey="month" />
+                <YAxis dataKey="total" fill="#d3d3d6" />
+                <Bar dataKey="total" fill="#0f0f8a" />
+              </BarChart>
             </div>
           </CardContent>
         </Card>
