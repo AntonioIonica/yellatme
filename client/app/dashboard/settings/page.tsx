@@ -26,7 +26,7 @@ import { Separator } from "@/components/ui/separator";
 import { useAuthStore } from "@/store/useAuthStore";
 import { Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { SubmitEventHandler, useEffect } from "react";
 
 const proPlanFeatures = [
   "Unlimited subscriptions",
@@ -72,6 +72,28 @@ const SettingsPage = () => {
     return null;
   };
 
+  const handleUpdateUser: SubmitEventHandler<HTMLFormElement> = async (e) => {
+    e.preventDefault();
+    if (!user) return;
+
+    const formData = new FormData(e.currentTarget);
+    const { name, password } = Object.fromEntries(formData.entries());
+
+    const res = await fetch(`http://localhost:5500/api/v1/users/${user._id}`, {
+      credentials: "include",
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ name, password }),
+    });
+
+    const result = await res.json();
+    if (result.success) {
+      fetchUser();
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Profile */}
@@ -101,7 +123,7 @@ const SettingsPage = () => {
             </div>
           </div>
           <Separator />
-          <form className="flex flex-col gap-6">
+          <form className="flex flex-col gap-6" onSubmit={handleUpdateUser}>
             <div className="flex flex-col gap-4">
               <div className="space-y-2">
                 <Label htmlFor="name">Name: </Label>
@@ -110,6 +132,7 @@ const SettingsPage = () => {
                   type="text"
                   defaultValue={user?.name as string}
                   className="bg-secondary/30 w-[30%]"
+                  name="name"
                 />
               </div>
 
@@ -118,6 +141,7 @@ const SettingsPage = () => {
                 <Input
                   id="password"
                   type="password"
+                  name="password"
                   className="bg-secondary/30 w-[30%]"
                 />
               </div>
