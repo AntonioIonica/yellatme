@@ -23,7 +23,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { Switch } from "@/components/ui/switch";
 import { useAuthStore } from "@/store/useAuthStore";
 import { Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -57,6 +56,21 @@ const SettingsPage = () => {
         </div>
       </div>
     );
+
+  const handleDeleteAccount = async () => {
+    if (!user) return;
+
+    const res = await fetch(`http://localhost:5500/api/v1/users/${user._id}`, {
+      credentials: "include",
+      method: "DELETE",
+    });
+
+    const result = await res.json();
+    if (result.success) {
+      router.push(result.redirect);
+    }
+    return null;
+  };
 
   return (
     <div className="space-y-6">
@@ -166,35 +180,6 @@ const SettingsPage = () => {
         </CardContent>
       </Card>
 
-      {/* Preferences */}
-      <Card className="border-border bg-card">
-        <CardHeader className="mb-6">
-          <CardTitle>Preferences</CardTitle>
-          <CardDescription>Customize your options</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="flex items-center justify-between">
-            <div className="space-y-2">
-              <Label>Weekly summary</Label>
-              <p className="text-sm text-muted-foreground">
-                Receive a weekly email summary
-              </p>
-            </div>
-            <Switch defaultChecked />
-          </div>
-          <Separator />
-          <div className="flex items-center justify-between">
-            <div className="space-y-2">
-              <Label>Monthly report</Label>
-              <p className="text-sm text-muted-foreground">
-                Receive a monthly subscriptions report
-              </p>
-            </div>
-            <Switch defaultChecked />
-          </div>
-        </CardContent>
-      </Card>
-
       {/* Danger zone */}
       <Card className="border-destructive/50 bg-card">
         <CardHeader>
@@ -227,7 +212,11 @@ const SettingsPage = () => {
                   </DialogDescription>
                 </DialogHeader>
                 <DialogFooter className="flex justify-between items-center">
-                  <Button variant="destructive" className="font-bold text-lg">
+                  <Button
+                    onClick={handleDeleteAccount}
+                    variant="destructive"
+                    className="font-bold text-lg"
+                  >
                     Delete account
                   </Button>
                   <DialogClose asChild>

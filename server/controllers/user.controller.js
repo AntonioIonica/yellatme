@@ -157,7 +157,7 @@ export const deleteUser = async (req, res, next) => {
       success: true,
       message: "Account successfully deleted!",
       signOut: true,
-      redirect: "/sign-in",
+      redirect: "/login",
     });
   } catch (error) {
     next(error);

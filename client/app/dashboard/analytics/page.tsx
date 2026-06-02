@@ -43,6 +43,7 @@ const Analytics = () => {
     0,
   );
 
+  // returns the date array for charts
   const groupByMonth = (subscriptions: Subscription[]) => {
     const now = new Date();
 
