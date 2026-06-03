@@ -41,7 +41,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 const mainNavItems = [
   {
@@ -93,7 +93,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
 
   // Sign-out
   const handleLogout = async () => {
-    const res = await fetch("http://localhost:5500/api/v1/auth/sign-out", {
+    const res = await fetch(`${process.env.SERVER_URL}/api/v1/auth/sign-out`, {
       credentials: "include",
     });
 

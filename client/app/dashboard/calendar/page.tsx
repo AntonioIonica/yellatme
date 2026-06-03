@@ -89,7 +89,7 @@ const Calendar = () => {
       const to = new Date(currentYear, currentMonth, daysInMonth);
       params.set("to", to.toString());
 
-      let query = `http://localhost:5500/api/v1/subscriptions/user/${user._id}?${params.toString()}`;
+      let query = `${process.env.SERVER_URL}/api/v1/subscriptions/user/${user._id}?${params.toString()}`;
 
       const res = await fetch(query, {
         credentials: "include",

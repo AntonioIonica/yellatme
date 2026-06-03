@@ -60,10 +60,13 @@ const SettingsPage = () => {
   const handleDeleteAccount = async () => {
     if (!user) return;
 
-    const res = await fetch(`http://localhost:5500/api/v1/users/${user._id}`, {
-      credentials: "include",
-      method: "DELETE",
-    });
+    const res = await fetch(
+      `${process.env.SERVER_URL}/api/v1/users/${user._id}`,
+      {
+        credentials: "include",
+        method: "DELETE",
+      },
+    );
 
     const result = await res.json();
     if (result.success) {
@@ -79,14 +82,17 @@ const SettingsPage = () => {
     const formData = new FormData(e.currentTarget);
     const { name, password } = Object.fromEntries(formData.entries());
 
-    const res = await fetch(`http://localhost:5500/api/v1/users/${user._id}`, {
-      credentials: "include",
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
+    const res = await fetch(
+      `${process.env.SERVER_URL}/api/v1/users/${user._id}`,
+      {
+        credentials: "include",
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name, password }),
       },
-      body: JSON.stringify({ name, password }),
-    });
+    );
 
     const result = await res.json();
     if (result.success) {
@@ -98,7 +104,7 @@ const SettingsPage = () => {
     if (!user) return;
 
     const res = await fetch(
-      `http://localhost:5500/api/v1/users/${user._id}/change-plan`,
+      `${process.env.SERVER_URL}/api/v1/users/${user._id}/change-plan`,
       {
         credentials: "include",
       },

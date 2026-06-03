@@ -122,7 +122,7 @@ const Subscriptions = () => {
         params.append("sortDir", sortDir);
       }
 
-      let query = `http://localhost:5500/api/v1/subscriptions/user/${user._id}?${params.toString()}`;
+      let query = `${process.env.SERVER_URL}/api/v1/subscriptions/user/${user._id}?${params.toString()}`;
 
       const res = await fetch(query, {
         credentials: "include",
@@ -167,7 +167,7 @@ const Subscriptions = () => {
 
   const handleDeleteSub = async (id: SubscriptionId) => {
     const res = await fetch(
-      `http://localhost:5500/api/v1/subscriptions/${id}`,
+      `${process.env.SERVER_URL}/api/v1/subscriptions/${id}`,
       {
         method: "DELETE",
         credentials: "include",
@@ -178,7 +178,7 @@ const Subscriptions = () => {
 
   const handleCancelSub = async (id: SubscriptionId) => {
     const res = await fetch(
-      `http://localhost:5500/api/v1/subscriptions/${id}/cancel`,
+      `${process.env.SERVER_URL}/api/v1/subscriptions/${id}/cancel`,
       {
         method: "PATCH",
         credentials: "include",
@@ -195,7 +195,7 @@ const Subscriptions = () => {
     e.preventDefault();
 
     const res = await fetch(
-      `http://localhost:5500/api/v1/subscriptions/${formData?._id}`,
+      `${process.env.SERVER_URL}/api/v1/subscriptions/${formData?._id}`,
       {
         method: "PATCH",
         credentials: "include",

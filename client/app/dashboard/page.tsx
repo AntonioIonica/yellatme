@@ -15,11 +15,7 @@ import {
   useSubscriptionStore,
 } from "@/store/useSubscriptionsStore";
 import { useAuthStore } from "@/store/useAuthStore";
-import {
-  comparePay,
-  parseCurrency,
-  getSubsByInterval,
-} from "@/lib/utils";
+import { comparePay, parseCurrency, getSubsByInterval } from "@/lib/utils";
 
 const DashboardPage = () => {
   const { subscriptions, setSubscriptions } = useSubscriptionStore();
@@ -42,7 +38,7 @@ const DashboardPage = () => {
   useEffect(() => {
     const fetchUpcomingRenewals = async () => {
       const res = await fetch(
-        `http://localhost:5500/api/v1/subscriptions/upcoming-renewals`,
+        `${process.env.SERVER_URL}/api/v1/subscriptions/upcoming-renewals`,
         {
           credentials: "include",
         },
@@ -61,7 +57,7 @@ const DashboardPage = () => {
 
     const fetchUserSubs = async () => {
       const res = await fetch(
-        `http://localhost:5500/api/v1/subscriptions/user/${user._id}`,
+        `${process.env.SERVER_URL}/api/v1/subscriptions/user/${user._id}`,
         {
           credentials: "include",
         },

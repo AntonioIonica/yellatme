@@ -16,7 +16,7 @@ const Login = () => {
     const formObj = Object.fromEntries(formData.entries());
     const { email, password } = formObj;
 
-    const res = await fetch("http://localhost:5500/api/v1/auth/sign-in", {
+    const res = await fetch(`${process.env.SERVER_URL}/api/v1/auth/sign-in`, {
       method: "POST",
       credentials: "include",
       headers: {
