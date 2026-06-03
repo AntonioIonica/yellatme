@@ -94,6 +94,22 @@ const SettingsPage = () => {
     }
   };
 
+  const handleChangePlan = async () => {
+    if (!user) return;
+
+    const res = await fetch(
+      `http://localhost:5500/api/v1/users/${user._id}/change-plan`,
+      {
+        credentials: "include",
+      },
+    );
+
+    const result = await res.json();
+    if (result.success) {
+      router.push("/dashboard");
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Profile */}
@@ -163,16 +179,45 @@ const SettingsPage = () => {
           <div className="flex justify-between items-center rounded-lg border border-accent bg-accent/10 p-4">
             <div className="space-y-1">
               <div className="flex items-center gap-2">
-                <span className="font-bold">Pro Plan</span>
+                <span className="font-bold">
+                  {user?.plan.toUpperCase().concat(" plan")}
+                </span>
                 <Badge className="bg-accent text-accent-foreground">
                   Current
                 </Badge>
               </div>
               <p className="text-sm text-muted-foreground">
-                $9/month, billed monthly
+                $3/month, billed monthly
               </p>
             </div>
-            <Button variant="outline">Manage plan</Button>
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="outline">Manage plan</Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-md">
+                <DialogHeader>
+                  <DialogTitle className="font-normal text-lg">
+                    Switch to free plan
+                  </DialogTitle>
+                  <DialogDescription className="text-foreground font-semibold">
+                    Are you sure you want to cancel your subscription to get
+                    back to free plan?
+                  </DialogDescription>
+                </DialogHeader>
+                <DialogFooter className="flex justify-between items-center">
+                  <Button
+                    onClick={handleChangePlan}
+                    variant="default"
+                    className="font-bold text-lg"
+                  >
+                    Confirm change
+                  </Button>
+                  <DialogClose asChild>
+                    <Button type="button">Cancel</Button>
+                  </DialogClose>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           </div>
           <div className="space-y-3">
             <h4 className="font-medium text-sm">Your plan includes: </h4>

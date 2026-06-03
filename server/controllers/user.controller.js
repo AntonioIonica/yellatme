@@ -2,7 +2,7 @@ import User from "../models/user.model.js";
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 
-
+// Admins only
 export const getUsers = async (req, res, next) => {
   // Available only to admin roles
   try {
@@ -17,6 +17,7 @@ export const getUsers = async (req, res, next) => {
     next(error);
   }
 };
+// Admins only
 
 export const getUser = async (req, res, next) => {
   try {
@@ -107,7 +108,9 @@ export const updateUser = async (req, res, next) => {
     }
 
     if (password.length < 6) {
-      const error = new Error("The password should have more than 6 characters!");
+      const error = new Error(
+        "The password should have more than 6 characters!",
+      );
       error.statusCode = 401;
       throw error;
     }
@@ -150,7 +153,7 @@ export const deleteUser = async (req, res, next) => {
       throw error;
     }
 
-    if (req.user._id !== user._id) {
+    if (req.user.id !== req.params.id) {
       const error = new Error("Not authorized to delete other users account!");
       error.statusCode = 401;
       throw error;
@@ -164,6 +167,40 @@ export const deleteUser = async (req, res, next) => {
       message: "Account successfully deleted!",
       signOut: true,
       redirect: "/login",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const changePlan = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.params.id).select("-password");
+    if (!user) {
+      const error = new Error("User not found");
+      error.statusCode = 404;
+      throw error;
+    }
+
+    if (req.user.id !== req.params.id) {
+      const error = new Error("Not authorized to update other users account!");
+      error.statusCode = 401;
+      throw error;
+    }
+
+    let plan;
+    if (req.user.plan === "pro") {
+      plan = "free";
+    }
+
+    let options = { plan };
+
+    const updatedUser = await User.findByIdAndUpdate(req.params.id, options);
+
+    res.status(201).json({
+      success: true,
+      message: "Plan successfully updated!",
+      data: updatedUser,
     });
   } catch (error) {
     next(error);

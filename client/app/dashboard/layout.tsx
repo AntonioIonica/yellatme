@@ -78,6 +78,7 @@ export type userType = {
   _id: String;
   name: String;
   email: String;
+  plan: "free" | "pro";
 };
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
@@ -96,9 +97,12 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
       credentials: "include",
     });
 
-    clearUser();
+    const result = await res.json();
+    if (result.success) {
+      clearUser();
 
-    router.push("/");
+      router.push("/");
+    }
   };
 
   return (
@@ -113,7 +117,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
                     <Logo />
                   </div>
                   <div className="leading-none">
-                    <span>Free plan</span>
+                    <span>{user?.plan.toUpperCase().concat(" plan")}</span>
                   </div>
                 </Link>
               </SidebarMenuButton>

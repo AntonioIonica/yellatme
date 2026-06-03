@@ -1,6 +1,7 @@
 import { Router } from "express";
 
 import {
+  changePlan,
   createUser,
   deleteUser,
   getUser,
@@ -21,5 +22,7 @@ userRouter.post("/", authorize, admin, createUser);
 userRouter.put("/:id", authorize, updateUser);
 
 userRouter.delete("/:id", authorize, deleteUser);
+
+userRouter.get("/:id/change-plan", authorize, changePlan)
 
 export default userRouter;
