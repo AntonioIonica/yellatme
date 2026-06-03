@@ -27,6 +27,15 @@ const userSchema = new mongoose.Schema(
       enum: ["user", "admin"],
       default: "user",
     },
+    plan: {
+      type: String,
+      enum: ["free", "pro"],
+      default: "free",
+    },
+    freeTokens: {
+      type: Number,
+      default: 5,
+    },
   },
   { timestamps: true },
 );
