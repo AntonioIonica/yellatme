@@ -38,7 +38,7 @@ const DashboardPage = () => {
   useEffect(() => {
     const fetchUpcomingRenewals = async () => {
       const res = await fetch(
-        `${process.env.SERVER_URL}/api/v1/subscriptions/upcoming-renewals`,
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/subscriptions/upcoming-renewals`,
         {
           credentials: "include",
         },
@@ -57,7 +57,7 @@ const DashboardPage = () => {
 
     const fetchUserSubs = async () => {
       const res = await fetch(
-        `${process.env.SERVER_URL}/api/v1/subscriptions/user/${user._id}`,
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/subscriptions/user/${user._id}`,
         {
           credentials: "include",
         },

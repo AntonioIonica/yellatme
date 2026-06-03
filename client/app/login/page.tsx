@@ -16,17 +16,20 @@ const Login = () => {
     const formObj = Object.fromEntries(formData.entries());
     const { email, password } = formObj;
 
-    const res = await fetch(`${process.env.SERVER_URL}/api/v1/auth/sign-in`, {
-      method: "POST",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/auth/sign-in`,
+      {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
       },
-      body: JSON.stringify({
-        email,
-        password,
-      }),
-    });
+    );
 
     const result = await res.json();
 

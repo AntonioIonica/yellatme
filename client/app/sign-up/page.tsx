@@ -29,12 +29,15 @@ const SignUp = () => {
     };
 
     try {
-      const res = await fetch(`${process.env.SERVER_URL}/api/v1/auth/sign-up`, {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(userData),
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/auth/sign-up`,
+        {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(userData),
+        },
+      );
 
       if (!res.ok) {
         throw new Error("Failed request!");

@@ -61,7 +61,7 @@ const SettingsPage = () => {
     if (!user) return;
 
     const res = await fetch(
-      `${process.env.SERVER_URL}/api/v1/users/${user._id}`,
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/users/${user._id}`,
       {
         credentials: "include",
         method: "DELETE",
@@ -83,7 +83,7 @@ const SettingsPage = () => {
     const { name, password } = Object.fromEntries(formData.entries());
 
     const res = await fetch(
-      `${process.env.SERVER_URL}/api/v1/users/${user._id}`,
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/users/${user._id}`,
       {
         credentials: "include",
         method: "PUT",
@@ -104,7 +104,7 @@ const SettingsPage = () => {
     if (!user) return;
 
     const res = await fetch(
-      `${process.env.SERVER_URL}/api/v1/users/${user._id}/change-plan`,
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/users/${user._id}/change-plan`,
       {
         credentials: "include",
       },

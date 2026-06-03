@@ -167,7 +167,7 @@ const Subscriptions = () => {
 
   const handleDeleteSub = async (id: SubscriptionId) => {
     const res = await fetch(
-      `${process.env.SERVER_URL}/api/v1/subscriptions/${id}`,
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/subscriptions/${id}`,
       {
         method: "DELETE",
         credentials: "include",
@@ -178,7 +178,7 @@ const Subscriptions = () => {
 
   const handleCancelSub = async (id: SubscriptionId) => {
     const res = await fetch(
-      `${process.env.SERVER_URL}/api/v1/subscriptions/${id}/cancel`,
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/subscriptions/${id}/cancel`,
       {
         method: "PATCH",
         credentials: "include",
@@ -195,7 +195,7 @@ const Subscriptions = () => {
     e.preventDefault();
 
     const res = await fetch(
-      `${process.env.SERVER_URL}/api/v1/subscriptions/${formData?._id}`,
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/subscriptions/${formData?._id}`,
       {
         method: "PATCH",
         credentials: "include",
