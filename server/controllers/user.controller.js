@@ -100,8 +100,14 @@ export const updateUser = async (req, res, next) => {
     }
 
     const { name, password } = req.body;
-    if (name.length < 4) {
+    if (name.length < 3) {
       const error = new Error("The name should have more than 3 characters!");
+      error.statusCode = 401;
+      throw error;
+    }
+
+    if (password.length < 6) {
+      const error = new Error("The password should have more than 6 characters!");
       error.statusCode = 401;
       throw error;
     }
