@@ -76,14 +76,17 @@ const AddSubscriptionDialog = () => {
       user: user?._id,
     };
 
-    const res = await fetch("http://localhost:5500/api/v1/subscriptions", {
-      method: "POST",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/subscriptions`,
+      {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(dataObject),
       },
-      body: JSON.stringify(dataObject),
-    });
+    );
 
     const result = await res.json();
 

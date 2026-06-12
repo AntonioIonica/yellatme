@@ -13,6 +13,8 @@ import arcjetMiddleware from "./middlewares/arcjet.middleware.js";
 import workflowRouter from "./routes/workflow.routes.js";
 import "./cron/subscriptions.cron.js";
 
+const port = process.env.PORT || PORT;
+
 dns.setServers(["8.8.8.8", "1.1.1.1"]); // Google + Cloudflare
 const app = express();
 
@@ -22,9 +24,22 @@ app.use(express.json());
 // Reads cookies from requests
 app.use(cookieParser());
 
+const allowedCorsOrigins = [
+  "https://yellatme-gold.vercel.app",
+  "http://localhost:3000",
+];
+
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: function (origin, callback) {
+      if (!origin) return callback(null, true);
+
+      if (allowedCorsOrigins.includes(origin)) {
+        return callback(null, true);
+      } else {
+        return callback(new Error("Not allowed by CORS policy!"));
+      }
+    },
     credentials: true, // allow sending cookies
   }),
 );
@@ -45,10 +60,10 @@ app.use("/api/v1/workflows", workflowRouter);
 app.use(errorMiddleware);
 
 app.get("/", (req, res) => {
-  res.status(200).send("Hello to the subscriptions reminder");
+  res.status(200).send("API for YellAtMe");
 });
 
-app.listen(PORT, async () => {
+app.listen(port || 5500, async () => {
   console.log(`The server started at http://localhost:${PORT}`);
 
   // Before starting the server

@@ -110,7 +110,7 @@ const Calendar = () => {
   useEffect(() => {
     const fetchUpcomingRenewals = async () => {
       const res = await fetch(
-        `http://localhost:5500/api/v1/subscriptions/upcoming-renewals`,
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/subscriptions/upcoming-renewals`,
         {
           credentials: "include",
         },

@@ -18,9 +18,12 @@ export const useAuthStore = create<authStore>((set) => ({
 
   fetchUser: async () => {
     try {
-      const res = await fetch("http://localhost:5500/api/v1/auth/jwt", {
-        credentials: "include",
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/auth/jwt`,
+        {
+          credentials: "include",
+        },
+      );
 
       if (!res.ok) {
         set({ user: null, loading: false });

@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
 import User from "../models/user.model.js";
-import { JWT_SECRET, JWT_EXPIRES_IN } from "../config/env.js";
+import { JWT_SECRET, JWT_EXPIRES_IN, NODE_ENV } from "../config/env.js";
 
 // Create a new user
 export const signUp = async (req, res, next) => {
@@ -102,7 +102,7 @@ export const signIn = async (req, res, next) => {
 
     res.cookie("token", token, {
       httpOnly: true,
-      secure: false, // ! set true when production !
+      secure: NODE_ENV === "development" ? false : true, // ! set true when production !
       sameSite: "lax",
       maxAge: 24 * 60 * 60 * 1000,
     });
