@@ -1,6 +1,5 @@
 "use client";
 
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,19 +21,25 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
 import { useAuthStore } from "@/store/useAuthStore";
 import { Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { SubmitEventHandler, useEffect } from "react";
 
-const proPlanFeatures = [
-  "Unlimited subscriptions",
-  "Multiple days email notifications",
-  "Advanced analytics",
-  "Calendar integration",
-  "Priority support",
-];
+const planFeatures = {
+  free: [
+    "3 subscriptions",
+    "Multiple days email notifications",
+    "Simple analytics",
+  ],
+  pro: [
+    "Unlimited subscriptions",
+    "Multiple days email notifications",
+    "Advanced analytics",
+    "Calendar integration",
+    "Priority support",
+  ],
+};
 
 const SettingsPage = () => {
   const { user, loading, fetchUser } = useAuthStore();
@@ -125,26 +130,6 @@ const SettingsPage = () => {
           <CardDescription>Manage your account</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          <div className="flex items-center gap-4">
-            <Avatar className="size-16">
-              <AvatarFallback className="bg-accent text-lg text-accent-foreground">
-                {`${user?.name.split(" ")[0].toUpperCase().substring(0, 1) || ""}`}
-              </AvatarFallback>
-            </Avatar>
-            <div className="space-y-2">
-              <Button
-                variant="outline"
-                size="sm"
-                className="hover:cursor-pointer hover:bg-accent-foreground hover:text-accent"
-              >
-                Change your photo
-              </Button>
-              <p className="text-sm text-muted-foreground">
-                JPG, PNG or GIF. Max size 2MB.
-              </p>
-            </div>
-          </div>
-          <Separator />
           <form className="flex flex-col gap-6" onSubmit={handleUpdateUser}>
             <div className="flex flex-col gap-4">
               <div className="space-y-2">
@@ -188,12 +173,14 @@ const SettingsPage = () => {
                 <span className="font-bold">
                   {user?.plan.toUpperCase().concat(" plan")}
                 </span>
-                <Badge className="bg-accent text-accent-foreground">
+                <Badge className="bg-accent border-border text-accent-foreground">
                   Current
                 </Badge>
               </div>
               <p className="text-sm text-muted-foreground">
-                $3/month, billed monthly
+                {user.plan === "pro"
+                  ? "$3/month, billed monthly"
+                  : +user?.freeTokens + " tokens left"}
               </p>
             </div>
             <Dialog>
@@ -228,7 +215,7 @@ const SettingsPage = () => {
           <div className="space-y-3">
             <h4 className="font-medium text-sm">Your plan includes: </h4>
             <ul className="grid grid-cols-2 gap-2 text-sm text-foreground/70">
-              {proPlanFeatures.map((feature, index) => (
+              {planFeatures[user.plan].map((feature, index) => (
                 <li key={index} className="flex items-center gap-2">
                   <div className="size-1.5 rounded-full bg-accent" />
                   {feature}
