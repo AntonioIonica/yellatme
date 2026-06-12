@@ -24,6 +24,12 @@ app.use(express.json());
 // Reads cookies from requests
 app.use(cookieParser());
 
+app.use((req, res, next) => {
+  console.log("AUTH HEADER:", req.headers.authorization);
+  console.log("COOKIES:", req.cookies);
+  next();
+});
+
 const allowedCorsOrigins = [
   "https://yellatme-gold.vercel.app",
   "http://localhost:3000",
@@ -47,8 +53,8 @@ app.use(
 // Process the form data into a simple format
 app.use(express.urlencoded({ extended: false }));
 
-// // Arcjet middleware - rate limiter
-// app.use(arcjetMiddleware);
+// Arcjet middleware - rate limiter
+app.use(arcjetMiddleware);
 
 // Append the routes to the specific general route
 app.use("/api/v1/auth", authRouter);
