@@ -24,11 +24,6 @@ app.use(express.json());
 // Reads cookies from requests
 app.use(cookieParser());
 
-app.use((req, res, next) => {
-  console.log("AUTH HEADER:", req.headers.authorization);
-  console.log("COOKIES:", req.cookies);
-  next();
-});
 
 const allowedCorsOrigins = [
   "https://yellatme-gold.vercel.app",
