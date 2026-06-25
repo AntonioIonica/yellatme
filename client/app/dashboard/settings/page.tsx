@@ -121,6 +121,16 @@ const SettingsPage = () => {
     }
   };
 
+  const handleSubscribe = async () => {
+    const res = await fetch(`http://localhost:5500/api/billing/checkout`, {
+      method: "POST",
+      credentials: "include",
+    });
+
+    const result = await res.json();
+    router.push(result.url);
+  };
+
   return (
     <div className="space-y-6">
       {/* Profile */}
@@ -230,14 +240,16 @@ const SettingsPage = () => {
       <Card className="border-border bg-card">
         <CardHeader>
           <CardTitle>Payment method</CardTitle>
-          <CardDescription>Manage your payment information</CardDescription>
+          <CardDescription>Pay to upgrade to PAID version</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          {/* Stripe here */}
-          <div>Add stripe implementation here (WIP)</div>
-          {/* Stripe here */}
-          <Button className="w-full hover:cursor-pointer" variant="outline">
-            Add payment method
+          {/* Stripe */}
+          <Button
+            className="w-full hover:cursor-pointer"
+            variant="outline"
+            onClick={handleSubscribe}
+          >
+            Upgrade
           </Button>
         </CardContent>
       </Card>

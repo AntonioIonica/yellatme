@@ -12,6 +12,8 @@ import cookieParser from "cookie-parser";
 import arcjetMiddleware from "./middlewares/arcjet.middleware.js";
 import workflowRouter from "./routes/workflow.routes.js";
 import "./cron/subscriptions.cron.js";
+import billingRouter from "./routes/billing.routes.js";
+import webhookRouter from "./routes/webhook.routes.js";
 
 const port = process.env.PORT || PORT;
 
@@ -23,7 +25,6 @@ app.use(express.json());
 
 // Reads cookies from requests
 app.use(cookieParser());
-
 
 const allowedCorsOrigins = [
   "https://yellatme-gold.vercel.app",
@@ -56,6 +57,8 @@ app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/subscriptions", subscriptionRouter);
 app.use("/api/v1/workflows", workflowRouter);
+app.use("/api/billing", billingRouter);
+app.use("/api/webhook", webhookRouter);
 
 // Error middleware
 app.use(errorMiddleware);
