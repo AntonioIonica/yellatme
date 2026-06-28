@@ -49,7 +49,7 @@ export const signUp = async (req, res, next) => {
 
     res.cookie("token", token, {
       httpOnly: true,
-      secure: false,
+      secure: NODE_ENV === "development" ? "false" : true, // modifiy to false in case not working
       sameSite: "lax",
       maxAge: 24 * 60 * 60 * 1000,
     });

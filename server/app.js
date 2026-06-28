@@ -20,6 +20,7 @@ const port = process.env.PORT || PORT;
 dns.setServers(["8.8.8.8", "1.1.1.1"]); // Google + Cloudflare
 const app = express();
 
+app.use("/api/webhook", webhookRouter);
 // tells the server to understand json
 app.use(express.json());
 
@@ -50,7 +51,7 @@ app.use(
 app.use(express.urlencoded({ extended: false }));
 
 // Arcjet middleware - rate limiter
-app.use(arcjetMiddleware);
+// app.use(arcjetMiddleware);
 
 // Append the routes to the specific general route
 app.use("/api/v1/auth", authRouter);
@@ -58,7 +59,6 @@ app.use("/api/v1/users", userRouter);
 app.use("/api/v1/subscriptions", subscriptionRouter);
 app.use("/api/v1/workflows", workflowRouter);
 app.use("/api/billing", billingRouter);
-app.use("/api/webhook", webhookRouter);
 
 // Error middleware
 app.use(errorMiddleware);

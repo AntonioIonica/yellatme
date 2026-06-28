@@ -2,6 +2,14 @@ import aj from "../config/arcjet.js";
 
 const arcjetMiddleware = async (req, res, next) => {
   try {
+    // Added to bypass the stripe
+    const isWebhook = req.originalUrl.startsWith("/api/webhook");
+    const isStripe = req.headers["stripe-signature"];
+
+    if (isWebhook || isStripe) {
+      return next(); // bypass Arcjet completely
+    }
+
     // Get the decision to check for reasons
     // requested: how many tokens from the bucket to take in a request
     const decision = await aj.protect(req, { requested: 1 });

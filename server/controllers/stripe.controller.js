@@ -17,24 +17,35 @@ export const stripeWebhookController = async (req, res, next) => {
   }
 
   if (event.type === "checkout.session.completed") {
+    console.log("🔥 ENTERED CHECKOUT SESSION COMPLETED");
     // will store subscription details (user, subscription details)
     const session = event.data.object;
 
-    const customerEmail = session.customer_email;
+    console.log("SESSION:", session);
+    if (!session.subscription) return;
+
     //   stored on the id, not the subscription itself
     const subscriptionId = session.subscription;
+    if (!subscriptionId) return;
 
-    const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+    const end = session.current_period_end;
+    if (!end || isNaN(end)) {
+      console.log("❌ Invalid current_period_end:", end);
+      return;
+    }
+
+    const endDate =
+      session.current_period_end && !isNaN(session.current_period_end)
+        ? new Date(session.current_period_end * 1000)
+        : null;
 
     await User.findOneAndUpdate(
-      { email: customerEmail },
+      { email: session.customer_email },
       {
-        plan: "pro",
+        plan: session.status === "active" ? "pro" : "free",
         stripeCustomerId: session.customer,
         stripeSubscriptionId: subscriptionId,
-        currentSubscriptionEnd: new Date(
-          subscription.current_period_end * 1000,
-        ),
+        currentSubscriptionEnd: endDate,
       },
     );
     console.log("User has just been updated", session);
@@ -52,6 +63,22 @@ export const stripeWebhookController = async (req, res, next) => {
         currentSubscriptionEnd: new Date(sub.current_period_end * 1000),
         subscriptionStatus: sub.status,
         plan: sub.status === "active" ? "pro" : "free",
+      },
+    );
+  }
+
+  if (event.type === "customer.subscription.deleted") {
+    // the event data object now will be deleting the sub
+    const sub = event.data.object;
+
+    await User.findOneAndUpdate(
+      {
+        stripeSubscriptionId: sub.id,
+      },
+      {
+        currentSubscriptionEnd: null,
+        subscriptionStatus: sub.status || "cancelled",
+        plan: "free",
       },
     );
   }
