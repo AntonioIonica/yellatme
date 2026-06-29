@@ -8,6 +8,7 @@ export const createCheckoutSession = async (req, res, next) => {
       mode: "subscription",
       payment_method_types: ["card"],
       customer_email: user.email,
+      client_reference_id: req.user._id.toString(),
       line_items: [{ price: process.env.STRIPE_PRICE_ID, quantity: 1 }],
       success_url: `${process.env.CLIENT_URL}/dashboard`,
       cancel_url: `${process.env.CLIENT_URL}/dashboard`,

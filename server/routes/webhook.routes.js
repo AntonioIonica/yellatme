@@ -1,7 +1,7 @@
-import express, { Router } from "express";
+import express from "express";
 import { stripeWebhookController } from "../controllers/stripe.controller.js";
 
-const webhookRouter = Router();
+const webhookRouter = express.Router();
 
 webhookRouter.post(
   "/stripe",

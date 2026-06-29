@@ -12,6 +12,7 @@ const aj = arcjet({
         // See the full list at https://arcjet.com/bot-list
         "CATEGORY:MONITOR",
         "CATEGORY:PREVIEW",
+        "CATEGORY:WEBHOOK",
         "POSTMAN",
       ],
     }),

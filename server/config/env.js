@@ -16,4 +16,5 @@ export const {
   SERVER_URL,
   EMAIL_PASSWORD,
   EMAIL_NAME,
+  STRIPE_WEBHOOK_SECRET
 } = process.env;
