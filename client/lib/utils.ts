@@ -19,7 +19,6 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-
 // Type for getSubsByInterval func
 type getSubsByIntervalTypes = (
   subs: Subscription[],
@@ -142,3 +141,13 @@ export function parseCurrency(currency: String) {
       return "RON";
   }
 }
+
+export type userType = {
+  _id: String;
+  name: String;
+  email: String;
+  plan: "free" | "pro";
+  freeTokens: Number;
+  currentSubscriptionEnd: Date;
+  subscriptionStatus: "active" | "cancelled" | "expired";
+};

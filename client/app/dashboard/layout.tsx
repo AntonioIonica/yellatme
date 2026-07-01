@@ -73,15 +73,6 @@ const secondaryNavItems = [
     icon: Settings,
   },
 ];
-
-export type userType = {
-  _id: String;
-  name: String;
-  email: String;
-  plan: "free" | "pro";
-  freeTokens: Number;
-};
-
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
   const router = useRouter();

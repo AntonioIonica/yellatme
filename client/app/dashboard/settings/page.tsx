@@ -131,7 +131,7 @@ const SettingsPage = () => {
     );
 
     const result = await res.json();
-    
+
     setTimeout(() => router.push(result.url), 500);
   };
 
@@ -197,6 +197,12 @@ const SettingsPage = () => {
                   : +user?.freeTokens + " tokens left"}
               </p>
             </div>
+            <div className="flex space-x-2 text-sm font-light items-center justify-between">
+              <span className="border border-accent font-semibold px-2 py-1.5 rounded-sm uppercase">
+                {user?.subscriptionStatus}
+              </span>
+              <span>{user?.currentSubscriptionEnd?.toLocaleDateString()}</span>
+            </div>
             <Dialog>
               <DialogTrigger asChild>
                 <Button variant="outline">Manage plan</Button>
@@ -241,22 +247,26 @@ const SettingsPage = () => {
       </Card>
 
       {/* Payments methods */}
-      <Card className="border-border bg-card">
-        <CardHeader>
-          <CardTitle>Payment method</CardTitle>
-          <CardDescription>Pay to upgrade to PAID version</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {/* Stripe */}
-          <Button
-            className="w-full hover:cursor-pointer"
-            variant="outline"
-            onClick={handleSubscribe}
-          >
-            Upgrade
-          </Button>
-        </CardContent>
-      </Card>
+      {user?.subscriptionStatus === "active" ? (
+        ""
+      ) : (
+        <Card className="border-border bg-card">
+          <CardHeader>
+            <CardTitle>Payment method</CardTitle>
+            <CardDescription>Pay to upgrade to PAID version</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {/* Stripe */}
+            <Button
+              className="w-full hover:cursor-pointer"
+              variant="outline"
+              onClick={handleSubscribe}
+            >
+              Upgrade
+            </Button>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Danger zone */}
       <Card className="border-destructive/50 bg-card">

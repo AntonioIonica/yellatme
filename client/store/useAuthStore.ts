@@ -1,4 +1,4 @@
-import { userType } from "@/app/dashboard/layout";
+import { userType } from "@/lib/utils";
 import { create } from "zustand";
 
 type authStore = {
