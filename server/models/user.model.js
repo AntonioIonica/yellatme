@@ -39,7 +39,10 @@ const userSchema = new mongoose.Schema(
       enum: ["active", "cancelled, expired"],
       default: null,
     },
-    currentSubscriptionEnd: Date,
+    currentSubscriptionEnd: {
+      type: Date,
+      default: new Date(),
+    },
     freeTokens: {
       type: Number,
       default: 5,

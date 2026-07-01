@@ -198,10 +198,15 @@ const SettingsPage = () => {
               </p>
             </div>
             <div className="flex space-x-2 text-sm font-light items-center justify-between">
-              <span className="border border-accent font-semibold px-2 py-1.5 rounded-sm uppercase">
+              <span
+                className={`${user?.subscriptionStatus === "active" ? "text-green-400" : ""} border border-accent font-semibold px-2 py-1.5 rounded-sm uppercase`}
+              >
                 {user?.subscriptionStatus}
               </span>
-              <span>{user?.currentSubscriptionEnd?.toLocaleDateString()}</span>
+              <span>
+                {user?.currentSubscriptionEnd?.toString().split("T")[0] ||
+                  "Not available"}
+              </span>
             </div>
             <Dialog>
               <DialogTrigger asChild>
@@ -247,7 +252,7 @@ const SettingsPage = () => {
       </Card>
 
       {/* Payments methods */}
-      {user?.subscriptionStatus === "active" ? (
+      {user?.subscriptionStatus === "expired" ? (
         ""
       ) : (
         <Card className="border-border bg-card">

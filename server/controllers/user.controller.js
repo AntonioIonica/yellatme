@@ -1,6 +1,7 @@
 import User from "../models/user.model.js";
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
+import { stripe } from "../config/stripe.js";
 
 // Admins only
 export const getUsers = async (req, res, next) => {
@@ -176,8 +177,17 @@ export const deleteUser = async (req, res, next) => {
 export const changePlan = async (req, res, next) => {
   try {
     const user = await User.findById(req.params.id).select("-password");
+    const subscriptionId = user?.subscriptionId;
+    console.log("Subscription id: ", subscriptionId);
+
     if (!user) {
       const error = new Error("User not found");
+      error.statusCode = 404;
+      throw error;
+    }
+
+    if (!subscriptionId) {
+      const error = new Error("Subscription not found");
       error.statusCode = 404;
       throw error;
     }
@@ -188,19 +198,13 @@ export const changePlan = async (req, res, next) => {
       throw error;
     }
 
-    let plan;
-    if (req.user.plan === "pro") {
-      plan = "free";
-    }
-
-    let options = { plan };
-
-    const updatedUser = await User.findByIdAndUpdate(req.params.id, options);
+    await stripe.subscriptions.update(subscriptionId, {
+      cancel_at_period_end: true,
+    });
 
     res.status(201).json({
       success: true,
-      message: "Plan successfully updated!",
-      data: updatedUser,
+      message: "Plan changed to: FREE",
     });
   } catch (error) {
     next(error);

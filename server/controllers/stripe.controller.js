@@ -28,33 +28,55 @@ export const stripeWebhookController = async (req, res) => {
     const subscriptionId = session.subscription;
     if (!subscriptionId) return;
 
-    const subscription = await stripe.subscriptions.retrieve(subscriptionId);
-
-    const endDate =
-      subscription.current_period_end && !isNaN(subscription.current_period_end)
-        ? new Date(subscription.current_period_end * 1000)
-        : null;
+    // const subscription = await stripe.subscriptions.retrieve(subscriptionId);
 
     await User.findByIdAndUpdate(session.client_reference_id, {
-      plan: subscription.status === "active" ? "pro" : "free",
       stripeCustomerId: session.customer,
       stripeSubscriptionId: subscriptionId,
-      currentSubscriptionEnd: endDate,
-      subscriptionStatus: subscription.status,
+      // plan: subscription.status === "active" ? "pro" : "free",
+      // currentSubscriptionEnd: endDate,
+      // subscriptionStatus: subscription.status,
     });
-    console.log("User has been upgraded to PRO", session);
+  } else if (event.type === "invoice.paid") {
+    console.log("🔥 INVOICE PAID TRIGGERED");
+    const invoice = event.data.object;
+    console.log(invoice);
+    const subscriptionId = invoice?.parent?.subscription_details?.subscription;
+
+    if (!subscriptionId) {
+      console.log("No subscription on invoice");
+      return res.json({ received: true });
+    }
+
+    const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+
+    const periodEnd = subscription.items?.data?.[0]?.current_period_end; // newer Stripe API
+
+    const endDate = new Date(periodEnd * 1000);
+    console.log(endDate);
+    await User.findOneAndUpdate(
+      {
+        stripeSubscriptionId: subscription.id,
+      },
+      {
+        plan: "pro",
+        subscriptionStatus: subscription.status,
+        currentSubscriptionEnd: endDate,
+        stripeSubscriptionId: subscription.id,
+      },
+    );
   } else if (event.type === "customer.subscription.updated") {
     // the event data object now will be updated subscription
     const sub = event.data.object;
 
-    const endDate =
-      sub.current_period_end && !isNaN(sub.current_period_end)
-        ? new Date(sub.current_period_end * 1000)
-        : null;
+    const periodEnd = sub.items?.data?.[0]?.current_period_end; // newer Stripe API
+
+    const endDate = periodEnd ? new Date(periodEnd * 1000) : null;
+    console.log(endDate);
 
     // Find by Stripe subscription
     await User.findOneAndUpdate(
-      { stripeSubscriptionId: sub.id },
+      { stripeSubscriptionId: sub?.id },
       {
         currentSubscriptionEnd: endDate,
         subscriptionStatus: sub.status,
@@ -73,6 +95,16 @@ export const stripeWebhookController = async (req, res) => {
         currentSubscriptionEnd: null,
         subscriptionStatus: "cancelled",
         plan: "free",
+      },
+    );
+  } else if (event.type === "invoice.payment_failed") {
+    const invoice = event.data.object;
+
+    await User.findOneAndUpdate(
+      { stripeCustomerId: invoice.customer },
+      {
+        plan: "free",
+        subscriptionStatus: "expired",
       },
     );
   }
