@@ -4,10 +4,12 @@ import Logo from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 
 import Link from "next/link";
+import { useRouter } from "next/router";
 import { SubmitEventHandler, useState } from "react";
+import { toast } from "sonner";
 
 const SignUp = () => {
-  const [message, setMessage] = useState<string>("");
+  const router = useRouter();
 
   const handleFormSubmit: SubmitEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
@@ -29,26 +31,37 @@ const SignUp = () => {
       password,
     };
 
-    try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/auth/sign-up`,
-        {
-          method: "POST",
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(userData),
-        },
-      );
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/auth/sign-up`,
+      {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(userData),
+      },
+    );
 
-      if (!res.ok) {
-        throw new Error("Failed request!");
-      }
-
-      const result = await res.json();
-      setMessage(result.message);
-    } catch (error) {
-      console.error(error);
+    if (!res.ok) {
+      throw new Error("Failed request!");
     }
+
+    const result = await res.json();
+    
+    if (result.success) {
+      toast.success(result.message, {
+        position: "top-center",
+        style: { fontWeight: 600 },
+        closeButton: true,
+      });
+
+      router.push("/login");
+    }
+
+    toast.error(result.error, {
+      position: "top-center",
+      style: { fontWeight: 600 },
+      closeButton: true,
+    });
   };
 
   return (
@@ -114,8 +127,6 @@ const SignUp = () => {
             Submit
           </Button>
         </form>
-
-        <div>{message}</div>
       </div>
     </div>
   );
