@@ -42,6 +42,7 @@ import {
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { toast } from "sonner";
 
 const mainNavItems = [
   {
@@ -95,7 +96,11 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
     const result = await res.json();
     if (result.success) {
       clearUser();
-
+      toast.info(result.message, {
+        position: "top-center",
+        style: { fontWeight: 600 },
+        closeButton: true,
+      });
       router.push("/");
     }
   };

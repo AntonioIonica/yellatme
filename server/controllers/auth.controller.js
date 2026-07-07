@@ -107,7 +107,6 @@ export const signIn = async (req, res, next) => {
       maxAge: 24 * 60 * 60 * 1000,
     });
 
-    // Return a res status and object if logged in successfully
     res.status(200).json({
       success: true,
       message: "The user signed in successfully!",
@@ -139,5 +138,9 @@ export const signOut = async (req, res, next) => {
 };
 
 export const getJwtUser = async (req, res, next) => {
-  res.json({ user: req.user });
+  try {
+    res.json({ user: req.user });
+  } catch (error) {
+    next(error);
+  }
 };

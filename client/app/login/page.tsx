@@ -4,7 +4,8 @@ import Logo from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { SubmitEventHandler, useState } from "react";
+import { SubmitEventHandler } from "react";
+import { toast } from "sonner";
 
 const Login = () => {
   const router = useRouter();
@@ -33,7 +34,21 @@ const Login = () => {
 
     const result = await res.json();
 
-    if (result.success) router.push("/dashboard");
+    if (result.success) {
+      toast.success(result.message, {
+        position: "top-center",
+        style: { fontWeight: 600 },
+        closeButton: true,
+      });
+
+      router.push("/dashboard");
+    }
+
+    toast.error(result.error, {
+      position: "top-center",
+      style: { fontWeight: 600 },
+      closeButton: true,
+    });
   };
 
   return (
@@ -44,6 +59,7 @@ const Login = () => {
             <Logo />
           </Link>
         </div>
+
         <Button asChild>
           <Link href="/sign-up">Need an account?! Register here</Link>
         </Button>
