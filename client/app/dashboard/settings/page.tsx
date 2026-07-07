@@ -197,13 +197,13 @@ const SettingsPage = () => {
                   : +user?.freeTokens + " tokens left"}
               </p>
             </div>
-            <div className="flex space-x-2 text-sm font-light items-center justify-between">
+            <div className="flex space-x-4 text-sm font-light items-center justify-between">
               <span
-                className={`${user?.subscriptionStatus === "active" ? "text-green-400" : ""} border border-accent font-semibold px-2 py-1.5 rounded-sm uppercase`}
+                className={`${user?.subscriptionStatus === "active" ? "text-green-400" : ""} border-2 border-accent font-medium px-2 py-1.5 rounded-sm uppercase`}
               >
                 {user?.subscriptionStatus}
               </span>
-              <span>
+              <span className="font-semibold">
                 {user?.currentSubscriptionEnd?.toString().split("T")[0] ||
                   "Not available"}
               </span>
@@ -252,7 +252,7 @@ const SettingsPage = () => {
       </Card>
 
       {/* Payments methods */}
-      {user?.subscriptionStatus === "expired" ? (
+      {user?.subscriptionStatus === "active" ? (
         ""
       ) : (
         <Card className="border-border bg-card">
