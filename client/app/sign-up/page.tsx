@@ -4,8 +4,8 @@ import Logo from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 
 import Link from "next/link";
-import { useRouter } from "next/router";
-import { SubmitEventHandler, useState } from "react";
+import { useRouter } from "next/navigation";
+import { SubmitEventHandler } from "react";
 import { toast } from "sonner";
 
 const SignUp = () => {
@@ -20,8 +20,12 @@ const SignUp = () => {
     const { name, email, password, confirmPassword } = formObject;
 
     if (password !== confirmPassword) {
-      // Until toast
-      console.log("The passwords are not the same!");
+      toast.error("The passwords are not the same!", {
+        position: "top-center",
+        style: { fontWeight: 600 },
+        closeButton: true,
+      });
+      
       return;
     }
 
@@ -46,7 +50,7 @@ const SignUp = () => {
     }
 
     const result = await res.json();
-    
+
     if (result.success) {
       toast.success(result.message, {
         position: "top-center",
