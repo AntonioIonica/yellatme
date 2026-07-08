@@ -30,6 +30,7 @@ import { DateRange } from "react-day-picker";
 import { format } from "date-fns";
 import { useSubscriptionStore } from "@/store/useSubscriptionsStore";
 import { useAuthStore } from "@/store/useAuthStore";
+import { toast } from "sonner";
 
 const AddSubscriptionDialog = () => {
   const addSubscription = useSubscriptionStore(
@@ -89,11 +90,27 @@ const AddSubscriptionDialog = () => {
     );
 
     const result = await res.json();
+    
+    if (result.success) {
+      toast.success(
+        `Subscription ${result?.data?.subscription?.name} was added to your collection!`,
+        {
+          position: "top-center",
+          style: { fontWeight: 600 },
+          closeButton: true,
+        },
+      );
+      // Add the subscription to the UI and refresh the number of them
+      addSubscription(result?.data?.subscription);
 
-    // Add the subscription to the UI and refresh the number of them
-    addSubscription(result?.data?.subscription);
+      setDialogOpen(false);
+    }
 
-    setDialogOpen(false);
+    toast.error(result.error, {
+      position: "top-center",
+      style: { fontWeight: 600 },
+      closeButton: true,
+    });
   };
 
   return (
