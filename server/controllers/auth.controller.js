@@ -6,7 +6,7 @@ import User from "../models/user.model.js";
 import { JWT_SECRET, JWT_EXPIRES_IN, NODE_ENV } from "../config/env.js";
 
 // Create a new user
-export const signUp = async (req, res, next) => {
+export const signUp = async (req, res, next) => { // ! if empty credentials then error and not toast
   // Atomic operations constraints
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -49,7 +49,7 @@ export const signUp = async (req, res, next) => {
 
     res.cookie("token", token, {
       httpOnly: true,
-      secure: NODE_ENV === "development" ? "false" : true, // modifiy to false in case not working
+      secure: NODE_ENV === "development" ? false : true, // modifiy to false in case not working
       sameSite: "lax",
       maxAge: 24 * 60 * 60 * 1000,
     });
@@ -57,7 +57,6 @@ export const signUp = async (req, res, next) => {
     res.status(201).json({
       success: true,
       message: "User created successfully!",
-      // Send the token and the user as a response
       data: {
         token,
         user: newUsers[0],
@@ -102,8 +101,9 @@ export const signIn = async (req, res, next) => {
 
     res.cookie("token", token, {
       httpOnly: true,
-      secure: NODE_ENV === "production" ? true : false, // ! set true when production !
-      sameSite: NODE_ENV === "production" ? "none" : "lax",
+      secure: NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/", 
       maxAge: 24 * 60 * 60 * 1000,
     });
 
@@ -139,7 +139,12 @@ export const signOut = async (req, res, next) => {
 
 export const getJwtUser = async (req, res, next) => {
   try {
-    res.json({ user: req.user });
+    res.set("Cache-Control", "no-store");
+
+    res.status(200).json({ 
+      success: true,
+      user: req.user,
+    });
   } catch (error) {
     next(error);
   }

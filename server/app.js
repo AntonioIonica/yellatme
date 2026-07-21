@@ -29,23 +29,11 @@ app.use(express.json());
 // Reads cookies from requests
 app.use(cookieParser());
 
-const allowedCorsOrigins = [
-  "https://yellatme-gold.vercel.app",
-  "http://localhost:3000",
-];
 
 app.use(
   cors({
-    origin: function (origin, callback) {
-      if (!origin) return callback(null, true);
-
-      if (allowedCorsOrigins.includes(origin)) {
-        return callback(null, true);
-      } else {
-        return callback(new Error("Not allowed by CORS policy!"));
-      }
-    },
-    credentials: true, // allow sending cookies
+    origin: ["http://localhost:3000", "https://yellatme-gold.vercel.app"],
+    credentials: true,
   }),
 );
 

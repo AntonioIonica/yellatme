@@ -78,9 +78,9 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
   const router = useRouter();
 
-  const { user, fetchUser, clearUser } = useAuthStore();
+  const { user, clearUser, fetchUser } = useAuthStore();
 
-  useEffect(() => {
+  useEffect(()=>{
     fetchUser();
   }, []);
 
@@ -101,6 +101,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
         style: { fontWeight: 600 },
         closeButton: true,
       });
+      
       router.push("/");
     }
   };

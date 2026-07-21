@@ -6,9 +6,11 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { SubmitEventHandler } from "react";
 import { toast } from "sonner";
+import { useAuthStore } from "@/store/useAuthStore";
 
 const Login = () => {
   const router = useRouter();
+  const { fetchUser } = useAuthStore();
 
   const handleSubmitLogin: SubmitEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
@@ -41,14 +43,16 @@ const Login = () => {
         closeButton: true,
       });
 
+      fetchUser();
       router.push("/dashboard");
-    }
-
-    toast.error(result.error, {
+      router.refresh();
+    } else {
+      toast.error(result.error, {
       position: "top-center",
       style: { fontWeight: 600 },
       closeButton: true,
     });
+    }
   };
 
   return (

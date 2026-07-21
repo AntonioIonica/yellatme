@@ -104,13 +104,15 @@ const AddSubscriptionDialog = () => {
       addSubscription(result?.data?.subscription);
 
       setDialogOpen(false);
+    } else {
+        toast.error(result.error, {
+            position: "top-center",
+            style: { fontWeight: 600 },
+            closeButton: true,
+    });
     }
 
-    toast.error(result.error, {
-      position: "top-center",
-      style: { fontWeight: 600 },
-      closeButton: true,
-    });
+    
   };
 
   return (

@@ -59,13 +59,15 @@ const SignUp = () => {
       });
 
       router.push("/login");
+    } else {
+       toast.error(result.error, {
+          position: "top-center",
+          style: { fontWeight: 600 },
+          closeButton: true,
+    });
     }
 
-    toast.error(result.error, {
-      position: "top-center",
-      style: { fontWeight: 600 },
-      closeButton: true,
-    });
+   
   };
 
   return (

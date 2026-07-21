@@ -27,6 +27,7 @@ export const randomColor = () => {
   ];
 
   const random = Math.floor(Math.random() * colors.length);
+  
   return colors[random];
 };
 
