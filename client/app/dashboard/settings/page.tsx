@@ -25,6 +25,7 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { SubmitEventHandler, useEffect } from "react";
+import { toast } from "sonner";
 
 const planFeatures = {
   free: [
@@ -74,9 +75,23 @@ const SettingsPage = () => {
     );
 
     const result = await res.json();
+    
     if (result.success) {
+      toast.success(result.message, {
+      position: "top-center",
+      style: { fontWeight: 600 },
+      closeButton: true,
+    });
+
       router.push(result.redirect);
+    } else {
+      toast.error(result.error, {
+      position: "top-center",
+      style: { fontWeight: 600 },
+      closeButton: true,
+    });
     }
+    
     return null;
   };
 
