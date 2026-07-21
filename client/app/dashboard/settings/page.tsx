@@ -91,7 +91,7 @@ const SettingsPage = () => {
       closeButton: true,
     });
     }
-    
+
     return null;
   };
 
@@ -115,8 +115,21 @@ const SettingsPage = () => {
     );
 
     const result = await res.json();
+
     if (result.success) {
       fetchUser();
+
+      toast.success(result.message, {
+      position: "top-center",
+      style: { fontWeight: 600 },
+      closeButton: true,
+    });
+    } else {
+      toast.error(result.error, {
+      position: "top-center",
+      style: { fontWeight: 600 },
+      closeButton: true,
+    });
     }
   };
 
