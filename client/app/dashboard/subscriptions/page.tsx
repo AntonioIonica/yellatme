@@ -179,15 +179,19 @@ const Subscriptions = () => {
 
     if (result.success) {
       deleteSubscription(id);
-      
+
       toast.success(result.message, {
         position: "top-center",
         style: { fontWeight: 600 },
         closeButton: true,
       });
+    } else {
+      toast.error(result.error, {
+      position: "top-center",
+      style: { fontWeight: 600 },
+      closeButton: true,
+    });
     }
-
-  
   };
 
   const handleCancelSub = async (id: SubscriptionId) => {
@@ -202,6 +206,18 @@ const Subscriptions = () => {
     const result = await res.json();
     if (result.success) {
       editSubscription(result.data);
+
+      toast.success(result.message, {
+      position: "top-center",
+      style: { fontWeight: 600 },
+      closeButton: true,
+    });
+    } else {
+      toast.error(result.error, {
+      position: "top-center",
+      style: { fontWeight: 600 },
+      closeButton: true,
+    });
     }
   };
 
