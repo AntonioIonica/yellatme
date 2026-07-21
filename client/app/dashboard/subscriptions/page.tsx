@@ -62,6 +62,7 @@ import { format } from "date-fns";
 import { useRouter } from "next/navigation";
 import { SubmitEventHandler, useEffect, useMemo, useState } from "react";
 import { DateRange } from "react-day-picker";
+import { toast } from "sonner";
 
 export type SubscriptionId = Subscription["_id"];
 
@@ -173,7 +174,20 @@ const Subscriptions = () => {
         credentials: "include",
       },
     );
-    deleteSubscription(id);
+
+    const result = await res.json();
+
+    if (result.success) {
+      deleteSubscription(id);
+      
+      toast.success(result.message, {
+        position: "top-center",
+        style: { fontWeight: 600 },
+        closeButton: true,
+      });
+    }
+
+  
   };
 
   const handleCancelSub = async (id: SubscriptionId) => {
