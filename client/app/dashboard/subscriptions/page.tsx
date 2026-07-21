@@ -246,9 +246,22 @@ const Subscriptions = () => {
     );
 
     const result = await res.json();
+
     if (result.success) {
       editSubscription(result.data.subscription);
       setDialogOpen(false);
+
+      toast.success(result.message, {
+      position: "top-center",
+      style: { fontWeight: 600 },
+      closeButton: true,
+    });
+    } else {
+      toast.error(result.error, {
+      position: "top-center",
+      style: { fontWeight: 600 },
+      closeButton: true,
+    });
     }
   };
 
