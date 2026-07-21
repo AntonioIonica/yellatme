@@ -144,8 +144,21 @@ const SettingsPage = () => {
     );
 
     const result = await res.json();
+
     if (result.success) {
+      toast.success(result.message, {
+      position: "top-center",
+      style: { fontWeight: 600 },
+      closeButton: true,
+    });
+
       router.push("/dashboard");
+    } else {
+      toast.error(result.error, {
+      position: "top-center",
+      style: { fontWeight: 600 },
+      closeButton: true,
+    });
     }
   };
 

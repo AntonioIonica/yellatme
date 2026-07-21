@@ -204,7 +204,7 @@ export const changePlan = async (req, res, next) => {
 
     res.status(201).json({
       success: true,
-      message: "Plan changed to: FREE",
+      message: "Plan changed to FREE",
     });
   } catch (error) {
     next(error);
