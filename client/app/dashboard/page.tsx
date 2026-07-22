@@ -19,7 +19,7 @@ import { comparePay, parseCurrency, getSubsByInterval } from "@/lib/utils";
 
 const DashboardPage = () => {
   const { subscriptions, setSubscriptions } = useSubscriptionStore();
-  const { user, loading, initialized, fetchUser } = useAuthStore();
+  const { user, loading, initialized } = useAuthStore();
   const [upcomingRenewals, setUpcomingRenewals] = useState<
     Subscription[] | null
   >([]);

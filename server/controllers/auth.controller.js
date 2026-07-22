@@ -6,7 +6,7 @@ import User from "../models/user.model.js";
 import { JWT_SECRET, JWT_EXPIRES_IN, NODE_ENV } from "../config/env.js";
 
 // Create a new user
-export const signUp = async (req, res, next) => { // ! if empty credentials then error and not toast
+export const signUp = async (req, res, next) => {
   // Atomic operations constraints
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -50,7 +50,7 @@ export const signUp = async (req, res, next) => { // ! if empty credentials then
     res.cookie("token", token, {
       httpOnly: true,
       secure: NODE_ENV === "development" ? false : true, // modifiy to false in case not working
-      sameSite: "lax",
+      sameSite: "none",
       maxAge: 24 * 60 * 60 * 1000,
     });
 
@@ -101,8 +101,8 @@ export const signIn = async (req, res, next) => {
 
     res.cookie("token", token, {
       httpOnly: true,
-      secure: NODE_ENV === "production",
-      sameSite: "lax",
+      secure: NODE_ENV === "production" ? true : false,
+      sameSite: "none",
       path: "/", 
       maxAge: 24 * 60 * 60 * 1000,
     });
@@ -125,7 +125,7 @@ export const signOut = async (req, res, next) => {
     res.clearCookie("token", {
       httpOnly: true,
       secure: false,
-      sameSite: "lax",
+      sameSite: "none",
     });
 
     res.status(200).json({
