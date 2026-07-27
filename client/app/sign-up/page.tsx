@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { SubmitEventHandler } from "react";
+import { SubmitEventHandler, useEffect } from "react";
 import { toast } from "sonner";
 
 const SignUp = () => {
@@ -19,15 +19,17 @@ const SignUp = () => {
 
     const { name, email, password, confirmPassword } = formObject;
 
-    if (password !== confirmPassword) {
-      toast.error("The passwords are not the same!", {
-        position: "top-center",
-        style: { fontWeight: 600 },
-        closeButton: true,
-      });
+    useEffect(()=>{
+      if (password != confirmPassword) {
+        toast.error("The passwords are not the same!", {
+          position: "top-center",
+          style: { fontWeight: 600 },
+          closeButton: true,
+        });
       
       return;
     }
+    }, [password, confirmPassword])
 
     const userData = {
       name,
