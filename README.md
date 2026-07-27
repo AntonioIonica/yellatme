@@ -10,23 +10,23 @@
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
-  <a href="https://github.com/AntonioIonica/the-wild-cabin">
-    <img src="./public/logo-light.png" alt="Logo" width="80" height="80">
+  <a href="https://github.com/AntonioIonica/yellatme">
+    <img src="./client/public/logo.png" alt="Logo" width="80" height="80">
   </a>
 
-<h3 align="center">The Wild Cabin</h3>
+<h3 align="center">YellAtMe</h3>
 
   <p align="center">
-    Hotel management web app where employees can manage bookings, cabins and guests. The site is populated already with examples.
+    Subscription management app where user add his subscriptions with it's renewal dates and the app sends emails before the date; optimal dashboard where the user sees how much money he spent
     <br />
-    <a href="https://github.com/AntonioIonica/the-wild-cabin"><strong>Explore the docs »</strong></a>
+    <a href="https://github.com/AntonioIonica/yellatme"><strong>Explore the docs »</strong></a>
     <br />
     <br />
-    <a href="https://github.com/AntonioIonica/the-wild-cabin">View Demo</a>
+    <a href="https://github.com/AntonioIonica/yellatme">View Demo</a>
     &middot;
-    <a href="https://github.com/AntonioIonica/the-wild-cabin/issues/new?labels=bug&template=bug-report---.md">Report Bug</a>
+    <a href="https://github.com/AntonioIonica/yellatme/issues/new?labels=bug&template=bug-report---.md">Report Bug</a>
     &middot;
-    <a href="https://github.com/AntonioIonica/the-wild-cabin/issues/new?labels=enhancement&template=feature-request---.md">Request Feature</a>
+    <a href="https://github.com/AntonioIonica/yellatme/issues/new?labels=enhancement&template=feature-request---.md">Request Feature</a>
   </p>
 </div>
 
@@ -63,25 +63,23 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-[![Product Name Screen Shot][product-screenshot]](https://ibb.co/DD7bXPzX)
+[![Product Name Screen Shot][product-screenshot]](-)
 
-Another tutorial project where I followed James Schmedtmann guide with the goal of learning multiple technologies. 
-Hotel management platform with closed account creation for the employees. They manage the guests check in and check out and create records of cabins.
+Subscription management application where users gets reminder emails before the renewal date of his subscriptions (eg. Netflix) as he can cancel them. The dashboard acts as a subscription and paying wall as he can add other types of reminders and see how much money he spent on subscriptions.
 
 Key features:
-  - hotel employees can login, as there is no register page-only employees can access the platform
-  - visual statistics for bookings, cabins
-  - real time update of cabins using Supabase
-  - account setting for employees
-  - managing cabins
-  - dark mode
+  - adding subscriptions by categories
+  - choosing when to get emails by day
+  - calendar to see the renewals by day
+  - dashboard to see the spending by year, month, day and projection
 
-Topics I learned: 
-  - authentication and authorization using Supabase
-  - state management using React Query
-  - dark mode
+Topics I learned by building the app: 
+  - authentication and authorization using jwt token
+  - state management using Zustand
   - data visualization using Recharts
   - React hot toast
+  - testing using Vitest
+  - Stripe integration
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -117,7 +115,7 @@ To get a local copy up and running follow these simple example steps.
 
 1. Clone the repo
    ```sh
-   git clone https://github.com/AntonioIonica/the-wild-cabin
+   git clone https://github.com/AntonioIonica/yellatme
    ```
 2. Install NPM packages
    ```sh
@@ -153,7 +151,7 @@ This project goal is to master the mentioned technologies as the code is intelle
 - [x] populated cabins
 
 
-See the [open issues](https://github.com/AntonioIonica/the-wild-cabin/issues) for a full list of proposed features (and known issues).
+See the [open issues](https://github.com/AntonioIonica/yellatme) for a full list of proposed features (and known issues).
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -193,34 +191,23 @@ Distributed under the project_license. See `LICENSE.txt` for more information.
 
 Your Name - [@X](https://twitter.com/AntonioIonica) - antonioionica@gmail.com
 
-Project Link: [Github](https://github.com/AntonioIonica/the-wild-cabin)
+Project Link: [Github](https://github.com/AntonioIonica/yellatme)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
-
-<!-- ACKNOWLEDGMENTS -->
-## Acknowledgments
-
-* [The code and the instructions were provided by James Schmedtmann as the code is owned by him, made public only for learning purpose. James Schmedtman X account](https://x.com/jonasschmedtman)
-
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
 
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-[contributors-shield]: https://img.shields.io/github/contributors/AntonioIonica/the-wild-cabin.svg?style=for-the-badge
-[contributors-url]: https://github.com/AntonioIonica/the-wild-cabin/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/AntonioIonica/the-wild-cabin.svg?style=for-the-badge
-[forks-url]: https://github.com/AntonioIonica/the-wild-cabin/network/members
-[stars-shield]: https://img.shields.io/github/stars/AntonioIonica/the-wild-cabin.svg?style=for-the-badge
-[stars-url]: https://github.com/AntonioIonica/the-wild-cabin/stargazers
-[issues-shield]: https://img.shields.io/github/issues/AntonioIonica/the-wild-cabin.svg?style=for-the-badge
+[contributors-shield]: https://img.shields.io/github/contributors/AntonioIonica/yellatme.svg?style=for-the-badge
+[contributors-url]: https://github.com/AntonioIonica/yellatme/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/AntonioIonica/yellatme.svg?style=for-the-badge
+[forks-url]: https://github.com/AntonioIonica/yellatme/network/members
+[stars-shield]: https://img.shields.io/github/stars/AntonioIonica/yellatme.svg?style=for-the-badge
+[stars-url]: https://github.com/AntonioIonica/yellatme/stargazers
+[issues-shield]: https://img.shields.io/github/issues/AntonioIonica/yellatme.svg?style=for-the-badge
 [issues-url]: https://github.com/AntonioIonica/forkify-restaurant-boilerplate/issues
-[license-shield]: https://img.shields.io/github/license/AntonioIonica/the-wild-cabin.svg?style=for-the-badge
-[license-url]: https://github.com/AntonioIonica/the-wild-cabin/blob/master/LICENSE.txt
+[license-shield]: https://img.shields.io/github/license/AntonioIonica/yellatme.svg?style=for-the-badge
+[license-url]: https://github.com/AntonioIonica/yellatme/blob/master/LICENSE.txt
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://linkedin.com/in/antonio-iulian-ionica-478074353/
 [product-screenshot]: ./public/project_screenshot.png
