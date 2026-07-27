@@ -10,16 +10,16 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 export default function LandingPage() {
-  const { user, loading, fetchUser } = useAuthStore();
-  const router = useRouter();
+  // const { user, loading, fetchUser } = useAuthStore();
+  // const router = useRouter();
 
-  useEffect(() => {
-    fetchUser();
-  }, []);
+  // useEffect(() => {
+  //   fetchUser();
+  // }, []);
 
-  useEffect(() => {
-    if (user && !loading) router.push("/dashboard");
-  }, [user, loading]);
+  // useEffect(() => {
+  //   if (user && !loading) router.push("/dashboard");
+  // }, [user, loading]);
 
   return (
     <div className="min-h-screen text-foreground">

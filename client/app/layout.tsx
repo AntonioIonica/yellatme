@@ -17,8 +17,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "YellAtMe - Get notified when subscriptions are coming",
-  description: "Get reminders before billing dates",
+  title: "YellAtMe",
+  description: "- Get notified when renewals are near",
 };
 
 export default function RootLayout({
