@@ -1,6 +1,7 @@
 import { workflowClient } from "../config/upstash.js";
 import Subscription from "../models/subscription.model.js";
 import { SERVER_URL } from "../config/env.js";
+import User from "../models/user.model.js";
 
 export const getAllSubscriptions = async (req, res, next) => {
   try {
@@ -70,6 +71,14 @@ export const getSubscription = async (req, res, next) => {
 
 export const createSubscription = async (req, res, next) => {
   try {
+    const user = await User.findById(req.user?._id);
+
+    if (user?.plan == "free" && user?.freeTokens == 0) {
+      const error = new Error("No more tokens left!");
+      error.statusCode = 401;
+      throw error;
+    }
+
     const subscription = await Subscription.create({
       ...req.body,
       // When login will save the user from mongoDB (user._id)
@@ -92,6 +101,14 @@ export const createSubscription = async (req, res, next) => {
       retries: 0,
     });
 
+    if(user?.plan == "free") {
+      const updatedUser = await User.findByIdAndUpdate(req.user._id,
+      {
+        $inc: { freeTokens: -1}
+      }
+    );
+    }
+    
     // Attach the subscription created and the tied workflow id to it
     res
       .status(201)
@@ -103,6 +120,14 @@ export const createSubscription = async (req, res, next) => {
 
 export const updateSubscription = async (req, res, next) => {
   const subscriptionId = req.params.id;
+
+  const user = await User.findById(req.user._id);
+
+  if(user?.plan == "free" && user?.freeTokens == 0) {
+    const error = new Error("No more tokens left!");
+    error.statusCode = 401;
+    throw error;
+  }
 
   const updates = {};
   const allowedUpdates = [
@@ -147,6 +172,14 @@ export const updateSubscription = async (req, res, next) => {
       },
       retries: 0,
     });
+
+    if(user.plan == "free") {
+      const updatedUser = await User.findByIdAndUpdate(req.user._id,
+      {
+        $inc: { freeTokens: -1}
+      }
+    );
+    }
 
     res.status(201).json({
       success: true,

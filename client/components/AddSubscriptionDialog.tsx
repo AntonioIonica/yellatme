@@ -111,8 +111,6 @@ const AddSubscriptionDialog = () => {
             closeButton: true,
     });
     }
-
-    
   };
 
   return (

@@ -4,7 +4,7 @@ import User from "../models/user.model.js";
 
 const now = new Date();
 
-export const expireSubscriptionJob = cron.schedule("0 */12 * * *", async () => {
+export const expireSubscriptionJob = cron.schedule("*/10 * * * *", async () => {
   console.log("Running cron job for expired subscriptions.");
 
   // Set subscriptions with passed renewalDate and not updated status to status: "expired"

@@ -117,7 +117,8 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
                   <div className="flex items-center justify-center rounded-lg size-8 bg-accent">
                     <Logo />
                   </div>
-                  <div className="leading-none">
+                  <div className="leading-non flex items-center justify-between space-x-4">
+                    {user?.plan.toLowerCase() == "free" ? <span className="font-light">Tokens: {+user?.freeTokens}</span> : ""}
                     <span>{user?.plan.toUpperCase().concat(" plan")}</span>
                   </div>
                 </Link>

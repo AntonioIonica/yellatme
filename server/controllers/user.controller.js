@@ -177,8 +177,7 @@ export const deleteUser = async (req, res, next) => {
 export const changePlan = async (req, res, next) => {
   try {
     const user = await User.findById(req.params.id).select("-password");
-    const subscriptionId = user?.subscriptionId;
-    console.log("Subscription id: ", subscriptionId);
+    const subscriptionId = user?.subscriptionId; // might be stripeSubscriptionId
 
     if (!user) {
       const error = new Error("User not found");

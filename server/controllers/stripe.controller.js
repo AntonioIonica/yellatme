@@ -28,14 +28,9 @@ export const stripeWebhookController = async (req, res) => {
     const subscriptionId = session.subscription;
     if (!subscriptionId) return;
 
-    // const subscription = await stripe.subscriptions.retrieve(subscriptionId);
-
     await User.findByIdAndUpdate(session.client_reference_id, {
       stripeCustomerId: session.customer,
       stripeSubscriptionId: subscriptionId,
-      // plan: subscription.status === "active" ? "pro" : "free",
-      // currentSubscriptionEnd: endDate,
-      // subscriptionStatus: subscription.status,
     });
   } else if (event.type === "invoice.paid") {
     const invoice = event.data.object;
