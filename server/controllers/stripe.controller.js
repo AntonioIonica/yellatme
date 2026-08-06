@@ -38,13 +38,10 @@ export const stripeWebhookController = async (req, res) => {
       // subscriptionStatus: subscription.status,
     });
   } else if (event.type === "invoice.paid") {
-    console.log("🔥 INVOICE PAID TRIGGERED");
     const invoice = event.data.object;
-    console.log(invoice);
     const subscriptionId = invoice?.parent?.subscription_details?.subscription;
 
     if (!subscriptionId) {
-      console.log("No subscription on invoice");
       return res.json({ received: true });
     }
 
@@ -53,7 +50,7 @@ export const stripeWebhookController = async (req, res) => {
     const periodEnd = subscription.items?.data?.[0]?.current_period_end; // newer Stripe API
 
     const endDate = new Date(periodEnd * 1000);
-    console.log(endDate);
+    
     await User.findOneAndUpdate(
       {
         stripeSubscriptionId: subscription.id,

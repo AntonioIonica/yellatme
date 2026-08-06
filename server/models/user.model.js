@@ -46,6 +46,7 @@ const userSchema = new mongoose.Schema(
     freeTokens: {
       type: Number,
       default: 5,
+      minimum: 0,
     },
   },
   { timestamps: true },
