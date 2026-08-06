@@ -177,7 +177,7 @@ export const deleteUser = async (req, res, next) => {
 export const changePlan = async (req, res, next) => {
   try {
     const user = await User.findById(req.params.id).select("-password");
-    const subscriptionId = user?.subscriptionId; // might be stripeSubscriptionId
+    const subscriptionId = user?.stripeSubscriptionId;
 
     if (!user) {
       const error = new Error("User not found");
@@ -186,7 +186,7 @@ export const changePlan = async (req, res, next) => {
     }
 
     if (!subscriptionId) {
-      const error = new Error("Subscription not found");
+      const error = new Error("Stripe subscription not found");
       error.statusCode = 404;
       throw error;
     }
@@ -203,7 +203,7 @@ export const changePlan = async (req, res, next) => {
 
     res.status(201).json({
       success: true,
-      message: "Plan changed to FREE",
+      message: "Successfully cancelled the PRO plan!",
     });
   } catch (error) {
     next(error);

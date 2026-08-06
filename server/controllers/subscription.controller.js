@@ -102,7 +102,7 @@ export const createSubscription = async (req, res, next) => {
     });
 
     if(user?.plan == "free") {
-      const updatedUser = await User.findByIdAndUpdate(req.user._id,
+      await User.findByIdAndUpdate(req.user._id,
       {
         $inc: { freeTokens: -1}
       }
@@ -174,7 +174,7 @@ export const updateSubscription = async (req, res, next) => {
     });
 
     if(user.plan == "free") {
-      const updatedUser = await User.findByIdAndUpdate(req.user._id,
+      await User.findByIdAndUpdate(req.user._id,
       {
         $inc: { freeTokens: -1}
       }
