@@ -1,6 +1,6 @@
 import { workflowClient } from "../config/upstash.js";
 import Subscription from "../models/subscription.model.js";
-import { SERVER_URL } from "../config/env.js";
+import { SERVER_URL, NODE_ENV } from "../config/env.js";
 import User from "../models/user.model.js";
 
 export const getAllSubscriptions = async (req, res, next) => {
@@ -89,7 +89,9 @@ export const createSubscription = async (req, res, next) => {
 
     // run in the CLI 'npx @upstash/qstash-cli dev' to get the dev token, signing keys
     // here the workflow is created
-    const { workflowRunId } = await workflowClient.trigger({
+    let workflowRunId = null;
+    if(NODE_ENV != "test") {
+      const result = await workflowClient.trigger({
       // Will hit the endpoint when a new subscription is created
       url: `${SERVER_URL}/api/v1/workflows/subscription/reminder`,
       body: {
@@ -100,6 +102,10 @@ export const createSubscription = async (req, res, next) => {
       },
       retries: 0,
     });
+
+    workflowRunId = result.workflowRunId;
+    }
+    
 
     if(user?.plan == "free") {
       await User.findByIdAndUpdate(req.user._id,
