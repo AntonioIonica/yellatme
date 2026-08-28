@@ -41,6 +41,7 @@ app.use(
 app.use(express.urlencoded({ extended: false }));
 
 // Arcjet middleware - rate limiter
+app.set("trust proxy", true); // so arcjet will se the true IP
 app.use(arcjetMiddleware);
 
 // Append the routes to the specific general route

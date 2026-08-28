@@ -4,6 +4,7 @@ import { ARCJET_KEY} from "../config/env.js";
 
 const aj = arcjet({
   key: ARCJET_KEY,
+  proxies: ["0.0.0.0/0"], // proxy ranges
   rules: [
     shield({ mode: "LIVE" }),
     detectBot({
