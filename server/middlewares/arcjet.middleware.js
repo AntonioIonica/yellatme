@@ -13,10 +13,11 @@ const arcjetMiddleware = async (req, res, next) => {
       return next();
     }
 
+    const userAgent = req.headers["user-agent"] || req.headers["User-Agent"] || "unknown-agent";
 
     // Get the decision to check for reasons
     // requested: how many tokens from the bucket to take in a request
-    const decision = await aj.protect(req, { requested: 1 });
+    const decision = await aj.protect(req, { requested: 1, userAgent });
 
     // Only when the connection is denied
     if (decision.isDenied()) {
