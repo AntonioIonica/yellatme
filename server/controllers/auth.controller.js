@@ -141,9 +141,6 @@ export const getJwtUser = async (req, res, next) => {
   try {
     res.set("Cache-Control", "no-store");
 
-    console.log("cookies:" , req.cookies);
-    console.log("auth header:", req.headers.authorization);
-
     res.status(200).json({ 
       success: true,
       user: req.user,

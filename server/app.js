@@ -45,7 +45,6 @@ app.use(express.urlencoded({ extended: false }));
 // Arcjet middleware - rate limiter
 app.use(arcjetMiddleware);
 
-
 // Append the routes to the specific general route
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/users", userRouter);
