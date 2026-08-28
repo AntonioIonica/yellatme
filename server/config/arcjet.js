@@ -20,9 +20,9 @@ const aj = arcjet({
     tokenBucket({
       mode: "LIVE",
       // See https://docs.arcjet.com/fingerprints
-      characteristics: ["userId", "user-agent"],
+      characteristics: ["userId", "ip.src"],
       refillRate: 50, // Refill 5 tokens per interval
-      interval: 1, // Refill every 10 seconds
+      interval: 60, // Refill every 10 seconds
       capacity: 100, // Bucket capacity of 10 tokens
     }),
   ],

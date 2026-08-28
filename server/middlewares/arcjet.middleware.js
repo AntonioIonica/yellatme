@@ -9,12 +9,9 @@ const arcjetMiddleware = async (req, res, next) => {
       return next(); // bypass Arcjet completely
     }
 
-    if (req.path.startsWith("/api/v1/auth")) {
+    if (req.path.startsWith("/api/v1/auth") || req.headers["x-internal-request"]) {
       return next();
     }
-
-
-    if (req.headers["x-internal-request"]) return next();
 
     // Get the decision to check for reasons
     // requested: how many tokens from the bucket to take in a request
