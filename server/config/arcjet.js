@@ -7,7 +7,7 @@ const aj = arcjet({
   rules: [
     shield({ mode: "LIVE" }),
     detectBot({
-      mode: "DRY_RUN", // Blocks requests. Use "DRY_RUN" to log only or "LIVE"
+      mode: "LIVE", // Blocks requests. Use "DRY_RUN" to log only or "LIVE"
       allow: [
         "CATEGORY:SEARCH_ENGINE",
         // See the full list at https://arcjet.com/bot-list
