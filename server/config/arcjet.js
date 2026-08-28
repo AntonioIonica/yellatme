@@ -4,7 +4,6 @@ import { ARCJET_KEY} from "../config/env.js";
 
 const aj = arcjet({
   key: ARCJET_KEY,
-  proxies: ["0.0.0.0/0"], // proxy ranges
   rules: [
     shield({ mode: "LIVE" }),
     detectBot({
@@ -21,12 +20,13 @@ const aj = arcjet({
     tokenBucket({
       mode: "LIVE",
       // See https://docs.arcjet.com/fingerprints
-      characteristics: [],
+      characteristics: ["ip.src"],
       refillRate: 50, // Refill 5 tokens per interval
       interval: 1, // Refill every 10 seconds
       capacity: 100, // Bucket capacity of 10 tokens
     }),
   ],
+   characteristics: ["user-agent"],
 });
 
 export default aj;
