@@ -5,6 +5,7 @@ import User from "../models/user.model.js";
 
 const authorize = async (req, res, next) => {
   try {
+    // Running tests
     if(NODE_ENV == "test") {
       req.user = {
         _id: "6a60510cc3b6a3d358ec44fd",

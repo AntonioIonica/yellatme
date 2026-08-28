@@ -123,7 +123,7 @@ const Subscriptions = () => {
         params.append("sortDir", sortDir);
       }
 
-      let query = `${process.env.SERVER_URL}/api/v1/subscriptions/user/${user._id}?${params.toString()}`;
+      let query = `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/subscriptions/user/${user._id}${params != null && "?" + params.toString()}`;
 
       const res = await fetch(query, {
         credentials: "include",
@@ -426,7 +426,7 @@ const Subscriptions = () => {
                   </div>
                   <div className="text-lg font-semibold mr-6 flex items-center justify-between space-x-16">
                     <span className="text-xs uppercase">
-                      {subscription?.category.slice(0, 4)}
+                      {subscription.status == "active" && subscription?.category.slice(0, 4)}
                     </span>
                     <span className="text-muted-foreground">
                       {parseCurrency(subscription?.currency)}
@@ -732,7 +732,7 @@ const Subscriptions = () => {
                   Description
                 </span>
                 <span className="text-sm">
-                  {subscription?.description.slice(0, 20)}
+                  {subscription.status == "active" && subscription?.description.slice(0, 20)}
                 </span>
               </div>
               <div className="flex items-center justify-between">

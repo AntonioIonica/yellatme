@@ -53,10 +53,6 @@ app.use("/api/billing", billingRouter);
 // Error middleware
 app.use(errorMiddleware);
 
-app.get("/", (req, res) => {
-  res.status(200).send("API for YellAtMe");
-});
-
 app.listen(port || 5500, async () => {
   console.log(`The server started at http://localhost:${PORT}`);
 
