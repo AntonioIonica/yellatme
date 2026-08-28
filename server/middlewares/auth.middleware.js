@@ -1,17 +1,17 @@
 import jwt from "jsonwebtoken";
 
-import { JWT_SECRET } from "../config/env.js";
+import { JWT_SECRET, NODE_ENV } from "../config/env.js";
 import User from "../models/user.model.js";
 
 const authorize = async (req, res, next) => {
   try {
     // Running tests
-    // if(NODE_ENV == "test") {
-    //   req.user = {
-    //     _id: "6a60510cc3b6a3d358ec44fd",
-    //   };
-    //   return next();
-    // }
+    if(NODE_ENV == "test") {
+      req.user = {
+        _id: "6a60510cc3b6a3d358ec44fd",
+      };
+      return next();
+    }
 
     const token =
       req.cookies?.token || req.header("Authorization")?.replace("Bearer ", "");

@@ -1,5 +1,5 @@
 import express from "express";
-import { PORT } from "./config/env.js";
+import { PORT, SERVER_URL } from "./config/env.js";
 import cors from "cors";
 import dns from "node:dns/promises";
 
@@ -19,6 +19,8 @@ const port = process.env.PORT || PORT;
 
 dns.setServers(["8.8.8.8", "1.1.1.1"]); // Google + Cloudflare
 const app = express();
+
+app.set("trust proxy", true); // so arcjet will se the true IP
 
 // Before parsing as json because needs to be raw body for stripe
 app.use("/api/webhook", webhookRouter);
@@ -41,21 +43,20 @@ app.use(
 app.use(express.urlencoded({ extended: false }));
 
 // Arcjet middleware - rate limiter
-app.set("trust proxy", true); // so arcjet will se the true IP
-app.use(arcjetMiddleware);
+// app.use(arcjetMiddleware);
 
 // Append the routes to the specific general route
 app.use("/api/v1/auth", authRouter);
-app.use("/api/v1/users", userRouter);
-app.use("/api/v1/subscriptions", subscriptionRouter);
-app.use("/api/v1/workflows", workflowRouter);
-app.use("/api/billing", billingRouter);
+app.use("/api/v1/users", arcjetMiddleware, userRouter);
+app.use("/api/v1/subscriptions", arcjetMiddleware, subscriptionRouter);
+app.use("/api/v1/workflows", arcjetMiddleware,workflowRouter);
+app.use("/api/billing", arcjetMiddleware, billingRouter);
 
 // Error middleware
 app.use(errorMiddleware);
 
 app.listen(port || 5500, async () => {
-  console.log(`The server started at http://localhost:${PORT}`);
+  console.log(`The server started at ${SERVER_URL}:${PORT}`);
 
   // Before starting the server
   await connectMongoDB();
