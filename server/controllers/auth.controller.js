@@ -102,7 +102,7 @@ export const signIn = async (req, res, next) => {
     res.cookie("token", token, {
       httpOnly: true,
       secure: NODE_ENV === "production" ? true : false,
-      sameSite: "lax",
+      sameSite: "none", // worked with lax
       path: "/", 
       maxAge: 24 * 60 * 60 * 1000,
     });
@@ -140,6 +140,9 @@ export const signOut = async (req, res, next) => {
 export const getJwtUser = async (req, res, next) => {
   try {
     res.set("Cache-Control", "no-store");
+
+    console.log("cookies:" , req.cookies);
+    console.log("auth header:", req.headers.authorization);
 
     res.status(200).json({ 
       success: true,
