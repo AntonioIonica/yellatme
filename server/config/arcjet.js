@@ -8,7 +8,7 @@ const aj = arcjet({
   rules: [
     shield({ mode: "LIVE" }),
     detectBot({
-      mode: "LIVE", // Blocks requests. Use "DRY_RUN" to log only or "LIVE"
+      mode: "DRY_RUN", // Blocks requests. Use "DRY_RUN" to log only or "LIVE"
       allow: [
         "CATEGORY:SEARCH_ENGINE",
         // See the full list at https://arcjet.com/bot-list
@@ -21,7 +21,7 @@ const aj = arcjet({
     tokenBucket({
       mode: "LIVE",
       // See https://docs.arcjet.com/fingerprints
-      characteristics: ["user-agent"],
+      characteristics: [],
       refillRate: 50, // Refill 5 tokens per interval
       interval: 1, // Refill every 10 seconds
       capacity: 100, // Bucket capacity of 10 tokens
