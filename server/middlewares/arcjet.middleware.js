@@ -1,5 +1,4 @@
 import aj from "../config/arcjet.js";
-import { NODE_ENV } from "../config/env.js";
 
 const arcjetMiddleware = async (req, res, next) => {
   try {
@@ -9,8 +8,6 @@ const arcjetMiddleware = async (req, res, next) => {
     if (isStripe) {
       return next(); // bypass Arcjet completely
     }
-    
-    if (NODE_ENV == "test") return next();
 
     // Get the decision to check for reasons
     // requested: how many tokens from the bucket to take in a request
