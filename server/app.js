@@ -42,15 +42,17 @@ app.use(
 // Process the form data into a simple format
 app.use(express.urlencoded({ extended: false }));
 
-// Arcjet middleware - rate limiter
-// app.use(arcjetMiddleware);
+
 
 // Append the routes to the specific general route
 app.use("/api/v1/auth", authRouter);
-app.use("/api/v1/users", arcjetMiddleware, userRouter);
-app.use("/api/v1/subscriptions", arcjetMiddleware, subscriptionRouter);
-app.use("/api/v1/workflows", arcjetMiddleware,workflowRouter);
-app.use("/api/billing", arcjetMiddleware, billingRouter);
+app.use("/api/v1/users", userRouter);
+app.use("/api/v1/subscriptions", subscriptionRouter);
+app.use("/api/v1/workflows", workflowRouter);
+app.use("/api/billing", billingRouter);
+
+// Arcjet middleware - rate limiter
+app.use(arcjetMiddleware);
 
 // Error middleware
 app.use(errorMiddleware);

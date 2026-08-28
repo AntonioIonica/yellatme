@@ -26,7 +26,7 @@ const aj = arcjet({
       capacity: 100, // Bucket capacity of 10 tokens
     }),
   ],
-   characteristics: [],
+   characteristics: ["userId"],
 });
 
 export default aj;
