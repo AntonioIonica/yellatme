@@ -3,6 +3,7 @@ import Subscription from "../models/subscription.model.js";
 import { SERVER_URL, NODE_ENV } from "../config/env.js";
 import User from "../models/user.model.js";
 
+// Admin only
 export const getAllSubscriptions = async (req, res, next) => {
   try {
     const subscriptions = await Subscription.find();

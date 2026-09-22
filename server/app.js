@@ -57,7 +57,7 @@ app.use("/api/billing", billingRouter);
 app.use(errorMiddleware);
 
 app.listen(port || 5500, async () => {
-  console.log(`The server started at ${SERVER_URL}:${PORT}`);
+  console.log(`The server started at ${SERVER_URL}`);
 
   // Before starting the server
   await connectMongoDB();
