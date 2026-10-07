@@ -23,10 +23,10 @@ const Login = () => {
       `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/auth/sign-in`,
       {
         method: "POST",
-        credentials: "include",
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include",
         body: JSON.stringify({
           email,
           password,
@@ -48,10 +48,10 @@ const Login = () => {
       router.refresh();
     } else {
       toast.error(result.error, {
-      position: "top-center",
-      style: { fontWeight: 600 },
-      closeButton: true,
-    });
+        position: "top-center",
+        style: { fontWeight: 600 },
+        closeButton: true,
+      });
     }
   };
 

@@ -31,7 +31,6 @@ app.use(express.json());
 // Reads cookies from requests
 app.use(cookieParser());
 
-
 app.use(
   cors({
     origin: ["http://localhost:3000", "https://yellatme-gold.vercel.app"],
@@ -51,7 +50,6 @@ app.use("/api/v1/users", userRouter);
 app.use("/api/v1/subscriptions", subscriptionRouter);
 app.use("/api/v1/workflows", workflowRouter);
 app.use("/api/billing", billingRouter);
-
 
 // Error middleware
 app.use(errorMiddleware);

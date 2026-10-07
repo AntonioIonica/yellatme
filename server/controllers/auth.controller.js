@@ -102,8 +102,8 @@ export const signIn = async (req, res, next) => {
     res.cookie("token", token, {
       httpOnly: true,
       secure: NODE_ENV === "production" ? true : false,
-      sameSite: "none", // worked with lax
-      path: "/", 
+      sameSite: "lax", // worked with lax, sometimes none
+      path: "/",
       maxAge: 24 * 60 * 60 * 1000,
     });
 
@@ -141,7 +141,7 @@ export const getJwtUser = async (req, res, next) => {
   try {
     res.set("Cache-Control", "no-store");
 
-    res.status(200).json({ 
+    res.status(200).json({
       success: true,
       user: req.user,
     });

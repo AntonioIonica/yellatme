@@ -4,19 +4,17 @@ import { create } from "zustand";
 type authStore = {
   user: userType | null;
   loading: boolean;
-  initialized: boolean;
   fetchUser: () => void;
   clearUser: () => void;
 };
 
 export const useAuthStore = create<authStore>((set) => ({
   user: null,
-  initialized: false,
   loading: true,
 
   fetchUser: async () => {
     set({ loading: true });
-    
+
     try {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/auth/jwt`,
@@ -26,18 +24,21 @@ export const useAuthStore = create<authStore>((set) => ({
       );
 
       if (!res.ok) {
-        set({ user: null, initialized: true });
+        set({ user: null, loading: false });
+
         return;
       }
 
       const result = await res.json();
-
-      set({ user: result.user, initialized: true });
+      if (result.success) {
+        set({ user: result.user, loading: false });
+      }
     } catch (error) {
-      set({ user: null, initialized: true });
-    } finally {
-      set({ loading: false });
+      set({ user: null, loading: false });
     }
+    //  finally {
+    //   set({ loading: false });
+    // }
   },
 
   clearUser: () => set({ user: null }),
