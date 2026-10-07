@@ -3,7 +3,7 @@ import Subscription from "../models/subscription.model.js";
 import { SERVER_URL, NODE_ENV } from "../config/env.js";
 import User from "../models/user.model.js";
 
-// Admin only
+// Admin only ------------------------------------
 export const getAllSubscriptions = async (req, res, next) => {
   try {
     const subscriptions = await Subscription.find();
@@ -23,6 +23,8 @@ export const getAllSubscriptions = async (req, res, next) => {
     next(error);
   }
 };
+
+// ----------------------------------------
 
 export const getUpcomingRenewals = async (req, res, next) => {
   try {
@@ -91,31 +93,29 @@ export const createSubscription = async (req, res, next) => {
     // run in the CLI 'npx @upstash/qstash-cli dev' to get the dev token, signing keys
     // here the workflow is created
     let workflowRunId = null;
-    if(NODE_ENV != "test") {
+
+    if (NODE_ENV != "test") {
       const result = await workflowClient.trigger({
-      // Will hit the endpoint when a new subscription is created
-      url: `${SERVER_URL}/api/v1/workflows/subscription/reminder`,
-      body: {
-        subscriptionId: subscription.id,
-      },
-      headers: {
-        "content-type": "application/json",
-      },
-      retries: 0,
-    });
+        // Will hit the endpoint when a new subscription is created
+        url: `${SERVER_URL}/api/v1/workflows/subscription/reminder`,
+        body: {
+          subscriptionId: subscription.id,
+        },
+        headers: {
+          "content-type": "application/json",
+        },
+        retries: 0,
+      });
 
-    workflowRunId = result.workflowRunId;
+      workflowRunId = result.workflowRunId;
     }
-    
 
-    if(user?.plan == "free") {
-      await User.findByIdAndUpdate(req.user._id,
-      {
-        $inc: { freeTokens: -1}
-      }
-    );
+    if (user?.plan == "free") {
+      await User.findByIdAndUpdate(req.user._id, {
+        $inc: { freeTokens: -1 },
+      });
     }
-    
+
     // Attach the subscription created and the tied workflow id to it
     res
       .status(201)
@@ -130,7 +130,7 @@ export const updateSubscription = async (req, res, next) => {
 
   const user = await User.findById(req.user._id);
 
-  if(user?.plan == "free" && user?.freeTokens == 0) {
+  if (user?.plan == "free" && user?.freeTokens == 0) {
     const error = new Error("No more tokens left!");
     error.statusCode = 401;
     throw error;
@@ -162,33 +162,38 @@ export const updateSubscription = async (req, res, next) => {
       },
       { returnDocument: "after" },
     );
+
     if (!subscription) {
       const error = new Error("There is no subscription with given ID");
       error.statusCode = 404;
       throw error;
     }
 
-    const { workflowRunId } = await workflowClient.trigger({
-      // Will hit the endpoint when a new subscription is created
-      url: `${SERVER_URL}/api/v1/workflows/subscription/reminder`,
-      body: {
-        subscriptionId: subscription.id,
-      },
-      headers: {
-        "content-type": "application/json",
-      },
-      retries: 0,
-    });
+    let workflowRunId = null;
 
-    if(user.plan == "free") {
-      await User.findByIdAndUpdate(req.user._id,
-      {
-        $inc: { freeTokens: -1}
-      }
-    );
+    if (NODE_ENV !== "test") {
+      const result = await workflowClient.trigger({
+        // Will hit the endpoint when a new subscription is created
+        url: `${SERVER_URL}/api/v1/workflows/subscription/reminder`,
+        body: {
+          subscriptionId: subscription.id,
+        },
+        headers: {
+          "content-type": "application/json",
+        },
+        retries: 0,
+      });
+
+      workflowRunId = result.workflowRunId;
     }
 
-    res.status(201).json({
+    if (user.plan == "free") {
+      await User.findByIdAndUpdate(req.user._id, {
+        $inc: { freeTokens: -1 },
+      });
+    }
+
+    res.status(200).json({
       success: true,
       message: "Successfully updated the subscription details!",
       data: { subscription, workflowRunId },

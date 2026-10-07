@@ -1,5 +1,5 @@
 import express from "express";
-import { PORT, SERVER_URL } from "./config/env.js";
+import { NODE_ENV, PORT, SERVER_URL } from "./config/env.js";
 import cors from "cors";
 import dns from "node:dns/promises";
 
@@ -42,7 +42,7 @@ app.use(
 app.use(express.urlencoded({ extended: false }));
 
 // Arcjet middleware - rate limiter
-app.use(arcjetMiddleware);
+if (NODE_ENV != "test") app.use(arcjetMiddleware);
 
 // Append the routes to the specific general route
 app.use("/api/v1/auth", authRouter);

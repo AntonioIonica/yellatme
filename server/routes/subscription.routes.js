@@ -14,6 +14,7 @@ import admin from "../middlewares/admin.middleware.js";
 
 const subscriptionRouter = Router();
 
+// Admin restricted
 subscriptionRouter.get("/", authorize, admin, getAllSubscriptions);
 
 subscriptionRouter.get("/upcoming-renewals", authorize, getUpcomingRenewals);
