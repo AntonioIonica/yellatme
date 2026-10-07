@@ -19,12 +19,12 @@ import { comparePay, parseCurrency, getSubsByInterval } from "@/lib/utils";
 
 const DashboardPage = () => {
   const { subscriptions, setSubscriptions } = useSubscriptionStore();
-  const { user, loading, initialized } = useAuthStore();
+  const { user, loading } = useAuthStore();
   const [upcomingRenewals, setUpcomingRenewals] = useState<
     Subscription[] | null
   >([]);
 
-    const totalYearly = getSubsByInterval(subscriptions, "wholeCurrYear").reduce(
+  const totalYearly = getSubsByInterval(subscriptions, "wholeCurrYear").reduce(
     (sum, curr) => sum + +curr.price,
     0,
   );
@@ -70,10 +70,10 @@ const DashboardPage = () => {
   }, [user]);
 
   useEffect(() => {
-    if(!initialized || loading) return;
+    if (loading) return;
 
-    if(user === null) router.push("/login");
-  }, [user, initialized, router, loading]);
+    if (user === null) router.push("/login");
+  }, [user, router, loading]);
 
   if (!user)
     return (
