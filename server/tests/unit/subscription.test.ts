@@ -33,12 +33,7 @@ async function loginTest() {
 
 describe("Subscriptions page", () => {
   test("Create new subscription", async () => {
-    const agent = request.agent(app);
-
-    await agent.post("/api/v1/auth/sign-in").send({
-      email: EMAIL_NAME,
-      password: EMAIL_PASSWORD,
-    });
+    const agent = await loginTest();
 
     const res = await agent.post("/api/v1/subscriptions").send({
       name: "Netflix new subscriptions",
@@ -55,12 +50,7 @@ describe("Subscriptions page", () => {
   });
 
   test("Get test subscription", async () => {
-    const agent = request.agent(app);
-
-    await agent.get("/api/v1/auth/sign-in").send({
-      email: EMAIL_NAME,
-      password: EMAIL_PASSWORD,
-    });
+    const agent = await loginTest();
 
     const res = await agent.get(`/api/v1/subscriptions/${TEST_SUB_ID}`);
 
@@ -82,12 +72,7 @@ describe("Subscriptions page", () => {
   });
 
   test("Daily renewal date", async () => {
-    const agent = request.agent(app);
-
-    await agent.post("/api/v1/auth/sign-in").send({
-      email: EMAIL_NAME,
-      password: EMAIL_PASSWORD,
-    });
+    const agent = await loginTest();
 
     const res = await agent.post("/api/v1/subscriptions").send({
       name: "Daily renewal test",
@@ -110,12 +95,7 @@ describe("Subscriptions page", () => {
   });
 
   test("Weekly renewal date", async () => {
-    const agent = request.agent(app);
-
-    await agent.post("/api/v1/auth/sign-in").send({
-      email: EMAIL_NAME,
-      password: EMAIL_PASSWORD,
-    });
+    const agent = await loginTest();
 
     const res = await agent.post("/api/v1/subscriptions").send({
       name: "Weekly renewal test",
@@ -138,12 +118,7 @@ describe("Subscriptions page", () => {
   });
 
   test("Monthly renewal date", async () => {
-    const agent = request.agent(app);
-
-    await agent.post("/api/v1/auth/sign-in").send({
-      email: EMAIL_NAME,
-      password: EMAIL_PASSWORD,
-    });
+    const agent = await loginTest();
 
     const res = await agent.post("/api/v1/subscriptions").send({
       name: "Monthly renewal test",
@@ -172,12 +147,7 @@ describe("Subscriptions page", () => {
   });
 
   test("Should not see others subscriptions", async () => {
-    const agent = request.agent(app);
-
-    await agent.post("/api/v1/auth/sign-in").send({
-      email: EMAIL_NAME,
-      password: EMAIL_PASSWORD,
-    });
+    const agent = await loginTest();
 
     const res = await agent.get(`/api/v1/subscriptions/user/${TEST_USER_ID}`);
 
@@ -187,12 +157,7 @@ describe("Subscriptions page", () => {
   });
 
   test("Should update a subscription", async () => {
-    const agent = request.agent(app);
-
-    await agent.post("/api/v1/auth/sign-in").send({
-      email: EMAIL_NAME,
-      password: EMAIL_PASSWORD,
-    });
+    const agent = await loginTest();
 
     const res = await agent
       .patch("/api/v1/subscriptions/698edb5d0487e7e2f4e26dad")
@@ -203,5 +168,39 @@ describe("Subscriptions page", () => {
     expect(res.status).toBe(200);
     expect(res.body.data.subscription.name).toBe("Netflix extra VIP");
     expect(res.body.data.workflowRunId).toBeNull;
+  });
+
+  test("Should return 404 when updating a subscription which doesn't exists", async () => {
+    const agent = await loginTest();
+
+    const res = await agent
+      .patch("/api/v1/subscriptions/000edb5d0000e7e2f4e26dad")
+      .send({
+        name: "Netflix extra VIP",
+      });
+
+    expect(res.status).toBe(404);
+  });
+
+  test("Should cancel an active subscription", async () => {
+    const agent = await loginTest();
+
+    const res1 = await agent.post("/api/v1/subscriptions").send({
+      name: "Netflix new subscriptions",
+      price: 12,
+      frequency: "daily",
+      category: "house",
+      paymentMethod: "credit card",
+      startDate: new Date().toISOString(),
+      user: "6a60510cc3b6a3d358ec44fd",
+    });
+
+    const res2 = await agent.patch(
+      `/api/v1/subscriptions/${res1.body.data.subscription._id}/cancel`,
+    );
+
+    expect(res2.status).toBe(200);
+
+    expect(res2.body.data.status).toBe("cancelled");
   });
 });

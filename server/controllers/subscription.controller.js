@@ -286,6 +286,7 @@ export const cancelSubscription = async (req, res, next) => {
       },
       { returnDocument: "after" },
     );
+
     if (!subscription) {
       const error = new Error("Subscription not found");
       error.statusCode = 404;
