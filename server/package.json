@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js",
-    "test": "vitest"
+    "test": "vitest run --no-file-parallelism"
   },
   "dependencies": {
     "@arcjet/inspect": "^1.1.0",

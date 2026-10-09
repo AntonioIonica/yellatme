@@ -1,7 +1,19 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { stripe } from "../../config/stripe.js";
-import { CLIENT_URL, EMAIL_NAME, STRIPE_PRICE_ID } from "../../config/env.js";
-import { loginTest, TEST_USER_ID } from "../unit/subscription.test.js";
+import request from "supertest";
+import app from "../../app.js";
+import { EMAIL_NAME, EMAIL_PASSWORD } from "../../config/env.js";
+
+export async function loginTest() {
+  const agent = request.agent(app);
+
+  await agent.post("/api/v1/auth/sign-in").send({
+    email: EMAIL_NAME,
+    password: EMAIL_PASSWORD,
+  });
+
+  return agent;
+}
 
 // simulating a session
 vi.mock("../../config/stripe.js", () => ({
@@ -13,7 +25,6 @@ vi.mock("../../config/stripe.js", () => ({
     },
   },
 }));
-
 const mockedCreateSession = vi.mocked(stripe.checkout.sessions.create);
 
 describe("POST /api/billing/checkout", () => {
@@ -35,5 +46,15 @@ describe("POST /api/billing/checkout", () => {
     expect(stripeRes.status).toBe(200);
 
     expect(stripeRes.body.url).toBe(checkoutUrl);
+  });
+
+  it("Should give an error when Stripe fails", async () => {
+    const agent = await loginTest();
+
+    mockedCreateSession.mockRejectedValue(new Error("Stripe checkout failed"));
+
+    const stripeRes = await agent.post("/api/billing/checkout");
+
+    expect(stripeRes.status).toBe(500);
   });
 });
