@@ -4,7 +4,7 @@ import User from "../models/user.model.js";
 
 const now = new Date();
 
-export const expireSubscriptionJob = cron.schedule("*/10 * * * *", async () => {
+export const expireSubscriptions = async () => {
   console.log("Running cron job for expired subscriptions.");
 
   // Set subscriptions with passed renewalDate and not updated status to status: "expired"
@@ -12,7 +12,7 @@ export const expireSubscriptionJob = cron.schedule("*/10 * * * *", async () => {
     {
       renewalDate: { $lt: now },
       // Status not equal
-      status: { $ne: "expired" },
+      status: { $ne: "expired" | "cancelled" },
     },
     // Set is used so only the status parameter is updated, and not the whole document overwritten
     {
@@ -21,7 +21,12 @@ export const expireSubscriptionJob = cron.schedule("*/10 * * * *", async () => {
       },
     },
   );
-});
+};
+
+export const expireSubscriptionJob = cron.schedule(
+  "*/10 * * * *",
+  expireSubscriptions,
+);
 
 export const expirePaidUser = cron.schedule("0 0 * * *", async () => {
   console.log("Running paid user check for past date Stripe subscription.");
@@ -30,7 +35,6 @@ export const expirePaidUser = cron.schedule("0 0 * * *", async () => {
     {
       plan: "pro",
       currentSubscriptionEnd: { $lt: now },
-      
     },
     {
       $set: {

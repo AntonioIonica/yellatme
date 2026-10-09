@@ -2,11 +2,12 @@ import { describe, expect, test } from "vitest";
 import request from "supertest";
 import app from "../../app.js";
 import { EMAIL_NAME, EMAIL_PASSWORD } from "../../config/env.js";
+import { expireSubscriptions } from "../../cron/subscriptions.cron.js";
 
-const TEST_SUB_ID = "69c83b3ba247ab4be0b52e91";
-const TEST_USER_ID = "6a60510cc3b6a3d358ec44fd";
+export const TEST_SUB_ID = "69c83b3ba247ab4be0b52e91";
+export const TEST_USER_ID = "6a60510cc3b6a3d358ec44fd";
 
-type subscription = {
+export type subscription = {
   name: string;
   description: string;
   price: number;
@@ -20,19 +21,20 @@ type subscription = {
   user: string;
 };
 
-const dummySubscription = (frequency = "daily") => {
+export const dummySubscription = (frequency = "daily") => {
   return {
     name: "Netflix new subscriptions",
     price: 12,
     frequency,
     category: "house",
     paymentMethod: "credit card",
+    status: "active",
     startDate: new Date().toISOString(),
     user: "6a60510cc3b6a3d358ec44fd",
   };
 };
 
-async function loginTest() {
+export async function loginTest() {
   const agent = request.agent(app);
 
   await agent.post("/api/v1/auth/sign-in").send({
@@ -43,7 +45,7 @@ async function loginTest() {
   return agent;
 }
 
-describe("Subscriptions page", () => {
+describe("POST /api/v1/subscriptions", () => {
   test("Create new subscription", async () => {
     const agent = await loginTest();
 
@@ -206,5 +208,68 @@ describe("Subscriptions page", () => {
     );
 
     expect(confirmDeleteRes.status).toBe(404);
+  });
+
+  test("Pro plan users can create more than 5 subscriptions", async () => {
+    const agent = await loginTest();
+
+    const createSubscriptionRes1 = await agent
+      .post("/api/v1/subscriptions")
+      .send(dummySubscription());
+
+    expect(createSubscriptionRes1.status).toBe(201);
+
+    const createSubscriptionRes2 = await agent
+      .post("/api/v1/subscriptions")
+      .send(dummySubscription());
+
+    expect(createSubscriptionRes2.status).toBe(201);
+
+    const createSubscriptionRes3 = await agent
+      .post("/api/v1/subscriptions")
+      .send(dummySubscription());
+
+    expect(createSubscriptionRes3.status).toBe(201);
+
+    const createSubscriptionRes4 = await agent
+      .post("/api/v1/subscriptions")
+      .send(dummySubscription());
+
+    expect(createSubscriptionRes4.status).toBe(201);
+
+    const createSubscriptionRes5 = await agent
+      .post("/api/v1/subscriptions")
+      .send(dummySubscription());
+
+    expect(createSubscriptionRes5.status).toBe(201);
+
+    const createSubscriptionRes6 = await agent
+      .post("/api/v1/subscriptions")
+      .send(dummySubscription());
+
+    expect(createSubscriptionRes6.status).toBe(201);
+  });
+
+  test("Should not set expired for cancelled subscriptions", async () => {
+    const agent = await loginTest();
+
+    const date = new Date();
+    date.setDate(date.getDate() - 1);
+
+    const res = await agent.post(`/api/v1/subscriptions`).send({
+      name: "Netflix new subscriptions",
+      price: 12,
+      frequency: "weekly",
+      category: "house",
+      status: "cancelled",
+      paymentMethod: "credit card",
+      startDate: new Date().toISOString(),
+      user: "6a60510cc3b6a3d358ec44fd",
+    });
+
+    // Running cron jobs immediately to check for expired subs
+    await expireSubscriptions();
+
+    expect(res.body.data.subscription.status).toBe("cancelled");
   });
 });

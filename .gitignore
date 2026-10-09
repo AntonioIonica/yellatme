@@ -143,3 +143,5 @@ vite.config.ts.timestamp-*
 
 # Vitest
 .vitest/
+
+commands.txt
