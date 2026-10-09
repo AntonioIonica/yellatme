@@ -20,6 +20,18 @@ type subscription = {
   user: string;
 };
 
+const dummySubscription = (frequency = "daily") => {
+  return {
+    name: "Netflix new subscriptions",
+    price: 12,
+    frequency,
+    category: "house",
+    paymentMethod: "credit card",
+    startDate: new Date().toISOString(),
+    user: "6a60510cc3b6a3d358ec44fd",
+  };
+};
+
 async function loginTest() {
   const agent = request.agent(app);
 
@@ -35,15 +47,9 @@ describe("Subscriptions page", () => {
   test("Create new subscription", async () => {
     const agent = await loginTest();
 
-    const res = await agent.post("/api/v1/subscriptions").send({
-      name: "Netflix new subscriptions",
-      price: 12,
-      frequency: "daily",
-      category: "house",
-      paymentMethod: "credit card",
-      startDate: new Date().toISOString(),
-      user: "6a60510cc3b6a3d358ec44fd",
-    });
+    const res = await agent
+      .post("/api/v1/subscriptions")
+      .send(dummySubscription());
 
     expect(res.status).toBe(201);
     expect(res.body.data.subscription.name).toBe("Netflix new subscriptions");
@@ -74,15 +80,9 @@ describe("Subscriptions page", () => {
   test("Daily renewal date", async () => {
     const agent = await loginTest();
 
-    const res = await agent.post("/api/v1/subscriptions").send({
-      name: "Daily renewal test",
-      price: 10,
-      frequency: "daily",
-      category: "house",
-      paymentMethod: "credit card",
-      startDate: new Date().toISOString(),
-      user: "6a60510cc3b6a3d358ec44fd",
-    });
+    const res = await agent
+      .post("/api/v1/subscriptions")
+      .send(dummySubscription());
 
     const start = new Date(res.body.data.subscription.startDate);
     const renewalDate = new Date(res.body.data.subscription.renewalDate);
@@ -97,15 +97,9 @@ describe("Subscriptions page", () => {
   test("Weekly renewal date", async () => {
     const agent = await loginTest();
 
-    const res = await agent.post("/api/v1/subscriptions").send({
-      name: "Weekly renewal test",
-      price: 10,
-      frequency: "weekly",
-      category: "house",
-      paymentMethod: "credit card",
-      startDate: new Date().toISOString(),
-      user: "6a60510cc3b6a3d358ec44fd",
-    });
+    const res = await agent
+      .post("/api/v1/subscriptions")
+      .send(dummySubscription("weekly"));
 
     const start = new Date(res.body.data.subscription.startDate);
     const renewalDate = new Date(res.body.data.subscription.renewalDate);
@@ -120,15 +114,9 @@ describe("Subscriptions page", () => {
   test("Monthly renewal date", async () => {
     const agent = await loginTest();
 
-    const res = await agent.post("/api/v1/subscriptions").send({
-      name: "Monthly renewal test",
-      price: 10,
-      frequency: "monthly",
-      category: "house",
-      paymentMethod: "credit card",
-      startDate: new Date().toISOString(),
-      user: "6a60510cc3b6a3d358ec44fd",
-    });
+    const res = await agent
+      .post("/api/v1/subscriptions")
+      .send(dummySubscription("monthly"));
 
     const start = new Date(res.body.data.subscription.startDate);
     const renewalDate = new Date(res.body.data.subscription.renewalDate);
@@ -185,15 +173,9 @@ describe("Subscriptions page", () => {
   test("Should cancel an active subscription", async () => {
     const agent = await loginTest();
 
-    const res1 = await agent.post("/api/v1/subscriptions").send({
-      name: "Netflix new subscriptions",
-      price: 12,
-      frequency: "daily",
-      category: "house",
-      paymentMethod: "credit card",
-      startDate: new Date().toISOString(),
-      user: "6a60510cc3b6a3d358ec44fd",
-    });
+    const res1 = await agent
+      .post("/api/v1/subscriptions")
+      .send(dummySubscription());
 
     const res2 = await agent.patch(
       `/api/v1/subscriptions/${res1.body.data.subscription._id}/cancel`,
@@ -202,5 +184,27 @@ describe("Subscriptions page", () => {
     expect(res2.status).toBe(200);
 
     expect(res2.body.data.status).toBe("cancelled");
+  });
+
+  test("Should delete a subscription", async () => {
+    const agent = await loginTest();
+
+    const createSubscriptionRes = await agent
+      .post("/api/v1/subscriptions")
+      .send(dummySubscription());
+
+    if (!createSubscriptionRes.body.success) return;
+
+    const res = await agent.delete(
+      `/api/v1/subscriptions/${createSubscriptionRes.body.data.subscription._id}`,
+    );
+
+    expect(res.status).toBe(204);
+
+    const confirmDeleteRes = await agent.get(
+      `/api/v1/subscriptions/${createSubscriptionRes.body.data.subscription._id}`,
+    );
+
+    expect(confirmDeleteRes.status).toBe(404);
   });
 });
