@@ -199,4 +199,32 @@ describe("POST /api/webhook/stripe", () => {
       },
     );
   });
+
+  it("Should downgrade the user when invoice payment fails", async () => {
+    mockedConstructEvent.mockReturnValue({
+      type: "invoice.payment_failed",
+      data: { object: { customer: customerId } },
+    } as any);
+
+    vi.mocked(User.findOneAndUpdate).mockResolvedValue(null);
+
+    const res = await request(app)
+      .post("/api/webhook/stripe")
+      .set("stripe-signature", "valid-test-signature")
+      .set("Content-Type", "application/json")
+      .send({ test: true });
+
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({ received: true });
+
+    expect(User.findOneAndUpdate).toHaveBeenCalledWith(
+      {
+        stripeCustomerId: customerId,
+      },
+      {
+        plan: "free",
+        subscriptionStatus: "expired",
+      },
+    );
+  });
 });
