@@ -43,4 +43,25 @@ describe("GET /api/v1/auth/jwt", () => {
 
     expect(res.status).toBe(401);
   });
+
+  it("Should reject a valid token when no user found", async () => {
+    if (!JWT_SECRET) {
+      throw new Error("JWT_SECRET is not configured!");
+    }
+
+    if (!userId) {
+      throw new Error("No user id present!");
+    }
+
+    const token = jwt.sign({ userId: "1a60510cc3b1a1d111ec11fd" }, JWT_SECRET, {
+      expiresIn: "1h",
+    });
+
+    const res = await request(app)
+      .get("/api/v1/auth/jwt")
+      .set("Authorization", `Bearer ${token}`);
+
+    expect(res.status).toBe(401);
+    expect(res.body.message).toBe("Unauthorized! No user found!");
+  });
 });
