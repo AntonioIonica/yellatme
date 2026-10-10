@@ -166,4 +166,37 @@ describe("POST /api/webhook/stripe", () => {
       },
     );
   });
+
+  it("Should demote to free plan when user cancels the stripe subscription", async () => {
+    mockedConstructEvent.mockReturnValue({
+      type: "customer.subscription.deleted",
+      data: {
+        object: {
+          id: subscriptionId,
+        },
+      },
+    } as any);
+
+    vi.mocked(User.findOneAndUpdate).mockResolvedValue(null);
+
+    const res = await request(app)
+      .post("/api/webhook/stripe")
+      .set("stripe-signature", "valid-test-signature")
+      .set("Content-Type", "application/json")
+      .send({ test: true });
+
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({ received: true });
+
+    expect(User.findOneAndUpdate).toHaveBeenCalledWith(
+      {
+        stripeSubscriptionId: subscriptionId,
+      },
+      {
+        currentSubscriptionEnd: null,
+        subscriptionStatus: "cancelled",
+        plan: "free",
+      },
+    );
+  });
 });
