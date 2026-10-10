@@ -113,4 +113,25 @@ describe("GET /api/v1/auth/jwt", () => {
     expect(res.status).toBe(200);
     expect(res.body.user._id).toBe(userId);
   });
+
+  it("Should clear cookie when logout", async () => {
+    const res = await request(app).get("/api/v1/auth/sign-out");
+
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({
+      success: true,
+      message: "Successfully logged out!",
+    });
+
+    // The cookie is in set-cookie hash
+    const cookies = res.headers["set-cookie"];
+    expect(cookies).toBeDefined();
+
+    const tokenCookie = (Array.isArray(cookies) ? cookies : [cookies]).find(
+      (cookie) => cookie.startsWith("token="),
+    );
+
+    expect(tokenCookie).toBeDefined();
+    expect(tokenCookie).toMatch(/Max-Age=0|Expires=Thu, 01 Jan 1970/i);
+  });
 });
