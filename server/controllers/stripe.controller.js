@@ -22,11 +22,11 @@ export const stripeWebhookController = async (req, res) => {
     // will store subscription details (user, subscription details)
     const session = event.data.object;
 
-    if (!session.subscription) return;
+    if (!session.subscription) return res.json({ received: true });
 
     //   stored on the id, not the subscription itself
     const subscriptionId = session.subscription;
-    if (!subscriptionId) return;
+    if (!subscriptionId) return res.json({ received: true });
 
     await User.findByIdAndUpdate(session.client_reference_id, {
       stripeCustomerId: session.customer,
@@ -45,7 +45,7 @@ export const stripeWebhookController = async (req, res) => {
     const periodEnd = subscription.items?.data?.[0]?.current_period_end; // newer Stripe API
 
     const endDate = new Date(periodEnd * 1000);
-    
+
     await User.findOneAndUpdate(
       {
         stripeSubscriptionId: subscription.id,

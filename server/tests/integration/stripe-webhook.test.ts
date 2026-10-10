@@ -227,4 +227,28 @@ describe("POST /api/webhook/stripe", () => {
       },
     );
   });
+
+  it("Should not update the user when the session has no Stripe subscription ID", async () => {
+    mockedConstructEvent.mockReturnValue({
+      type: "checkout.session.completed",
+      data: {
+        object: {
+          client_reference_id: userId,
+          customer: customerId,
+          subscription: null, // session has no stripe subscription ID
+        },
+      },
+    } as any);
+
+    const res = await request(app)
+      .post("/api/webhook/stripe")
+      .set("stripe-signature", "valid-test-signature")
+      .set("Content-Type", "application/json")
+      .send({ test: true });
+
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({ received: true });
+
+    expect(User.findOneAndUpdate).not.toHaveBeenCalled(); // if no stripe subscription id, no update happens
+  });
 });
