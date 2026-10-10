@@ -19,4 +19,5 @@ export const {
   STRIPE_WEBHOOK_SECRET,
   CLIENT_URL,
   STRIPE_PRICE_ID,
+  BYPASS_AUTH_FOR_TESTS,
 } = process.env;

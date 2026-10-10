@@ -8,4 +8,12 @@ describe("GET /api/v1/auth/jwt", () => {
 
     expect(res.status).toBe(401);
   });
+
+  it("Should reject an invalid auth token", async () => {
+    const res = await request(app)
+      .get("/api/v1/auth/jwt")
+      .set("Authorization", "Bearer invalid-token");
+
+    expect(res.status).toBe(401);
+  });
 });

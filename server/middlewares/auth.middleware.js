@@ -1,12 +1,12 @@
 import jwt from "jsonwebtoken";
 
-import { JWT_SECRET, NODE_ENV } from "../config/env.js";
+import { BYPASS_AUTH_FOR_TESTS, JWT_SECRET, NODE_ENV } from "../config/env.js";
 import User from "../models/user.model.js";
 
 const authorize = async (req, res, next) => {
   try {
     // Running tests
-    if (NODE_ENV == "test") {
+    if (NODE_ENV == "test" && BYPASS_AUTH_FOR_TESTS == true) {
       req.user = {
         _id: "6a60510cc3b6a3d358ec44fd",
       };
