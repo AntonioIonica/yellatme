@@ -7,6 +7,7 @@ import { stripe } from "../../config/stripe.js";
 const userId = "6a60510cc3b6a3d358ec44fd";
 const customerId = "cus_test123";
 const subscriptionId = "11c83b3ba111ab4be0b11e91";
+const periodEnd = 1791504000;
 
 vi.mock("../../config/stripe.js", () => ({
   stripe: {
@@ -82,8 +83,6 @@ describe("POST /api/webhook/stripe", () => {
   });
 
   it("Should upgrade the user to Pro plan after paying (invoice.paid)", async () => {
-    const periodEnd = 1791504000;
-
     mockedConstructEvent.mockReturnValue({
       type: "invoice.paid",
       data: {
@@ -127,6 +126,43 @@ describe("POST /api/webhook/stripe", () => {
         subscriptionStatus: "active",
         currentSubscriptionEnd: new Date(periodEnd * 1000),
         stripeSubscriptionId: subscriptionId,
+      },
+    );
+  });
+
+  it("Should update the user's plan as soon as stripe subscription is active", async () => {
+    mockedConstructEvent.mockReturnValue({
+      type: "customer.subscription.updated",
+      data: {
+        object: {
+          id: subscriptionId,
+          status: "active",
+          items: {
+            data: [{ current_period_end: periodEnd }],
+          },
+        },
+      },
+    } as any);
+
+    vi.mocked(User.findOneAndUpdate).mockResolvedValue(null);
+
+    const res = await request(app)
+      .post("/api/webhook/stripe")
+      .set("stripe-signature", "valid-test-signature")
+      .set("Content-Type", "application/json")
+      .send({ test: true });
+
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({ received: true });
+
+    expect(User.findOneAndUpdate).toHaveBeenCalledWith(
+      {
+        stripeSubscriptionId: subscriptionId,
+      },
+      {
+        currentSubscriptionEnd: new Date(periodEnd * 1000),
+        subscriptionStatus: "active",
+        plan: "pro",
       },
     );
   });
