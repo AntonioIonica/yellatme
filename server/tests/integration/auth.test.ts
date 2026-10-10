@@ -3,7 +3,6 @@ import request from "supertest";
 import app from "../../app.js";
 import jwt from "jsonwebtoken";
 import { JWT_SECRET } from "../../config/env.js";
-import User from "../../models/user.model.js";
 
 const userId = "6a60510cc3b6a3d358ec44fd";
 
@@ -32,11 +31,9 @@ describe("GET /api/v1/auth/jwt", () => {
       throw new Error("No user id present!");
     }
 
-    const expiredToken = jwt.sign(
-      { userId: "6a60510cc3b6a3d358ec44fd", role: "user" },
-      JWT_SECRET,
-      { expiresIn: -1 },
-    );
+    const expiredToken = jwt.sign({ userId, role: "user" }, JWT_SECRET, {
+      expiresIn: -1,
+    });
 
     const res = await request(app)
       .get("/api/v1/auth/jwt")
@@ -55,7 +52,7 @@ describe("GET /api/v1/auth/jwt", () => {
     }
 
     const token = jwt.sign(
-      { userId: "1a60510cc3b1a1d111ec11fd", role: "user" },
+      { userId: "6a11111cc1b6a1d358ec11fd", role: "user" },
       JWT_SECRET,
       {
         expiresIn: "1h",
@@ -79,13 +76,39 @@ describe("GET /api/v1/auth/jwt", () => {
       throw new Error("No user id present!");
     }
 
-    const token = jwt.sign({ userId: userId, role: "user" }, JWT_SECRET, {
+    const token = jwt.sign({ userId, role: "user" }, JWT_SECRET, {
       expiresIn: "1h",
     });
 
     const res = await request(app)
       .get("/api/v1/auth/jwt")
       .set("Authorization", `Bearer ${token}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.user._id).toBe(userId);
+  });
+
+  it("Should authenticate an user with valid token cookie", async () => {
+    if (!JWT_SECRET) {
+      throw new Error("JWT_SECRET is not configured!");
+    }
+
+    if (!userId) {
+      throw new Error("No user id present!");
+    }
+
+    const token = jwt.sign(
+      {
+        userId,
+        role: "user",
+      },
+      JWT_SECRET,
+      { expiresIn: "1h" },
+    );
+
+    const res = await request(app)
+      .get("/api/v1/auth/jwt")
+      .set("Cookie", `token=${token}`);
 
     expect(res.status).toBe(200);
     expect(res.body.user._id).toBe(userId);
