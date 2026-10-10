@@ -141,6 +141,14 @@ export const getJwtUser = async (req, res, next) => {
   try {
     res.set("Cache-Control", "no-store");
 
+    const token =
+      req.cookies?.token || req.header("Authorization")?.replace("Bearer ", "");
+
+    if (!token)
+      return res
+        .status(401)
+        .json({ message: "Unauthorized! No token active!" });
+
     res.status(200).json({
       success: true,
       user: req.user,
