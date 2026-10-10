@@ -3,6 +3,7 @@ import request from "supertest";
 import app from "../../app.js";
 import jwt from "jsonwebtoken";
 import { JWT_SECRET } from "../../config/env.js";
+import User from "../../models/user.model.js";
 
 const userId = "6a60510cc3b6a3d358ec44fd";
 
@@ -53,9 +54,13 @@ describe("GET /api/v1/auth/jwt", () => {
       throw new Error("No user id present!");
     }
 
-    const token = jwt.sign({ userId: "1a60510cc3b1a1d111ec11fd" }, JWT_SECRET, {
-      expiresIn: "1h",
-    });
+    const token = jwt.sign(
+      { userId: "1a60510cc3b1a1d111ec11fd", role: "user" },
+      JWT_SECRET,
+      {
+        expiresIn: "1h",
+      },
+    );
 
     const res = await request(app)
       .get("/api/v1/auth/jwt")
@@ -63,5 +68,26 @@ describe("GET /api/v1/auth/jwt", () => {
 
     expect(res.status).toBe(401);
     expect(res.body.message).toBe("Unauthorized! No user found!");
+  });
+
+  it("Should return the user when the token is valid", async () => {
+    if (!JWT_SECRET) {
+      throw new Error("JWT_SECRET is not configured!");
+    }
+
+    if (!userId) {
+      throw new Error("No user id present!");
+    }
+
+    const token = jwt.sign({ userId: userId, role: "user" }, JWT_SECRET, {
+      expiresIn: "1h",
+    });
+
+    const res = await request(app)
+      .get("/api/v1/auth/jwt")
+      .set("Authorization", `Bearer ${token}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.user._id).toBe(userId);
   });
 });
