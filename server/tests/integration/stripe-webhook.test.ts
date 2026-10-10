@@ -4,6 +4,10 @@ import app from "../../app.js";
 import User from "../../models/user.model.js";
 import { stripe } from "../../config/stripe.js";
 
+const userId = "6a60510cc3b6a3d358ec44fd";
+const customerId = "cus_test123";
+const subscriptionId = "11c83b3ba111ab4be0b11e91";
+
 vi.mock("../../config/stripe.js", () => ({
   stripe: {
     webhooks: {
@@ -52,10 +56,6 @@ describe("POST /api/webhook/stripe", () => {
   });
 
   it("Should save Stripe customer and sub ID after checkout completes", async () => {
-    const userId = "6a60510cc3b6a3d358ec44fd";
-    const customerId = "cus_test123";
-    const subscriptionId = "11c83b3ba111ab4be0b11e91";
-
     mockedConstructEvent.mockReturnValue({
       type: "checkout.session.completed",
       data: {
@@ -79,5 +79,55 @@ describe("POST /api/webhook/stripe", () => {
       stripeCustomerId: customerId,
       stripeSubscriptionId: subscriptionId,
     });
+  });
+
+  it("Should upgrade the user to Pro plan after paying (invoice.paid)", async () => {
+    const periodEnd = 1791504000;
+
+    mockedConstructEvent.mockReturnValue({
+      type: "invoice.paid",
+      data: {
+        object: {
+          parent: {
+            subscription_details: {
+              subscription: subscriptionId,
+            },
+          },
+        },
+      },
+    } as any);
+
+    vi.mocked(stripe.subscriptions.retrieve).mockResolvedValue({
+      id: subscriptionId,
+      status: "active",
+      items: {
+        data: [{ current_period_end: periodEnd }],
+      },
+    } as any);
+
+    vi.mocked(User.findOneAndUpdate).mockResolvedValue(null);
+
+    const res = await request(app)
+      .post("/api/webhook/stripe")
+      .set("stripe-signature", "valid-test-signature")
+      .set("Content-Type", "application/json")
+      .send({ test: true });
+
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({ received: true });
+
+    expect(stripe.subscriptions.retrieve).toHaveBeenCalledWith(subscriptionId);
+
+    expect(User.findOneAndUpdate).toHaveBeenCalledWith(
+      {
+        stripeSubscriptionId: subscriptionId,
+      },
+      {
+        plan: "pro",
+        subscriptionStatus: "active",
+        currentSubscriptionEnd: new Date(periodEnd * 1000),
+        stripeSubscriptionId: subscriptionId,
+      },
+    );
   });
 });
