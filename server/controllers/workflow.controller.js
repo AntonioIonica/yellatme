@@ -9,7 +9,7 @@ import { sendReminderEmail } from "../utils/send-email.js";
 
 const REMINDERS = [7, 5, 3, 1];
 
-export const sendReminders = serve(async (context) => {
+export const reminderWorkflow = async (context) => {
   const { subscriptionId } = context.requestPayload;
 
   //   Helper function to get the subscription by id
@@ -52,7 +52,9 @@ export const sendReminders = serve(async (context) => {
       );
     }
   }
-});
+};
+
+export const sendReminders = serve(reminderWorkflow);
 
 // HELPER FUNCTIONS
 
