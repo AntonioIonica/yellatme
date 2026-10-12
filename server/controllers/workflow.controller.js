@@ -43,12 +43,26 @@ export const reminderWorkflow = async (context) => {
       );
     }
 
-    // run the workflow when the reminder date is today
+    // run the workflow when the reminder date is today and check if the renewalDate is changed by fetching fresh subscription
     if (dayjs().isSame(reminderDate, "day")) {
+      const latestSubscription = await fetchSubscription(
+        context,
+        subscriptionId,
+      );
+
+      if (!latestSubscription || latestSubscription.status !== "active") {
+        return;
+      }
+
+      // If the renewal date of the freshly fetched subscription is different by the initial subscription renewal date, abort the reminder
+      if (!dayjs(latestSubscription.renewalDate).isSame(renewalDate)) {
+        return;
+      }
+
       await triggerReminder(
         context,
         `${daysBefore} days before reminder`,
-        subscription,
+        latestSubscription, // newest modified subscription state
       );
     }
   }
