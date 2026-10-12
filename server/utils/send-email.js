@@ -3,7 +3,6 @@ import dayjs from "dayjs";
 import transporter, { senderEmail } from "../config/nodemailer.js";
 
 export const sendReminderEmail = async ({ to, type, subscription }) => {
-  // Guard
   if (!to || !type) throw new Error("Missing required parameters!");
 
   // type = label reminder from the workflow to choose the days template
@@ -20,8 +19,6 @@ export const sendReminderEmail = async ({ to, type, subscription }) => {
     planName: subscription.name,
     price: `${subscription.currency} ${subscription.price} (${subscription.frequency})`,
     paymentMethod: subscription.paymentMethod,
-    // accountSettingsLink,
-    // supportLink,
   };
 
   // 2. Setting the subject and the message of the email
