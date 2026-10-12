@@ -185,4 +185,54 @@ describe("Reminder workflow", () => {
       vi.useRealTimers();
     }
   });
+
+  it("Should not send a reminder if the subscription is cancelled before reminder sending", async () => {
+    vi.useFakeTimers();
+
+    try {
+      vi.setSystemTime(new Date("2026-10-12T12:00:00Z"));
+
+      const subscription = {
+        _id: TEST_SUB_ID,
+        name: "Netflix new subscription-family",
+        status: "active",
+        startDate: new Date(Date.now() - 2 * 86400000).toISOString(),
+        price: 10,
+        renewalDate: new Date("2026-10-19T12:00:00Z").toISOString(),
+        user: { _id: TEST_USER_ID, email: "antonioiulianionica@gmail.com" },
+      };
+
+      const cancelledSubscription = {
+        ...subscription,
+        status: "cancelled",
+      };
+
+      //   resolving once with active sub and then with cancelled sub
+      const populate = vi
+        .fn()
+        .mockResolvedValueOnce(subscription)
+        .mockResolvedValueOnce(cancelledSubscription);
+
+      vi.mocked(Subscription.findById).mockReturnValue({
+        populate,
+      } as any);
+
+      const context = {
+        requestPayload: {
+          subscription: subscription._id,
+        },
+        run: vi.fn(async (_label, callback) => callback()),
+        sleepUntil: vi.fn(),
+      };
+
+      await reminderWorkflow(context as any);
+
+      //   2 times because 2 types of subscriptions
+      expect(Subscription.findById).toHaveBeenCalledTimes(2);
+
+      expect(sendReminderEmail).not.toHaveBeenCalled();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
 });
