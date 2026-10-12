@@ -80,4 +80,64 @@ describe("Reminder workflow", () => {
     expect(context.sleepUntil).not.toHaveBeenCalled();
     expect(sendReminderEmail).not.toHaveBeenCalled();
   });
+
+  it("Should schedule reminders given days before renewals", async () => {
+    vi.useFakeTimers(); // using fake timers
+
+    try {
+      vi.setSystemTime(new Date("2026-10-12T12:00:00Z"));
+
+      const subscription = {
+        _id: TEST_SUB_ID,
+        name: "Netflix new subscription-family",
+        status: "active",
+        startDate: new Date(Date.now() - 2 * 86400000).toISOString(),
+        price: 10,
+        renewalDate: new Date("2026-10-22T12:00:00Z").toISOString(),
+        user: TEST_USER_ID,
+      };
+
+      vi.mocked(Subscription.findById).mockReturnValue({
+        populate: vi.fn().mockResolvedValue(subscription),
+      } as any);
+
+      const context = {
+        requestPayload: {
+          subscriptionId: subscription._id,
+        },
+        run: vi.fn(async (_label, callback) => callback()),
+        sleepUntil: vi.fn(),
+      };
+
+      await reminderWorkflow(context as any);
+
+      expect(context.sleepUntil).toHaveBeenCalledTimes(4);
+
+      // args(nth call, label, date)
+      expect(context.sleepUntil).toHaveBeenNthCalledWith(
+        1,
+        "7 days before reminder",
+        new Date("2026-10-15T12:00:00Z"),
+      );
+      expect(context.sleepUntil).toHaveBeenNthCalledWith(
+        2,
+        "5 days before reminder",
+        new Date("2026-10-17T12:00:00Z"),
+      );
+      expect(context.sleepUntil).toHaveBeenNthCalledWith(
+        3,
+        "3 days before reminder",
+        new Date("2026-10-19T12:00:00Z"),
+      );
+      expect(context.sleepUntil).toHaveBeenNthCalledWith(
+        4,
+        "1 days before reminder",
+        new Date("2026-10-21T12:00:00Z"),
+      );
+
+      expect(sendReminderEmail).not.toHaveBeenCalled();
+    } finally {
+      vi.useRealTimers(); // back to real timers
+    }
+  });
 });
