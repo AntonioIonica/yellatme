@@ -30,7 +30,7 @@ export const expireSubscriptionJob = cron.schedule(
   expireSubscriptions,
 );
 
-export const expirePaidUser = cron.schedule("0 0 * * *", async () => {
+export const checkUserSubscriptions = async () => {
   console.log("Running paid user check for past date Stripe subscription.");
 
   const now = new Date();
@@ -47,4 +47,9 @@ export const expirePaidUser = cron.schedule("0 0 * * *", async () => {
       },
     },
   );
-});
+};
+
+export const expirePaidUser = cron.schedule(
+  "0 0 * * *",
+  checkUserSubscriptions,
+);

@@ -1,6 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import Subscription from "../../models/subscription.model.js";
-import { expireSubscriptions } from "../../cron/subscriptions.cron.js";
+import {
+  expireSubscriptions,
+  checkUserSubscriptions,
+} from "../../cron/subscriptions.cron.js";
 
 vi.mock("../../models/subscription.model.js", () => ({
   default: {
