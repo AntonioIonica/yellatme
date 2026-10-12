@@ -140,4 +140,49 @@ describe("Reminder workflow", () => {
       vi.useRealTimers(); // back to real timers
     }
   });
+
+  it("Should send an email when reminder date is due", async () => {
+    vi.useFakeTimers(); // set fake timers to be able to use fixed date
+
+    try {
+      vi.setSystemTime(new Date("2026-10-12T12:00:00Z"));
+
+      const subscription = {
+        _id: TEST_SUB_ID,
+        name: "Netflix new subscription-family",
+        status: "active",
+        startDate: new Date(Date.now() - 2 * 86400000).toISOString(),
+        price: 10,
+        renewalDate: new Date("2026-10-19T12:00:00Z").toISOString(),
+        user: { _id: TEST_USER_ID, email: "antonioiulianionica@gmail.com" },
+      };
+
+      vi.mocked(Subscription.findById).mockReturnValue({
+        populate: vi.fn().mockResolvedValue(subscription),
+      } as any);
+
+      const context = {
+        requestPayload: {
+          subscriptionId: subscription._id,
+        },
+        run: vi.fn(async (_label, callback) => callback()),
+        sleepUntil: vi.fn(),
+      };
+
+      await reminderWorkflow(context as any);
+
+      expect(sendReminderEmail).toHaveBeenCalledTimes(1);
+
+      expect(sendReminderEmail).toHaveBeenCalledWith({
+        to: "antonioiulianionica@gmail.com",
+        type: "7 days before reminder",
+        subscription,
+      });
+
+      //   scheduling the remaning days
+      expect(context.sleepUntil).toHaveBeenCalledTimes(3);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
 });
