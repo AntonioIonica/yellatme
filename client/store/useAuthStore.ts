@@ -36,9 +36,6 @@ export const useAuthStore = create<authStore>((set) => ({
     } catch (error) {
       set({ user: null, loading: false });
     }
-    //  finally {
-    //   set({ loading: false });
-    // }
   },
 
   clearUser: () => set({ user: null }),
