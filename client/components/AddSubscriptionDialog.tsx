@@ -44,7 +44,7 @@ const AddSubscriptionDialog = () => {
     to: undefined,
   });
   const [formSelectObj, setFormSelectObj] = useState({
-    currency: "EURO",
+    currency: "EUR",
     frequency: "weekly",
     category: "technology",
     status: "active",
@@ -90,7 +90,7 @@ const AddSubscriptionDialog = () => {
     );
 
     const result = await res.json();
-    
+
     if (result.success) {
       toast.success(
         `Subscription ${result?.data?.subscription?.name} was added to your collection!`,
@@ -105,11 +105,11 @@ const AddSubscriptionDialog = () => {
 
       setDialogOpen(false);
     } else {
-        toast.error(result.error, {
-            position: "top-center",
-            style: { fontWeight: 600 },
-            closeButton: true,
-    });
+      toast.error(result.error, {
+        position: "top-center",
+        style: { fontWeight: 600 },
+        closeButton: true,
+      });
     }
   };
 
