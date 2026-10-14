@@ -1,5 +1,5 @@
-import { describe, it, expect, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { describe, it, expect, vi, afterEach } from "vitest";
+import { cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import AddSubscriptionDialog from "@/components/AddSubscriptionDialog";
 
@@ -24,6 +24,10 @@ vi.mock("@/store/useAuthStore", () => ({
 }));
 
 describe("AddSubscriptionDialog", () => {
+  afterEach(() => {
+    cleanup();
+  });
+
   it("Should open the add new subscription dialog when clicking button 'Add subscription'", async () => {
     // setup to imitate user actions
     const user = userEvent.setup();
@@ -54,5 +58,27 @@ describe("AddSubscriptionDialog", () => {
 
     // price label should be displayed
     expect(screen.getByLabelText(/price/i)).toBeInTheDocument();
+  });
+
+  it("Should close the dialog when clicking", async () => {
+    const user = userEvent.setup();
+
+    render(<AddSubscriptionDialog />);
+
+    const openButton = screen.getByRole("button", {
+      name: /add subscription/i,
+    });
+
+    await user.click(openButton);
+
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
+
+    const closeButton = screen.getByRole("button", {
+      name: /cancel/i,
+    });
+
+    await user.click(closeButton);
+
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 });
