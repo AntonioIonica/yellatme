@@ -13,8 +13,9 @@ const { mockAddSubscription } = vi.hoisted(() => ({
   mockAddSubscription: vi.fn(),
 }));
 
-const { mockToastSuccess } = vi.hoisted(() => ({
+const { mockToastSuccess, mockToastError } = vi.hoisted(() => ({
   mockToastSuccess: vi.fn(),
+  mockToastError: vi.fn(),
 }));
 
 // mock addSubscription
@@ -26,7 +27,7 @@ vi.mock("@/store/useSubscriptionsStore", () => ({
 vi.mock("sonner", () => ({
   toast: {
     success: mockToastSuccess,
-    error: vi.fn(),
+    error: mockToastError,
   },
 }));
 
@@ -218,5 +219,54 @@ describe("AddSubscriptionDialog", () => {
     await waitFor(() => {
       expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     });
+  });
+
+  it("Should display an error when backend rejects creating the subscription", async () => {
+    const user = userEvent.setup();
+
+    const errorMessage = "No more tokens left!";
+
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: false,
+      status: 401,
+      json: async () => ({
+        success: false,
+        error: errorMessage,
+      }),
+    });
+
+    vi.stubGlobal("fetch", mockFetch);
+
+    render(<AddSubscriptionDialog />);
+
+    // Open the dialog
+    await user.click(
+      screen.getByRole("button", {
+        name: /add subscription/i,
+      }),
+    );
+
+    // Submit the form
+    await user.click(
+      within(screen.getByRole("dialog")).getByRole("button", {
+        name: /create subscription/i,
+      }),
+    );
+
+    await waitFor(() => {
+      expect(mockToastError).toHaveBeenCalledWith(
+        errorMessage,
+        // needed so error message will be checked
+        expect.any(Object),
+      );
+    });
+
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
+
+    // new subscription should not be created
+    expect(mockAddSubscription).not.toHaveBeenCalled();
+
+    // should not appear successfully added subscription toast
+    expect(mockToastSuccess).not.toHaveBeenCalled();
   });
 });
