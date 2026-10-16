@@ -309,7 +309,7 @@ const AddSubscriptionDialog = () => {
             <DialogClose asChild>
               <Button variant="outline">Cancel</Button>
             </DialogClose>
-            <Button type="submit">Add subscription</Button>
+            <Button type="submit">Create subscription</Button>
           </DialogFooter>
         </form>
       </DialogContent>

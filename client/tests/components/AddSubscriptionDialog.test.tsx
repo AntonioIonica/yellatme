@@ -1,5 +1,11 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
-import { cleanup, render, screen } from "@testing-library/react";
+import {
+  cleanup,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import AddSubscriptionDialog from "@/components/AddSubscriptionDialog";
 
@@ -26,6 +32,7 @@ vi.mock("@/store/useAuthStore", () => ({
 describe("AddSubscriptionDialog", () => {
   afterEach(() => {
     cleanup();
+    vi.unstubAllGlobals();
   });
 
   it("Should open the add new subscription dialog when clicking button 'Add subscription'", async () => {
@@ -80,5 +87,75 @@ describe("AddSubscriptionDialog", () => {
     await user.click(closeButton);
 
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+
+  it("Should send the correct subscription data to the backend", async () => {
+    const user = userEvent.setup();
+
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        success: true,
+        data: {
+          subscription: {
+            _id: "sub-123",
+            name: "Netflix test sub",
+          },
+        },
+      }),
+    });
+
+    // will mock the fetch with the respective subscription
+    vi.stubGlobal("fetch", mockFetch);
+
+    render(<AddSubscriptionDialog />);
+
+    await user.click(
+      screen.getByRole("button", {
+        name: /add subscription/i,
+      }),
+    );
+
+    await user.clear(screen.getByLabelText(/subscription name/i));
+    await user.type(
+      screen.getByLabelText(/subscription name/i),
+      "Netflix test sub",
+    );
+
+    await user.type(screen.getByLabelText(/price/i), "12");
+
+    const subscriptionDialog = screen.getByRole("dialog");
+    await user.click(
+      within(subscriptionDialog).getByRole("button", {
+        name: /create subscription/i,
+      }),
+    );
+
+    // wait until the mocked fetch is done
+    await waitFor(() => {
+      expect(mockFetch).toHaveBeenCalledTimes(1);
+    });
+
+    // destructurate the url and the options from the mocked call (first)
+    const [url, options] = mockFetch.mock.calls[0];
+
+    expect(url).toBe(
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/subscriptions`,
+    );
+    expect(options.method).toBe("POST");
+    expect(options.credentials).toBe("include");
+    expect(options.headers).toStrictEqual({
+      "Content-Type": "application/json",
+    });
+
+    const body = JSON.parse(options.body);
+    expect(body).toMatchObject({
+      name: "Netflix test sub",
+      price: "12",
+      status: "active",
+      paymentMethod: "Credit card",
+      currency: "EUR",
+      frequency: "weekly",
+    });
   });
 });
