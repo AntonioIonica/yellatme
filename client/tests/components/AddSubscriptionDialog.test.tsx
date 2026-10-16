@@ -13,10 +13,21 @@ const { mockAddSubscription } = vi.hoisted(() => ({
   mockAddSubscription: vi.fn(),
 }));
 
+const { mockToastSuccess } = vi.hoisted(() => ({
+  mockToastSuccess: vi.fn(),
+}));
+
 // mock addSubscription
 vi.mock("@/store/useSubscriptionsStore", () => ({
   useSubscriptionStore: (selector: any) =>
     selector({ addSubscription: mockAddSubscription }), // selector function -> will return only addSubscription function
+}));
+
+vi.mock("sonner", () => ({
+  toast: {
+    success: mockToastSuccess,
+    error: vi.fn(),
+  },
 }));
 
 // mock test user and fetching the user
@@ -33,6 +44,7 @@ describe("AddSubscriptionDialog", () => {
   afterEach(() => {
     cleanup();
     vi.unstubAllGlobals();
+    vi.clearAllMocks();
   });
 
   it("Should open the add new subscription dialog when clicking button 'Add subscription'", async () => {
@@ -156,6 +168,55 @@ describe("AddSubscriptionDialog", () => {
       paymentMethod: "Credit card",
       currency: "EUR",
       frequency: "weekly",
+    });
+  });
+
+  it("Should update the subscriptionStore and close the dialog after successful submission", async () => {
+    const user = userEvent.setup();
+
+    const subscription = {
+      _id: "sub-123",
+      name: "Netflix sub test",
+      price: 12,
+      currency: "EUR",
+    };
+
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        success: true,
+        data: {
+          subscription: subscription,
+        },
+      }),
+    });
+
+    vi.stubGlobal("fetch", mockFetch);
+
+    render(<AddSubscriptionDialog />);
+
+    await user.click(screen.getByRole("button", { name: /add subscription/i }));
+
+    await user.click(
+      within(screen.getByRole("dialog")).getByRole("button", {
+        name: /create subscription/i,
+      }),
+    );
+
+    await waitFor(() => {
+      expect(mockAddSubscription).toHaveBeenCalledWith(subscription);
+    });
+
+    // the 2 expects are the called object containing the string
+    // 1st expect compares the received string with the string
+    // 2nd expect makes the comparision general, both required for stringContaining to work
+    expect(mockToastSuccess).toHaveBeenCalledWith(
+      expect.stringContaining("Netflix sub test"),
+      expect.any(Object),
+    );
+
+    await waitFor(() => {
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     });
   });
 });
