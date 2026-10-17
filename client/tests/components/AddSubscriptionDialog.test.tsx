@@ -269,4 +269,36 @@ describe("AddSubscriptionDialog", () => {
     // should not appear successfully added subscription toast
     expect(mockToastSuccess).not.toHaveBeenCalled();
   });
+
+  it("Should handle server network failures without closing the creation dialog", async () => {
+    const user = userEvent.setup();
+
+    const mockFetch = vi.fn().mockRejectedValue(new Error("Failed to fetch"));
+
+    vi.stubGlobal("fetch", mockFetch);
+
+    render(<AddSubscriptionDialog />);
+
+    await user.click(screen.getByRole("button", { name: /add subscription/i }));
+
+    await user.click(
+      within(screen.getByRole("dialog")).getByRole("button", {
+        name: /create subscription/i,
+      }),
+    );
+
+    await waitFor(() => {
+      expect(mockFetch).toHaveBeenCalledTimes(1);
+    });
+
+    await waitFor(() => {
+      expect(mockToastError).toHaveBeenCalledWith(
+        "Unable to connect to the server.",
+        expect.any(Object),
+      );
+    });
+
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
+    expect(mockAddSubscription).not.toHaveBeenCalled();
+  });
 });
