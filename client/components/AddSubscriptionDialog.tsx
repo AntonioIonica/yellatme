@@ -77,35 +77,45 @@ const AddSubscriptionDialog = () => {
       user: user?._id,
     };
 
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/subscriptions`,
-      {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(dataObject),
-      },
-    );
-
-    const result = await res.json();
-
-    if (result.success) {
-      toast.success(
-        `Subscription ${result?.data?.subscription?.name} was added to your collection!`,
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/subscriptions`,
         {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(dataObject),
+        },
+      );
+
+      const result = await res.json();
+
+      if (result.success) {
+        toast.success(
+          `Subscription ${result?.data?.subscription?.name} was added to your collection!`,
+          {
+            position: "top-center",
+            style: { fontWeight: 600 },
+            closeButton: true,
+          },
+        );
+        // Add the subscription to the UI and refresh the number of them
+        addSubscription(result?.data?.subscription);
+
+        setDialogOpen(false);
+      } else {
+        toast.error(result.error, {
           position: "top-center",
           style: { fontWeight: 600 },
           closeButton: true,
-        },
-      );
-      // Add the subscription to the UI and refresh the number of them
-      addSubscription(result?.data?.subscription);
+        });
+      }
+    } catch (error) {
+      console.error("Failed to create subscription: ", error);
 
-      setDialogOpen(false);
-    } else {
-      toast.error(result.error, {
+      toast.error("Unable to connect to the server.", {
         position: "top-center",
         style: { fontWeight: 600 },
         closeButton: true,
