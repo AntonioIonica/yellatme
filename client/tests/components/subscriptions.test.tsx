@@ -1,12 +1,13 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, render, screen, waitFor } from "@testing-library/react";
 
 import Subscriptions from "@/app/dashboard/subscriptions/page";
 
 const mockSubscriptions = [
   {
     _id: "sub-1",
-    name: "Netflix",
+    user: "test-user-id",
+    name: "Netflix test",
     description: "Movies and TV shows",
     price: 12,
     currency: "EUR",
@@ -19,7 +20,8 @@ const mockSubscriptions = [
   },
   {
     _id: "sub-2",
-    name: "Spotify",
+    user: "test-user-id",
+    name: "Spotify test",
     description: "Music streaming",
     price: 8,
     currency: "EUR",
@@ -32,11 +34,16 @@ const mockSubscriptions = [
   },
 ];
 
+// Hoisted setSubscriptions
+const { mockSetSubscriptions } = vi.hoisted(() => ({
+  mockSetSubscriptions: vi.fn(),
+}));
+
 // Here the store is mocked to contain the given test subscriptions
 vi.mock("@/store/useSubscriptionsStore", () => ({
   useSubscriptionStore: () => ({
     subscriptions: mockSubscriptions,
-    setSubscriptions: vi.fn(),
+    setSubscriptions: mockSetSubscriptions,
     addSubscriptions: vi.fn(),
     editSubscriptions: vi.fn(),
     deleteSubscriptions: vi.fn(),
@@ -57,28 +64,60 @@ vi.mock("next/navigation", () => ({
   }),
 }));
 
-afterEach(() => {
-  cleanup();
-  vi.unstubAllGlobals();
-  vi.clearAllMocks();
-});
-
 describe("Subscriptions-frontend", () => {
+  afterEach(() => {
+    cleanup();
+    vi.unstubAllGlobals();
+    vi.clearAllMocks();
+  });
+
   it("Should render given subscriptions cards with data", async () => {
+    // To not fetching actual subscriptions
     const mockFetch = vi.fn().mockReturnValue(new Promise(() => {}));
+    vi.stubGlobal("fetch", mockFetch);
+
+    render(<Subscriptions />);
+
+    expect(screen.getByText("Netflix test")).toBeInTheDocument();
+    expect(screen.getByText("Spotify test")).toBeInTheDocument();
+
+    expect(screen.getByText("€12")).toBeInTheDocument();
+    expect(screen.getByText("€8")).toBeInTheDocument();
+
+    // parentElement marks the element as a parent of the expected text
+    expect(
+      screen.getByText("Total subscriptions").parentElement,
+    ).toHaveTextContent("2");
+  });
+
+  it("Should fetch user subscriptions and update the zustand sub store", async () => {
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        success: true,
+        data: mockSubscriptions[0],
+      }),
+    });
 
     vi.stubGlobal("fetch", mockFetch);
 
     render(<Subscriptions />);
 
-    expect(screen.getByText("Netflix")).toBeInTheDocument();
-    expect(screen.getByText("Spotify")).toBeInTheDocument();
+    // Checks if the fetch object calls the right URL and settings
+    await waitFor(() => {
+      expect(mockFetch).toHaveBeenCalledWith(
+        expect.stringContaining(
+          `/api/v1/subscriptions/user/${mockSubscriptions[0].user}`,
+        ),
+        expect.objectContaining({
+          credentials: "include",
+        }),
+      );
+    });
 
-    expect(screen.getByText("€12")).toBeInTheDocument();
-    expect(screen.getByText("€8")).toBeInTheDocument();
-
-    expect(
-      screen.getByText("Total subscriptions").parentElement,
-    ).toHaveTextContent("2");
+    // Checks if the zustand store is updated with the subscriptions
+    await waitFor(() => {
+      expect(mockSetSubscriptions).toHaveBeenCalledWith(mockSubscriptions[0]);
+    });
   });
 });
