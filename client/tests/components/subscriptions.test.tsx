@@ -154,4 +154,41 @@ describe("Subscriptions-frontend", () => {
       { timeout: 2000 },
     );
   });
+
+  it("Should fetch the server matching the choosed filter", async () => {
+    const user = userEvent.setup();
+
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        success: true,
+        data: [],
+      }),
+    });
+
+    vi.stubGlobal("fetch", mockFetch);
+
+    render(<Subscriptions />);
+
+    await user.click(
+      screen.getByRole("button", {
+        name: /category/i,
+      }),
+    );
+
+    await user.click(
+      await screen.findByRole("menuitem", {
+        name: "Technology",
+      }),
+    );
+
+    await waitFor(() => {
+      expect(mockFetch).toHaveBeenCalledWith(
+        expect.stringContaining("category=technology"),
+        expect.objectContaining({
+          credentials: "include",
+        }),
+      );
+    });
+  });
 });
