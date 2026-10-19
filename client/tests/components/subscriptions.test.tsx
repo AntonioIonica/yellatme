@@ -2,6 +2,7 @@ import { describe, it, expect, vi, afterEach } from "vitest";
 import { cleanup, render, screen, waitFor } from "@testing-library/react";
 
 import Subscriptions from "@/app/dashboard/subscriptions/page";
+import userEvent from "@testing-library/user-event";
 
 const mockSubscriptions = [
   {
@@ -119,5 +120,38 @@ describe("Subscriptions-frontend", () => {
     await waitFor(() => {
       expect(mockSetSubscriptions).toHaveBeenCalledWith(mockSubscriptions[0]);
     });
+  });
+
+  it("Should fetch the server matching the search feature query", async () => {
+    const subscriptionName = "Netflix";
+    const user = userEvent.setup();
+
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        success: true,
+        data: [],
+      }),
+    });
+
+    vi.stubGlobal("fetch", mockFetch);
+
+    render(<Subscriptions />);
+
+    const searchInput = screen.getByPlaceholderText("Search subscriptions...");
+
+    await user.type(searchInput, subscriptionName);
+
+    await waitFor(
+      () => {
+        expect(mockFetch).toHaveBeenCalledWith(
+          expect.stringContaining(`search=${subscriptionName}`),
+          expect.objectContaining({
+            credentials: "include",
+          }),
+        );
+      },
+      { timeout: 2000 },
+    );
   });
 });
