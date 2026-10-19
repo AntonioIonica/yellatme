@@ -222,4 +222,47 @@ describe("Subscriptions-frontend", () => {
       );
     });
   });
+
+  it("Should fetch the server subscriptions using the sorting filter order", async () => {
+    const user = userEvent.setup();
+
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        success: true,
+        data: [],
+      }),
+    });
+
+    vi.stubGlobal("fetch", mockFetch);
+
+    render(<Subscriptions />);
+
+    await user.click(screen.getByRole("button", { name: /sort/i }));
+
+    await user.click(await screen.findByRole("menuitem", { name: "Asc" }));
+
+    await waitFor(() => {
+      expect(mockFetch).toHaveBeenCalledWith(
+        expect.stringContaining("sortDir=asc"),
+        expect.objectContaining({ credentials: "include" }),
+      );
+    });
+
+    // Clearing the fetch calls
+    mockFetch.mockClear();
+
+    await user.click(screen.getByRole("button", { name: /sort/i }));
+
+    await user.click(await screen.findByRole("menuitem", { name: "Desc" }));
+
+    await waitFor(() => {
+      expect(mockFetch).toHaveBeenCalledWith(
+        expect.stringContaining("sortDir=desc"),
+        expect.objectContaining({
+          credentials: "include",
+        }),
+      );
+    });
+  });
 });
