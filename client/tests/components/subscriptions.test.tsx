@@ -191,4 +191,35 @@ describe("Subscriptions-frontend", () => {
       );
     });
   });
+
+  it("should fetch the server matching the status filter", async () => {
+    const user = userEvent.setup();
+
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        success: true,
+        data: [],
+      }),
+    });
+
+    vi.stubGlobal("fetch", mockFetch);
+
+    render(<Subscriptions />);
+
+    await user.click(
+      screen.getByRole("button", {
+        name: /status/i,
+      }),
+    );
+
+    await user.click(await screen.findByRole("menuitem", { name: "Expired" }));
+
+    await waitFor(() => {
+      expect(mockFetch).toHaveBeenCalledWith(
+        expect.stringContaining("status=expired"),
+        expect.objectContaining({ credentials: "include" }),
+      );
+    });
+  });
 });
