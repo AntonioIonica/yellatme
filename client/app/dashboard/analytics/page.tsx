@@ -14,7 +14,7 @@ import {
   useSubscriptionStore,
 } from "@/store/useSubscriptionsStore";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { randomColor } from "../calendar/page";
 import { Bar, BarChart, XAxis, YAxis } from "recharts";
 import { subMonths, format } from "date-fns";
@@ -216,7 +216,6 @@ const Analytics = () => {
                 width={700}
                 height={450}
                 data={groupByMonth(subscriptions)}
-
               >
                 <XAxis dataKey="month" />
                 <YAxis dataKey="total" fill="#d3d3d6" />

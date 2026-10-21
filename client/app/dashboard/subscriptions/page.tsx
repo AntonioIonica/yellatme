@@ -80,10 +80,14 @@ function debounce(func: any) {
 const Subscriptions = () => {
   const {
     subscriptions,
+    pagination,
     setSubscriptions,
+    setPagination,
     editSubscription,
     deleteSubscription,
   } = useSubscriptionStore();
+
+  const [currentPage, setCurrentPage] = useState(1);
   const { user, loading, fetchUser } = useAuthStore();
 
   const [searchBar, setSearchBar] = useState<string>();
@@ -104,40 +108,55 @@ const Subscriptions = () => {
   useEffect(() => {
     if (!user) return;
 
+    const controller = new AbortController();
+
     const fetchUserSubs = async () => {
-      const params = new URLSearchParams();
+      try {
+        const params = new URLSearchParams();
+        params.set("page", String(currentPage));
 
-      if (searchBar) {
-        params.append("search", searchBar);
+        if (searchBar) params.append("search", searchBar);
+        if (category) params.append("category", category);
+        if (status) params.append("status", status);
+        if (sortDir) params.append("sortDir", sortDir);
+
+        let query = `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/subscriptions/user/${user._id}${params != null && "?" + params.toString()}`;
+
+        const res = await fetch(query, {
+          credentials: "include",
+          signal: controller.signal,
+        });
+
+        if (!res.ok) {
+          throw new Error("Failed to fetch the subscriptions");
+        }
+
+        const result = await res.json();
+
+        if (!result.success) return;
+
+        setSubscriptions(result.data);
+        setPagination(result.pagination);
+      } catch (error) {
+        if (error === "AbortError") {
+          return;
+        }
+
+        console.error("Failed to fetch subscriptions", error);
       }
-
-      if (category) {
-        params.append("category", category);
-      }
-
-      if (status) {
-        params.append("status", status);
-      }
-
-      if (sortDir) {
-        params.append("sortDir", sortDir);
-      }
-
-      let query = `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/subscriptions/user/${user._id}${params != null && "?" + params.toString()}`;
-
-      const res = await fetch(query, {
-        credentials: "include",
-      });
-
-      const result = await res.json();
-
-      if (!result.success) return;
-
-      setSubscriptions(result.data);
     };
 
     fetchUserSubs();
-  }, [sortDir, status, searchBar, category, user, loading]);
+  }, [
+    currentPage,
+    searchBar,
+    category,
+    status,
+    sortDir,
+    user,
+    setSubscriptions,
+    setPagination,
+  ]);
 
   useEffect(() => {
     fetchUser();
@@ -163,7 +182,11 @@ const Subscriptions = () => {
   }, [formData]);
 
   const debouncedSearch = useMemo(() => {
-    return debounce((value: string) => setSearchBar(value));
+    return debounce((value: string) => {
+      // Resets the current page as it might be only 1 for that results
+      setCurrentPage(1);
+      setSearchBar(value);
+    });
   }, []);
 
   const handleDeleteSub = async (id: SubscriptionId) => {
@@ -187,10 +210,10 @@ const Subscriptions = () => {
       });
     } else {
       toast.error(result.error, {
-      position: "top-center",
-      style: { fontWeight: 600 },
-      closeButton: true,
-    });
+        position: "top-center",
+        style: { fontWeight: 600 },
+        closeButton: true,
+      });
     }
   };
 
@@ -208,60 +231,64 @@ const Subscriptions = () => {
       editSubscription(result.data);
 
       toast.success(result.message, {
-      position: "top-center",
-      style: { fontWeight: 600 },
-      closeButton: true,
-    });
+        position: "top-center",
+        style: { fontWeight: 600 },
+        closeButton: true,
+      });
     } else {
       toast.error(result.error, {
-      position: "top-center",
-      style: { fontWeight: 600 },
-      closeButton: true,
-    });
+        position: "top-center",
+        style: { fontWeight: 600 },
+        closeButton: true,
+      });
     }
   };
 
   const handleEditSub: SubmitEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
 
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/subscriptions/${formData?._id}`,
-      {
-        method: "PATCH",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/subscriptions/${formData?._id}`,
+        {
+          method: "PATCH",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name: formData?.name,
+            description: formData?.description,
+            price: formData?.price,
+            currency: formData?.currency,
+            frequency: formData?.frequency,
+            category: formData?.category,
+            paymentMethod: formData?.paymentMethod,
+            renewalDate: formData?.renewalDate,
+          }),
         },
-        body: JSON.stringify({
-          name: formData?.name,
-          description: formData?.description,
-          price: formData?.price,
-          currency: formData?.currency,
-          frequency: formData?.frequency,
-          category: formData?.category,
-          paymentMethod: formData?.paymentMethod,
-          renewalDate: formData?.renewalDate,
-        }),
-      },
-    );
+      );
 
-    const result = await res.json();
+      const result = await res.json();
 
-    if (result.success) {
-      editSubscription(result.data.subscription);
-      setDialogOpen(false);
+      if (result.success) {
+        editSubscription(result.data.subscription);
+        setDialogOpen(false);
 
-      toast.success(result.message, {
-      position: "top-center",
-      style: { fontWeight: 600 },
-      closeButton: true,
-    });
-    } else {
-      toast.error(result.error, {
-      position: "top-center",
-      style: { fontWeight: 600 },
-      closeButton: true,
-    });
+        toast.success(result.message, {
+          position: "top-center",
+          style: { fontWeight: 600 },
+          closeButton: true,
+        });
+      } else {
+        toast.error(result.error, {
+          position: "top-center",
+          style: { fontWeight: 600 },
+          closeButton: true,
+        });
+      }
+    } catch (error) {
+      console.error("PATCH network error:", error);
     }
   };
 
@@ -296,34 +323,84 @@ const Subscriptions = () => {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              <DropdownMenuItem onSelect={() => setCategory("technology")}>
+              <DropdownMenuItem
+                onSelect={() => {
+                  setCurrentPage(1);
+                  setCategory("technology");
+                }}
+              >
                 Technology
               </DropdownMenuItem>
-              <DropdownMenuItem onSelect={() => setCategory("auto")}>
+              <DropdownMenuItem
+                onSelect={() => {
+                  setCurrentPage(1);
+                  setCategory("auto");
+                }}
+              >
                 Auto
               </DropdownMenuItem>
-              <DropdownMenuItem onSelect={() => setCategory("lifestyle")}>
+              <DropdownMenuItem
+                onSelect={() => {
+                  setCurrentPage(1);
+                  setCategory("lifestyle");
+                }}
+              >
                 Lifestyle
               </DropdownMenuItem>
-              <DropdownMenuItem onSelect={() => setCategory("entertainment")}>
+              <DropdownMenuItem
+                onSelect={() => {
+                  setCurrentPage(1);
+                  setCategory("entertainment");
+                }}
+              >
                 Entertainment
               </DropdownMenuItem>
-              <DropdownMenuItem onSelect={() => setCategory("finance")}>
+              <DropdownMenuItem
+                onSelect={() => {
+                  setCurrentPage(1);
+                  setCategory("finance");
+                }}
+              >
                 Finance
               </DropdownMenuItem>
-              <DropdownMenuItem onSelect={() => setCategory("house")}>
+              <DropdownMenuItem
+                onSelect={() => {
+                  setCurrentPage(1);
+                  setCategory("house");
+                }}
+              >
                 House
               </DropdownMenuItem>
-              <DropdownMenuItem onSelect={() => setCategory("work")}>
+              <DropdownMenuItem
+                onSelect={() => {
+                  setCurrentPage(1);
+                  setCategory("work");
+                }}
+              >
                 Work
               </DropdownMenuItem>
-              <DropdownMenuItem onSelect={() => setCategory("garden")}>
+              <DropdownMenuItem
+                onSelect={() => {
+                  setCurrentPage(1);
+                  setCategory("garden");
+                }}
+              >
                 Garden
               </DropdownMenuItem>
-              <DropdownMenuItem onSelect={() => setCategory("tools")}>
+              <DropdownMenuItem
+                onSelect={() => {
+                  setCurrentPage(1);
+                  setCategory("tools");
+                }}
+              >
                 Tools
               </DropdownMenuItem>
-              <DropdownMenuItem onSelect={() => setCategory("other")}>
+              <DropdownMenuItem
+                onSelect={() => {
+                  setCurrentPage(1);
+                  setCategory("other");
+                }}
+              >
                 Others
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -338,13 +415,28 @@ const Subscriptions = () => {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              <DropdownMenuItem onSelect={() => setStatus("active")}>
+              <DropdownMenuItem
+                onSelect={() => {
+                  setCurrentPage(1);
+                  setStatus("active");
+                }}
+              >
                 Active
               </DropdownMenuItem>
-              <DropdownMenuItem onSelect={() => setStatus("expired")}>
+              <DropdownMenuItem
+                onSelect={() => {
+                  setCurrentPage(1);
+                  setStatus("expired");
+                }}
+              >
                 Expired
               </DropdownMenuItem>
-              <DropdownMenuItem onSelect={() => setStatus("cancelled")}>
+              <DropdownMenuItem
+                onSelect={() => {
+                  setCurrentPage(1);
+                  setStatus("cancelled");
+                }}
+              >
                 Cancelled
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -359,10 +451,20 @@ const Subscriptions = () => {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              <DropdownMenuItem onSelect={() => setSortDir("asc")}>
+              <DropdownMenuItem
+                onSelect={() => {
+                  setCurrentPage(1);
+                  setSortDir("asc");
+                }}
+              >
                 Asc
               </DropdownMenuItem>
-              <DropdownMenuItem onSelect={() => setSortDir("desc")}>
+              <DropdownMenuItem
+                onSelect={() => {
+                  setCurrentPage(1);
+                  setSortDir("desc");
+                }}
+              >
                 Desc
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -404,7 +506,7 @@ const Subscriptions = () => {
               Total subscriptions
             </div>
             <div className="font-bold text-2xl mt-1">
-              {subscriptions?.length}
+              {pagination.totalSubscriptions}
             </div>
           </CardContent>
         </Card>
@@ -426,7 +528,8 @@ const Subscriptions = () => {
                   </div>
                   <div className="text-lg font-semibold mr-6 flex items-center justify-between space-x-16">
                     <span className="text-xs uppercase">
-                      {subscription.status == "active" && subscription?.category.slice(0, 4)}
+                      {subscription.status == "active" &&
+                        subscription?.category.slice(0, 4)}
                     </span>
                     <span className="text-muted-foreground">
                       {parseCurrency(subscription?.currency)}
@@ -732,7 +835,8 @@ const Subscriptions = () => {
                   Description
                 </span>
                 <span className="text-sm">
-                  {subscription.status == "active" && subscription?.description.slice(0, 20)}
+                  {subscription.status == "active" &&
+                    subscription?.description.slice(0, 20)}
                 </span>
               </div>
               <div className="flex items-center justify-between">
@@ -762,6 +866,41 @@ const Subscriptions = () => {
           </Card>
         ))}
       </div>
+
+      {/* Pagination */}
+      {pagination.totalSubscriptions > 0 && (
+        <div className="flex items-center justify-between gap-4 pt-4">
+          <p className="text-sm text-muted-foreground">
+            Page {pagination.currentPage} of {pagination.totalPages}
+            {" · "}
+            {pagination.totalSubscriptions} subscriptions
+          </p>
+
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={!pagination.hasPreviousPage}
+              onClick={() => {
+                setCurrentPage((page) => page - 1);
+              }}
+            >
+              Previous
+            </Button>
+
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={!pagination.hasNextPage}
+              onClick={() => {
+                setCurrentPage((page) => page + 1);
+              }}
+            >
+              Next
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

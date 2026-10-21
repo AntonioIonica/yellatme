@@ -16,17 +16,39 @@ export type Subscription = {
   user: string;
 };
 
+export type Pagination = {
+  currentPage: number;
+  pageSize: number;
+  totalSubscriptions: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+};
+
 export type subscriptionsStore = {
   subscriptions: Subscription[];
+  pagination: Pagination;
   setSubscriptions: (subs: Subscription[]) => void;
+  setPagination: (pagination: Pagination) => void;
   addSubscription: (sub: Subscription) => void;
   editSubscription: (sub: Subscription) => void;
-  deleteSubscription: (subId: SubscriptionId) => void;
+  deleteSubscription: (subId: string) => void; // was Subscription
+};
+
+const initialPagination: Pagination = {
+  currentPage: 1,
+  pageSize: 12,
+  totalSubscriptions: 0,
+  totalPages: 0,
+  hasNextPage: false,
+  hasPreviousPage: false,
 };
 
 export const useSubscriptionStore = create<subscriptionsStore>((set) => ({
   subscriptions: [],
+  pagination: initialPagination,
   setSubscriptions: (subs) => set({ subscriptions: subs }),
+  setPagination: (pagination) => set({ pagination }),
   addSubscription: (sub) =>
     set((state) => ({ subscriptions: [...state.subscriptions, sub] })),
   editSubscription: (sub) =>

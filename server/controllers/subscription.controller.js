@@ -229,13 +229,25 @@ export const getUserSubscriptions = async (req, res, next) => {
   try {
     // Check if user is trying to fetch his own subs (token: user id)
     // _id.toString() because here is an ObjectId
-    const { search, category, status, from, to, sortDir = "asc" } = req.query;
+    const {
+      search,
+      category,
+      status,
+      from,
+      to,
+      sortDir = "asc",
+      page = 1,
+    } = req.query;
 
     if (req.params.id !== req.user._id.toString()) {
       const error = new Error("Not authorized!");
       error.statusCode = 401;
       throw error;
     }
+
+    const pageNumber = Math.max(1, Number(page) || 1);
+    const pageSize = 12;
+    const skip = (pageNumber - 1) * pageSize;
 
     const filterOptions = { user: req.params.id };
 
@@ -258,8 +270,14 @@ export const getUserSubscriptions = async (req, res, next) => {
       filterOptions.category = { $in: category.split(",") };
     }
 
-    const subscriptions =
-      await Subscription.find(filterOptions).sort(sortOptions);
+    const [subscriptions, totalSubscriptions] = await Promise.all([
+      Subscription.find(filterOptions)
+        .sort(sortOptions)
+        .skip(skip)
+        .limit(pageSize),
+
+      Subscription.countDocuments(filterOptions),
+    ]);
 
     res.status(200).json({
       success: true,
@@ -267,6 +285,14 @@ export const getUserSubscriptions = async (req, res, next) => {
         ...sub.toObject(),
         id: sub._id.toString(),
       })),
+      pagination: {
+        currentPage: pageNumber,
+        pageSize,
+        totalSubscriptions,
+        totalPages: Math.ceil(totalSubscriptions / pageSize),
+        hasNextPage: skip + subscriptions.length < totalSubscriptions,
+        hasPreviousPage: pageNumber > 1,
+      },
     });
   } catch (error) {
     next(error);
