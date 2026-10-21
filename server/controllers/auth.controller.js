@@ -102,7 +102,7 @@ export const signIn = async (req, res, next) => {
     res.cookie("token", token, {
       httpOnly: true,
       secure: NODE_ENV === "production" ? true : false,
-      sameSite: "none", // worked with lax, sometimes none
+      sameSite: NODE_ENV === "production" ? "none" : "lax", // worked with lax, sometimes none
       path: "/",
       maxAge: 24 * 60 * 60 * 1000,
     });

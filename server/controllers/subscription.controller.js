@@ -207,9 +207,15 @@ export const deleteSubscription = async (req, res, next) => {
   const subscriptionId = req.params.id;
 
   try {
-    await Subscription.findByIdAndDelete(subscriptionId);
+    const subscription = await Subscription.findByIdAndDelete(subscriptionId);
 
-    res.status(204).json({
+    if (!subscription) {
+      const error = new Error("Subscription not found!");
+      error.statusCode = 404;
+      throw error;
+    }
+
+    res.status(200).json({
       success: true,
       message: `Successfully deleted subscription ID - ${subscriptionId}`,
     });
@@ -252,9 +258,8 @@ export const getUserSubscriptions = async (req, res, next) => {
       filterOptions.category = { $in: category.split(",") };
     }
 
-    const subscriptions = await Subscription.find(filterOptions)
-      .sort(sortOptions)
-      .limit(12);
+    const subscriptions =
+      await Subscription.find(filterOptions).sort(sortOptions);
 
     res.status(200).json({
       success: true,
