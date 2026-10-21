@@ -1,8 +1,15 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
-import { cleanup, render, screen, waitFor } from "@testing-library/react";
+import {
+  cleanup,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 
 import Subscriptions from "@/app/dashboard/subscriptions/page";
 import userEvent from "@testing-library/user-event";
+import { Url } from "next/dist/shared/lib/router/router";
 
 const mockSubscriptions = [
   {
@@ -36,8 +43,18 @@ const mockSubscriptions = [
 ];
 
 // Hoisted setSubscriptions
-const { mockSetSubscriptions } = vi.hoisted(() => ({
+const {
+  mockSetSubscriptions,
+  mockEditSubscription,
+  mockDeleteSubscription,
+  mockToastError,
+  mockToastSuccess,
+} = vi.hoisted(() => ({
   mockSetSubscriptions: vi.fn(),
+  mockEditSubscription: vi.fn(),
+  mockDeleteSubscription: vi.fn(),
+  mockToastError: vi.fn(),
+  mockToastSuccess: vi.fn(),
 }));
 
 // Here the store is mocked to contain the given test subscriptions
@@ -45,9 +62,9 @@ vi.mock("@/store/useSubscriptionsStore", () => ({
   useSubscriptionStore: () => ({
     subscriptions: mockSubscriptions,
     setSubscriptions: mockSetSubscriptions,
-    addSubscriptions: vi.fn(),
-    editSubscriptions: vi.fn(),
-    deleteSubscriptions: vi.fn(),
+    addSubscription: vi.fn(),
+    editSubscription: mockEditSubscription,
+    deleteSubscription: mockDeleteSubscription,
   }),
 }));
 
@@ -65,6 +82,13 @@ vi.mock("next/navigation", () => ({
   }),
 }));
 
+vi.mock("sonner", () => ({
+  toast: {
+    success: mockToastSuccess,
+    error: mockToastError,
+  },
+}));
+
 describe("Subscriptions-frontend", () => {
   afterEach(() => {
     cleanup();
@@ -75,6 +99,7 @@ describe("Subscriptions-frontend", () => {
   it("Should render given subscriptions cards with data", async () => {
     // To not fetching actual subscriptions
     const mockFetch = vi.fn().mockReturnValue(new Promise(() => {}));
+
     vi.stubGlobal("fetch", mockFetch);
 
     render(<Subscriptions />);
@@ -264,5 +289,64 @@ describe("Subscriptions-frontend", () => {
         }),
       );
     });
+  });
+
+  it("Should delete a subscription while updating zustand store", async () => {
+    const user = userEvent.setup();
+
+    // building the fake call (delete)
+    // mockImplementation is used to not interfere with getting the initial mocked subscriptions
+    const mockFetch = vi.fn().mockImplementation((url: Url, options: any) => {
+      if (options?.method === "DELETE") {
+        // returned option
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({
+            success: true,
+            message: "Successfully deleted subscription.",
+          }),
+        });
+      }
+
+      // Empty object - do nothing
+      return new Promise(() => {});
+    });
+
+    vi.stubGlobal("fetch", mockFetch);
+
+    render(<Subscriptions />);
+
+    const netflixCard = screen
+      .getByText("Netflix test")
+      .closest("[data-slot='card']");
+
+    expect(netflixCard).not.toBeNull();
+
+    const menuButton = within(netflixCard as HTMLElement).getByRole("button");
+
+    await user.click(menuButton);
+
+    // findByRole awaits for the delete button to appears if not present instantly
+    await user.click(await screen.findByRole("menuitem", { name: /delete/i }));
+
+    await waitFor(() => {
+      expect(mockFetch).toHaveBeenCalledWith(
+        expect.stringContaining("/api/v1/subscriptions/sub-1"),
+        expect.objectContaining({
+          method: "DELETE",
+          credentials: "include",
+        }),
+      );
+    });
+
+    // zustand update
+    await waitFor(() => {
+      expect(mockDeleteSubscription).toHaveBeenCalledWith("sub-1");
+    });
+
+    expect(mockToastSuccess).toHaveBeenCalledWith(
+      "Successfully deleted subscription.",
+      expect.any(Object),
+    );
   });
 });
