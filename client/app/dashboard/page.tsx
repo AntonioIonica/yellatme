@@ -18,18 +18,38 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { comparePay, parseCurrency, getSubsByInterval } from "@/lib/utils";
 
 const DashboardPage = () => {
-  const { subscriptions, setSubscriptions } = useSubscriptionStore();
+  const { subscriptions, setSubscriptions, setStats, stats } =
+    useSubscriptionStore();
   const { user, loading } = useAuthStore();
   const [upcomingRenewals, setUpcomingRenewals] = useState<
     Subscription[] | null
   >([]);
 
-  const totalYearly = getSubsByInterval(subscriptions, "wholeCurrYear").reduce(
-    (sum, curr) => sum + +curr.price,
-    0,
-  );
+  const totalYearly = getSubsByInterval(
+    stats?.activeSubscriptions ?? subscriptions,
+    "wholeCurrYear",
+  ).reduce((sum, curr) => sum + +curr.price, 0);
 
   const router = useRouter();
+
+  useEffect(() => {
+    if (!user) return;
+
+    const fetchStats = async () => {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/subscriptions/analytics`,
+        { credentials: "include" },
+      );
+
+      const result = await res.json();
+
+      if (result.success) {
+        setStats(result.data);
+      }
+    };
+
+    fetchStats();
+  }, [user, setStats]);
 
   useEffect(() => {
     const fetchUpcomingRenewals = async () => {
@@ -98,22 +118,25 @@ const DashboardPage = () => {
           <CardContent>
             <div className="font-bold text-2xl">
               $
-              {getSubsByInterval(subscriptions, "currentMonth")
+              {getSubsByInterval(
+                stats?.totalSubscriptions ?? subscriptions,
+                "currentMonth",
+              )
                 .reduce((sum, current) => sum + +current?.price, 0)
                 .toFixed(2)}
             </div>
             <div className="flex items-center font-semibold text-muted-foreground mt-2">
               <span className="text-muted-foreground">
                 {comparePay(
-                  getSubsByInterval(subscriptions, "prevMonth").reduce(
-                    (sum, curr) => sum + +curr.price,
-                    0,
-                  ),
+                  getSubsByInterval(
+                    stats?.totalSubscriptions ?? subscriptions,
+                    "prevMonth",
+                  ).reduce((sum, curr) => sum + +curr.price, 0),
 
-                  getSubsByInterval(subscriptions, "currentMonth").reduce(
-                    (sum, curr) => sum + +curr.price,
-                    0,
-                  ),
+                  getSubsByInterval(
+                    stats?.totalSubscriptions ?? subscriptions,
+                    "currentMonth",
+                  ).reduce((sum, curr) => sum + +curr.price, 0),
                   "month",
                 )}
               </span>
@@ -132,14 +155,14 @@ const DashboardPage = () => {
             <div className="flex items-center font-semibold text-muted-foreground mt-2">
               <span className="text-muted-foreground">
                 {comparePay(
-                  getSubsByInterval(subscriptions, "prevYear").reduce(
-                    (sum, curr) => sum + +curr.price,
-                    0,
-                  ),
-                  getSubsByInterval(subscriptions, "wholeCurrYear").reduce(
-                    (sum, curr) => sum + +curr.price,
-                    0,
-                  ),
+                  getSubsByInterval(
+                    stats?.totalSubscriptions ?? subscriptions,
+                    "prevYear",
+                  ).reduce((sum, curr) => sum + +curr.price, 0),
+                  getSubsByInterval(
+                    stats?.totalSubscriptions ?? subscriptions,
+                    "wholeCurrYear",
+                  ).reduce((sum, curr) => sum + +curr.price, 0),
                   "year",
                 )}
               </span>
@@ -155,7 +178,7 @@ const DashboardPage = () => {
           </CardHeader>
           <CardContent>
             <div className="font-bold text-2xl">
-              {subscriptions.filter(
+              {stats?.totalSubscriptions.filter(
                 (subscription) => subscription.status == "active",
               ).length || 0}
             </div>
@@ -164,7 +187,7 @@ const DashboardPage = () => {
                 across{" "}
                 {
                   new Set(
-                    subscriptions
+                    stats?.totalSubscriptions
                       .filter((sub) => sub.status == "active")
                       .map((subscription) => subscription.category),
                   ).size

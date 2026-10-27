@@ -301,6 +301,7 @@ export const getUserSubscriptions = async (req, res, next) => {
 
 export const cancelSubscription = async (req, res, next) => {
   const subscriptionId = req.params.id;
+
   try {
     if (!subscriptionId) {
       const error = new Error("Subscription ID not sent");
@@ -328,6 +329,36 @@ export const cancelSubscription = async (req, res, next) => {
       success: true,
       message: `Subscription ID - ${subscriptionId} cancelled!`,
       data: subscription,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getAnalyticsSubscriptions = async (req, res, next) => {
+  try {
+    const userId = req.user._id;
+
+    if (!userId) {
+      const error = new Error("Unauthorized action.");
+      error.statusCode = 401;
+      throw error;
+    }
+
+    const subscriptions = await Subscription.find({
+      user: userId,
+    }).select("price status category renewalDate");
+
+    const stats = {
+      totalSubscriptions: subscriptions,
+      activeSubscriptions: subscriptions.filter(
+        (sub) => sub.status === "active",
+      ),
+    };
+
+    res.status(200).json({
+      success: true,
+      data: stats,
     });
   } catch (error) {
     next(error);

@@ -1,4 +1,3 @@
-import { SubscriptionId } from "@/app/dashboard/subscriptions/page";
 import { create } from "zustand";
 
 export type Subscription = {
@@ -25,7 +24,12 @@ export type Pagination = {
   hasPreviousPage: boolean;
 };
 
-export type subscriptionsStore = {
+export type SubscriptionStats = {
+  totalSubscriptions: Subscription[];
+  activeSubscriptions: Subscription[];
+};
+
+export type SubscriptionsStore = {
   subscriptions: Subscription[];
   pagination: Pagination;
   setSubscriptions: (subs: Subscription[]) => void;
@@ -33,6 +37,8 @@ export type subscriptionsStore = {
   addSubscription: (sub: Subscription) => void;
   editSubscription: (sub: Subscription) => void;
   deleteSubscription: (subId: string) => void; // was Subscription
+  stats: SubscriptionStats | null;
+  setStats: (stats: SubscriptionStats) => void;
 };
 
 const initialPagination: Pagination = {
@@ -44,7 +50,7 @@ const initialPagination: Pagination = {
   hasPreviousPage: false,
 };
 
-export const useSubscriptionStore = create<subscriptionsStore>((set) => ({
+export const useSubscriptionStore = create<SubscriptionsStore>((set) => ({
   subscriptions: [],
   pagination: initialPagination,
   setSubscriptions: (subs) => set({ subscriptions: subs }),
@@ -67,4 +73,6 @@ export const useSubscriptionStore = create<subscriptionsStore>((set) => ({
         ...state?.subscriptions?.filter((subItem) => subItem?._id !== subId),
       ],
     })),
+  stats: null,
+  setStats: (stats) => set({ stats }),
 }));

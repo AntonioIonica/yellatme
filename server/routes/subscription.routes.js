@@ -5,6 +5,7 @@ import {
   createSubscription,
   deleteSubscription,
   getAllSubscriptions,
+  getAnalyticsSubscriptions,
   getSubscription,
   getUpcomingRenewals,
   getUserSubscriptions,
@@ -20,6 +21,9 @@ subscriptionRouter.get("/", authorize, admin, getAllSubscriptions);
 subscriptionRouter.get("/upcoming-renewals", authorize, getUpcomingRenewals);
 
 subscriptionRouter.get("/:id", authorize, getSubscription);
+
+// Analytics fetching all subscriptions endpoint
+subscriptionRouter.get("/analytics", authorize, getAnalyticsSubscriptions);
 
 subscriptionRouter.post("/", authorize, createSubscription);
 
