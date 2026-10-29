@@ -24,11 +24,6 @@ export type Pagination = {
   hasPreviousPage: boolean;
 };
 
-export type SubscriptionStats = {
-  totalSubscriptions: Subscription[];
-  activeSubscriptions: Subscription[];
-};
-
 export type SubscriptionsStore = {
   subscriptions: Subscription[];
   pagination: Pagination;
@@ -36,9 +31,9 @@ export type SubscriptionsStore = {
   setPagination: (pagination: Pagination) => void;
   addSubscription: (sub: Subscription) => void;
   editSubscription: (sub: Subscription) => void;
-  deleteSubscription: (subId: string) => void; // was Subscription
-  stats: SubscriptionStats | null;
-  setStats: (stats: SubscriptionStats) => void;
+  deleteSubscription: (subId: string) => void;
+  allSubs: Subscription[];
+  setAllSubs: (subs: Subscription[]) => void;
 };
 
 const initialPagination: Pagination = {
@@ -73,6 +68,6 @@ export const useSubscriptionStore = create<SubscriptionsStore>((set) => ({
         ...state?.subscriptions?.filter((subItem) => subItem?._id !== subId),
       ],
     })),
-  stats: null,
-  setStats: (stats) => set({ stats }),
+  allSubs: [],
+  setAllSubs: (subs) => set({ allSubs: subs }),
 }));

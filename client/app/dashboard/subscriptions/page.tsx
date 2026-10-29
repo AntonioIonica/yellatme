@@ -104,7 +104,7 @@ const Subscriptions = () => {
 
   const router = useRouter();
 
-  // Fetch subscriptions
+  // Fetch subscriptions by pages
   useEffect(() => {
     if (!user) return;
 
@@ -479,7 +479,7 @@ const Subscriptions = () => {
             <div className="text-sm text-muted-foreground">Total active</div>
             <div className="font-bold text-2xl mt-1">
               {
-                subscriptions?.filter(
+                subscriptions.filter(
                   (subscription) => subscription?.status === "active",
                 ).length as any
               }
@@ -493,8 +493,8 @@ const Subscriptions = () => {
             </div>
             <div className="font-bold text-2xl mt-1">
               {
-                getSubsByInterval(subscriptions, "currentMonth").filter(
-                  (sub) => sub.status == "active",
+                getSubsByInterval(subscriptions, "next30Days").filter(
+                  (sub) => sub.status === "active",
                 ).length as any
               }
             </div>

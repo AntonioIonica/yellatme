@@ -4,28 +4,26 @@ import {
   cancelSubscription,
   createSubscription,
   deleteSubscription,
-  getAllSubscriptions,
   getAnalyticsSubscriptions,
   getSubscription,
   getUpcomingRenewals,
   getUserSubscriptions,
   updateSubscription,
 } from "../controllers/subscription.controller.js";
-import admin from "../middlewares/admin.middleware.js";
 
 const subscriptionRouter = Router();
 
-// Admin restricted
-subscriptionRouter.get("/", authorize, admin, getAllSubscriptions);
-
-subscriptionRouter.get("/upcoming-renewals", authorize, getUpcomingRenewals);
-
-subscriptionRouter.get("/:id", authorize, getSubscription);
+// // Admin restricted
+// subscriptionRouter.get("/", authorize, admin, getAllSubscriptions);
 
 // Analytics fetching all subscriptions endpoint
 subscriptionRouter.get("/analytics", authorize, getAnalyticsSubscriptions);
 
+subscriptionRouter.get("/upcoming-renewals", authorize, getUpcomingRenewals);
+
 subscriptionRouter.post("/", authorize, createSubscription);
+
+subscriptionRouter.get("/:id", authorize, getSubscription);
 
 subscriptionRouter.patch("/:id", authorize, updateSubscription);
 

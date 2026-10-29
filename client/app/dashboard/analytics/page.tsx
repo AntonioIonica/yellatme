@@ -33,12 +33,12 @@ const categories = [
 ];
 
 const Analytics = () => {
-  const { stats, setStats } = useSubscriptionStore();
+  const { allSubs, setAllSubs } = useSubscriptionStore();
   const { user, loading, fetchUser } = useAuthStore();
 
   const router = useRouter();
 
-  const subscriptionsTotalPrice = stats?.totalSubscriptions.reduce(
+  const subscriptionsTotalPrice = allSubs.reduce(
     (sum, curr) => sum + +curr.price,
     0,
   );
@@ -74,7 +74,7 @@ const Analytics = () => {
   useEffect(() => {
     if (!user) return;
 
-    const fetchStats = async () => {
+    const fetchAllSubs = async () => {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/subscriptions/analytics`,
         { credentials: "include" },
@@ -83,12 +83,12 @@ const Analytics = () => {
       const result = await res.json();
 
       if (result.success) {
-        setStats(result.data);
+        setAllSubs(result.data);
       }
     };
 
-    fetchStats();
-  }, [user, setStats]);
+    fetchAllSubs();
+  }, [user, setAllSubs]);
 
   useEffect(() => {
     fetchUser();
@@ -117,7 +117,7 @@ const Analytics = () => {
             <div className="font-bold mt-1 text-2xl">
               $
               {
-                getSubsByInterval(stats?.activeSubscriptions!, "currentWeek")
+                getSubsByInterval(allSubs, "currentWeek")
                   .filter((sub) => sub.status == "active")
                   .reduce((sum, sub) => sum + +sub.price, 0)
                   .toFixed(2) as any
@@ -126,12 +126,12 @@ const Analytics = () => {
             <div className="mt-1 flex items-center text-xs text-accent-foreground">
               <span>
                 {comparePay(
-                  getSubsByInterval(
-                    stats?.activeSubscriptions!,
-                    "prevWeek",
-                  ).reduce((sum, curr) => sum + +curr.price, 0),
+                  getSubsByInterval(allSubs, "prevWeek").reduce(
+                    (sum, curr) => sum + +curr.price,
+                    0,
+                  ),
 
-                  getSubsByInterval(stats?.activeSubscriptions!, "currentWeek")
+                  getSubsByInterval(allSubs, "currentWeek")
                     .filter((sub) => sub.status === "active")
                     .reduce((sum, curr) => sum + +curr.price, 0),
                   "week",
@@ -147,7 +147,7 @@ const Analytics = () => {
             <div className="font-bold mt-1 text-2xl">
               $
               {
-                getSubsByInterval(stats?.activeSubscriptions!, "currentMonth")
+                getSubsByInterval(allSubs, "currentMonth")
                   .filter((sub) => sub.status === "active")
                   .reduce((sum, sub) => sum + +sub.price, 0)
                   .toFixed(2) as any
@@ -156,11 +156,11 @@ const Analytics = () => {
             <div className="mt-1 flex items-center text-xs text-accent-foreground">
               <span>
                 {comparePay(
-                  getSubsByInterval(
-                    stats?.activeSubscriptions!,
-                    "prevMonth",
-                  ).reduce((sum, curr) => sum + +curr.price, 0),
-                  getSubsByInterval(stats?.activeSubscriptions!, "currentMonth")
+                  getSubsByInterval(allSubs, "prevMonth").reduce(
+                    (sum, curr) => sum + +curr.price,
+                    0,
+                  ),
+                  getSubsByInterval(allSubs, "currentMonth")
                     .filter((sub) => sub.status === "active")
                     .reduce((sum, curr) => sum + +curr.price, 0),
                   "month",
@@ -176,7 +176,7 @@ const Analytics = () => {
             <div className="font-bold mt-1 text-2xl">
               $
               {
-                getSubsByInterval(stats?.totalSubscriptions!, "pastSixMonths")
+                getSubsByInterval(allSubs, "pastSixMonths")
                   .reduce((sum, sub) => sum + +sub.price, 0)
                   .toFixed(2) as any
               }
@@ -184,14 +184,14 @@ const Analytics = () => {
             <div className="mt-1 flex items-center text-xs text-accent-foreground">
               <span>
                 {comparePay(
-                  getSubsByInterval(
-                    stats?.totalSubscriptions!,
-                    "prevSixMonths",
-                  ).reduce((sum, curr) => sum + +curr.price, 0),
-                  getSubsByInterval(
-                    stats?.totalSubscriptions!,
-                    "pastSixMonths",
-                  ).reduce((sum, curr) => sum + +curr.price, 0),
+                  getSubsByInterval(allSubs, "prevSixMonths").reduce(
+                    (sum, curr) => sum + +curr.price,
+                    0,
+                  ),
+                  getSubsByInterval(allSubs, "pastSixMonths").reduce(
+                    (sum, curr) => sum + +curr.price,
+                    0,
+                  ),
                   "12 months",
                 )}
               </span>
@@ -206,10 +206,7 @@ const Analytics = () => {
               $
               {
                 (
-                  getSubsByInterval(
-                    stats?.totalSubscriptions!,
-                    "pastSixMonths",
-                  ).reduce(
+                  getSubsByInterval(allSubs, "pastSixMonths").reduce(
                     (sum, sub, _, arr) => sum + Number(sub.price) / arr.length,
                     0,
                   ) || 0
@@ -237,7 +234,7 @@ const Analytics = () => {
                 className="text-lg font-semibold"
                 width={700}
                 height={450}
-                data={groupByMonth(stats?.activeSubscriptions!)}
+                data={groupByMonth(allSubs)}
               >
                 <XAxis dataKey="month" />
                 <YAxis dataKey="total" fill="#d3d3d6" />
@@ -263,7 +260,7 @@ const Analytics = () => {
                     </div>
                     <span className="font-medium">
                       $
-                      {stats?.totalSubscriptions
+                      {allSubs
                         .filter((sub) => sub.category == cat)
                         .reduce((sum, curr) => sum + +curr.price, 0)
                         .toFixed(1)}
@@ -274,10 +271,8 @@ const Analytics = () => {
                       className={`h-full rounded-full ${randomColor()}`}
                       style={{
                         width: `${
-                          (stats!
-                            .totalSubscriptions!.filter(
-                              (sub) => sub.category == cat,
-                            )
+                          (allSubs
+                            .filter((sub) => sub.category == cat)
                             .reduce((sum, curr) => sum + +curr.price, 0) /
                             subscriptionsTotalPrice!) *
                           100
@@ -308,7 +303,7 @@ const Analytics = () => {
               </div>
               <div className="mt-1 text-2xl font-bold">
                 $
-                {getSubsByInterval(stats?.totalSubscriptions!, "prevYear")
+                {getSubsByInterval(allSubs, "prevYear")
                   .reduce((sum, curr) => sum + +curr.price, 0)
                   .toFixed(2)}
               </div>
@@ -319,7 +314,7 @@ const Analytics = () => {
               </div>
               <div className="mt-1 text-2xl font-bold">
                 $
-                {getSubsByInterval(stats?.totalSubscriptions!, "pastYear")
+                {getSubsByInterval(allSubs, "pastYear")
                   .reduce((sum, curr) => sum + +curr.price, 0)
                   .toFixed(2)}
               </div>
@@ -332,14 +327,14 @@ const Analytics = () => {
                 <span className="text-2xl font-bold">
                   $
                   {(
-                    getSubsByInterval(
-                      stats?.totalSubscriptions!,
-                      "pastYear",
-                    ).reduce((sum, curr) => sum + +curr.price, 0) +
-                    getSubsByInterval(
-                      stats?.totalSubscriptions!,
-                      "currentYear",
-                    ).reduce((sum, curr) => sum + +curr.price, 0)
+                    getSubsByInterval(allSubs, "pastYear").reduce(
+                      (sum, curr) => sum + +curr.price,
+                      0,
+                    ) +
+                    getSubsByInterval(allSubs, "currentYear").reduce(
+                      (sum, curr) => sum + +curr.price,
+                      0,
+                    )
                   ).toFixed(2)}
                 </span>
               </div>

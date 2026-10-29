@@ -4,30 +4,36 @@ import { SERVER_URL, NODE_ENV } from "../config/env.js";
 import User from "../models/user.model.js";
 
 // Admin only ------------------------------------
-export const getAllSubscriptions = async (req, res, next) => {
-  try {
-    const subscriptions = await Subscription.find();
+// export const getAllSubscriptions = async (req, res, next) => {
+//   try {
+//     const subscriptions = await Subscription.find();
 
-    if (!subscriptions) {
-      const error = new Error("No subscriptions available!");
-      error.statusCode = 404;
-      throw error;
-    }
+//     if (!subscriptions) {
+//       const error = new Error("No subscriptions available!");
+//       error.statusCode = 404;
+//       throw error;
+//     }
 
-    res.status(200).json({
-      success: true,
-      message: "Subscriptions successfully retrieved!",
-      data: subscriptions,
-    });
-  } catch (error) {
-    next(error);
-  }
-};
+//     res.status(200).json({
+//       success: true,
+//       message: "Subscriptions successfully retrieved!",
+//       data: subscriptions,
+//     });
+//   } catch (error) {
+//     next(error);
+//   }
+// };
 
 // ----------------------------------------
 
 export const getUpcomingRenewals = async (req, res, next) => {
   try {
+    if (!req.user._id) {
+      const error = new Error("Unauthorized access!");
+      error.statusCode = 401;
+      throw error;
+    }
+
     // req.user._id because mongo need an ObjectId, not a plain id
     const upcomingSubscriptions = await Subscription.find({
       user: req.user._id,
@@ -340,25 +346,19 @@ export const getAnalyticsSubscriptions = async (req, res, next) => {
     const userId = req.user._id;
 
     if (!userId) {
-      const error = new Error("Unauthorized action.");
+      const error = new Error("Unauthorized access!");
       error.statusCode = 401;
       throw error;
     }
 
     const subscriptions = await Subscription.find({
       user: userId,
-    }).select("price status category renewalDate");
-
-    const stats = {
-      totalSubscriptions: subscriptions,
-      activeSubscriptions: subscriptions.filter(
-        (sub) => sub.status === "active",
-      ),
-    };
+    });
 
     res.status(200).json({
       success: true,
-      data: stats,
+      message: "All user subscriptions are fetched",
+      data: subscriptions,
     });
   } catch (error) {
     next(error);

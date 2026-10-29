@@ -15,7 +15,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 export const randomColor = () => {
   const colors = [
@@ -27,7 +27,7 @@ export const randomColor = () => {
   ];
 
   const random = Math.floor(Math.random() * colors.length);
-  
+
   return colors[random];
 };
 
@@ -300,7 +300,7 @@ const Calendar = () => {
           <CardContent className="overflow-y-auto">
             <div className="space-y-3">
               {
-                getSubsByInterval(upcomingRenewals!, "currentMonth").map(
+                getSubsByInterval(upcomingRenewals!, "next30Days").map(
                   (subscription, index) => (
                     <div
                       key={index}

@@ -12,6 +12,7 @@ import {
   startOfYear,
   endOfYear,
   subYears,
+  addDays,
 } from "date-fns";
 import { Subscription } from "@/store/useSubscriptionsStore";
 
@@ -32,7 +33,8 @@ type getSubsByIntervalTypes = (
     | "pastSixMonths"
     | "pastYear"
     | "currentYear"
-    | "wholeCurrYear",
+    | "wholeCurrYear"
+    | "next30Days",
 ) => Subscription[];
 
 export const getSubsByInterval: getSubsByIntervalTypes = (subs, interval) => {
@@ -64,8 +66,8 @@ export const getSubsByInterval: getSubsByIntervalTypes = (subs, interval) => {
 
     case "currentWeek":
       // Gets the start day of the given week = current week, and sets the start day as 1, to monday
-      start = startOfWeek(now, { weekStartsOn: 1 });
-      end = endOfWeek(now, { weekStartsOn: 1 });
+      start = startOfWeek(now);
+      end = endOfWeek(now);
       break;
 
     case "currentMonth":
@@ -91,6 +93,11 @@ export const getSubsByInterval: getSubsByIntervalTypes = (subs, interval) => {
     case "wholeCurrYear":
       start = startOfYear(now);
       end = endOfYear(now);
+      break;
+
+    case "next30Days":
+      start = now;
+      end = addDays(now, 30);
       break;
 
     default:
