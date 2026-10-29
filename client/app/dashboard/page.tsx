@@ -61,7 +61,9 @@ const DashboardPage = () => {
       );
 
       const result = await res.json();
-      setUpcomingRenewals(result.data);
+      if (result.success) {
+        setUpcomingRenewals(result.data);
+      }
     };
 
     fetchUpcomingRenewals();
