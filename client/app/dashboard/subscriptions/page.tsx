@@ -636,7 +636,18 @@ const Subscriptions = () => {
         ))}
 
         {/* Placed here to be rendered outside .map so can share the dialog between all subscriptions */}
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <Dialog
+          open={dialogOpen}
+          onOpenChange={(open) => {
+            // if it's open->true to dialog opening
+            setDialogOpen(open);
+
+            // closing it restores the data from the selectedSub, refetching
+            if (!open) {
+              setFormData(selectedSub);
+            }
+          }}
+        >
           <DialogContent className="sm:max-w-sm h-[80vh] w-full">
             <form
               onSubmit={(e) => handleEditSub(e)}
