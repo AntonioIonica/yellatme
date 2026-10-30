@@ -765,4 +765,98 @@ describe("Subscriptions-frontend", () => {
       expect(mockEditSubscription).not.toHaveBeenCalled();
     });
   });
+
+  it("Should restore subscription original data when reopening the edit dialog", async () => {
+    const user = userEvent.setup();
+
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        success: true,
+        data: mockSubscriptions[0],
+      }),
+    });
+
+    vi.stubGlobal("fetch", mockFetch);
+
+    render(<Subscriptions />);
+
+    const netflixCard = screen
+      .getByText("Netflix test")
+      .closest("[data-slot='card']");
+
+    expect(netflixCard).not.toBeNull();
+
+    // Open the three-dot menu
+    await user.click(within(netflixCard as HTMLElement).getByRole("button"));
+
+    // Select Edit
+    await user.click(
+      await screen.findByRole("menuitem", {
+        name: /^edit$/i,
+      }),
+    );
+
+    await waitFor(() => {
+      expect(
+        document.querySelector('[data-slot="dialog-content"]'),
+      ).not.toBeNull();
+    });
+
+    const dialog = document.querySelector('[data-slot="dialog-content"]');
+
+    expect(dialog).not.toBeNull();
+
+    if (!(dialog instanceof HTMLElement)) {
+      throw new Error("Dialog content was not found");
+    }
+
+    expect(
+      within(dialog).getByRole("heading", {
+        name: "Edit subscription",
+        hidden: true,
+      }),
+    ).toBeInTheDocument();
+
+    // Find the name input
+    const nameInput = within(dialog).getByRole("textbox", {
+      name: /subscription name/i,
+      hidden: true,
+    });
+
+    // Verify the existing value
+    expect(nameInput).toHaveValue("Netflix test");
+
+    // Change the name of the subscription
+    await user.clear(nameInput);
+    await user.type(nameInput, "Netflix Premium");
+
+    expect(nameInput).toHaveValue("Netflix Premium");
+
+    await user.click(within(dialog).getByRole("button", { name: /cancel/i }));
+
+    await user.click(within(netflixCard as HTMLElement).getByRole("button"));
+
+    // Select Edit
+    await user.click(
+      await screen.findByRole("menuitem", {
+        name: /^edit$/i,
+      }),
+    );
+
+    await waitFor(() => {
+      expect(
+        document.querySelector('[data-slot="dialog-content"]'),
+      ).not.toBeNull();
+    });
+
+    expect(dialog).not.toBeNull();
+
+    if (!(dialog instanceof HTMLElement)) {
+      throw new Error("Dialog content was not found");
+    }
+
+    // Verify the existing value
+    expect(nameInput).toHaveValue("Netflix test");
+  });
 });
