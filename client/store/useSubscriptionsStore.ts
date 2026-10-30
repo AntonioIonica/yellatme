@@ -36,6 +36,7 @@ export type SubscriptionsStore = {
   setAllSubs: (subs: Subscription[]) => void;
 };
 
+// empty pagination-default
 const initialPagination: Pagination = {
   currentPage: 1,
   pageSize: 12,

@@ -42,6 +42,15 @@ const mockSubscriptions = [
   },
 ];
 
+const mockPagination = {
+  currentPage: 1,
+  pageSize: 12,
+  totalSubscriptions: 2,
+  totalPages: 1,
+  hasNextPage: false,
+  hasPreviousPage: false,
+};
+
 // Hoisted setSubscriptions
 const {
   mockSetSubscriptions,
@@ -49,12 +58,15 @@ const {
   mockDeleteSubscription,
   mockToastError,
   mockToastSuccess,
+  mockSetPagination,
 } = vi.hoisted(() => ({
   mockSetSubscriptions: vi.fn(),
   mockEditSubscription: vi.fn(),
   mockDeleteSubscription: vi.fn(),
   mockToastError: vi.fn(),
   mockToastSuccess: vi.fn(),
+
+  mockSetPagination: vi.fn(),
 }));
 
 // Here the store is mocked to contain the given test subscriptions
@@ -65,6 +77,8 @@ vi.mock("@/store/useSubscriptionsStore", () => ({
     addSubscription: vi.fn(),
     editSubscription: mockEditSubscription,
     deleteSubscription: mockDeleteSubscription,
+    pagination: mockPagination,
+    setPagination: mockSetPagination,
   }),
 }));
 
@@ -423,7 +437,7 @@ describe("Subscriptions-frontend", () => {
     );
   });
 
-  it("should edit a subscription and update Zustand", async () => {
+  it("Should edit a subscription and update Zustand", async () => {
     const user = userEvent.setup();
 
     const updatedSubscription = {
@@ -450,7 +464,7 @@ describe("Subscriptions-frontend", () => {
         ok: true,
         json: async () => ({
           success: true,
-          data: mockSubscriptions,
+          data: mockSubscriptions[0],
         }),
       });
     });
@@ -482,26 +496,12 @@ describe("Subscriptions-frontend", () => {
       ).not.toBeNull();
     });
 
-    console.log(
-      "Dialog count:",
-      document.querySelectorAll('[data-slot="dialog-content"]').length,
-    );
-
-    console.log(
-      "Dialog aria-hidden values:",
-      Array.from(document.querySelectorAll('[data-slot="dialog-content"]')).map(
-        (el) => el.getAttribute("aria-hidden"),
-      ),
-    );
-
     const dialog = document.querySelector('[data-slot="dialog-content"]');
-
-    screen.debug(dialog ?? document.body);
 
     expect(dialog).not.toBeNull();
 
     if (!(dialog instanceof HTMLElement)) {
-      throw new Error("Dialog content was not found or is not an HTMLElement");
+      throw new Error("Dialog content was not found");
     }
 
     expect(
@@ -520,7 +520,7 @@ describe("Subscriptions-frontend", () => {
     // Verify the existing value
     expect(nameInput).toHaveValue("Netflix test");
 
-    // Change the name
+    // Change the name of the subscription
     await user.clear(nameInput);
     await user.type(nameInput, "Netflix Premium");
 
