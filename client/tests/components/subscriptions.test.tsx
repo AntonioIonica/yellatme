@@ -11,7 +11,7 @@ import Subscriptions from "@/app/dashboard/subscriptions/page";
 import userEvent from "@testing-library/user-event";
 import { Url } from "next/dist/shared/lib/router/router";
 
-const mockSubscriptions = [
+let mockSubscriptions = [
   {
     _id: "sub-1",
     user: "test-user-id",
@@ -858,5 +858,13 @@ describe("Subscriptions-frontend", () => {
 
     // Verify the existing value
     expect(nameInput).toHaveValue("Netflix test");
+  });
+
+  it("Should display an empty state when there are no subscriptions", async () => {
+    mockSubscriptions = [];
+
+    render(<Subscriptions />);
+
+    expect(screen.getByText("No subscriptions found!")).toBeInTheDocument();
   });
 });

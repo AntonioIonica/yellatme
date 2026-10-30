@@ -285,6 +285,12 @@ export const getUserSubscriptions = async (req, res, next) => {
       Subscription.countDocuments(filterOptions),
     ]);
 
+    if (!subscriptions) {
+      const error = new Error("No subscriptions found!");
+      error.statusCode = 404;
+      throw error;
+    }
+
     res.status(200).json({
       success: true,
       data: subscriptions.map((sub) => ({
@@ -354,6 +360,12 @@ export const getAnalyticsSubscriptions = async (req, res, next) => {
     const subscriptions = await Subscription.find({
       user: userId,
     });
+
+    if (!subscriptions) {
+      const error = new Error("No subscriptions found!");
+      error.statusCode = 404;
+      throw error;
+    }
 
     res.status(200).json({
       success: true,

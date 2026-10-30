@@ -301,6 +301,16 @@ const Subscriptions = () => {
       </div>
     );
 
+  if (!subscriptions || subscriptions.length === 0) {
+    return (
+      <div className="bg-background space-y-6">
+        <div className="flex items-center justify-center text-lg">
+          No subscriptions found!
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Search/Filter section */}
