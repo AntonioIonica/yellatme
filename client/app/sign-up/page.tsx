@@ -19,17 +19,15 @@ const SignUp = () => {
 
     const { name, email, password, confirmPassword } = formObject;
 
-    useEffect(()=>{
-      if (password != confirmPassword) {
-        toast.error("The passwords are not the same!", {
-          position: "top-center",
-          style: { fontWeight: 600 },
-          closeButton: true,
-        });
-      
+    if (password !== confirmPassword) {
+      toast.error("The passwords are not the same!", {
+        position: "top-center",
+        style: { fontWeight: 600 },
+        closeButton: true,
+      });
+
       return;
     }
-    }, [password, confirmPassword])
 
     const userData = {
       name,
@@ -62,14 +60,12 @@ const SignUp = () => {
 
       router.push("/login");
     } else {
-       toast.error(result.error, {
-          position: "top-center",
-          style: { fontWeight: 600 },
-          closeButton: true,
-    });
+      toast.error(result.error, {
+        position: "top-center",
+        style: { fontWeight: 600 },
+        closeButton: true,
+      });
     }
-
-   
   };
 
   return (
