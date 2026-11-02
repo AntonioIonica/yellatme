@@ -37,5 +37,18 @@ describe("Login page", () => {
     vi.clearAllMocks();
   });
 
-  it("Should");
+  it("Render the signup form", async () => {
+    render(<SignUp />);
+
+    expect(screen.getByLabelText(/name/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
+    expect(screen.getByLabelText("Password:")).toBeInTheDocument();
+    expect(screen.getByLabelText("Confirm password:")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /submit/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", {
+        name: "Do you already have an account?! Login here",
+      }),
+    ).toBeInTheDocument();
+  });
 });
