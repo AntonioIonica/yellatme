@@ -3,10 +3,18 @@ import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import Login from "@/app/login/page";
 import userEvent from "@testing-library/user-event";
 
+const { mockRouterPush, mockToastSuccess, mockRouterRefresh } = vi.hoisted(
+  () => ({
+    mockRouterPush: vi.fn(),
+    mockToastSuccess: vi.fn(),
+    mockRouterRefresh: vi.fn(),
+  }),
+);
+
 vi.mock("next/navigation", () => ({
   useRouter: () => ({
-    push: vi.fn(),
-    refresh: vi.fn(),
+    push: mockRouterPush,
+    refresh: mockRouterRefresh,
   }),
 }));
 
@@ -14,6 +22,12 @@ vi.mock("@/store/useAuthStore", () => ({
   useAuthStore: () => ({
     fetchUser: vi.fn(),
   }),
+}));
+
+vi.mock("sonner", () => ({
+  toast: {
+    success: mockToastSuccess,
+  },
 }));
 
 describe("Login page", () => {
@@ -70,6 +84,46 @@ describe("Login page", () => {
             password: "pass123",
           }),
         }),
+      );
+    });
+  });
+
+  it("Should handle successful login", async () => {
+    const user = userEvent.setup();
+
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        success: true,
+        message: "Login successful",
+      }),
+    });
+
+    vi.stubGlobal("fetch", mockFetch);
+
+    render(<Login />);
+
+    user.type(screen.getByLabelText(/email/i), "antonioiulianionica@gmail.com");
+    user.type(screen.getByLabelText(/password/i), "qweasdzxc");
+
+    user.click(screen.getByRole("button", { name: /submit/i }));
+
+    await waitFor(() => {
+      expect(mockFetch).toHaveBeenCalled();
+    });
+
+    await waitFor(() => {
+      expect(mockRouterPush).toHaveBeenCalledWith(
+        expect.stringContaining("/dashboard"),
+      );
+
+      expect(mockRouterRefresh).toHaveBeenCalled();
+    });
+
+    await waitFor(() => {
+      expect(mockToastSuccess).toHaveBeenCalledWith(
+        expect.stringContaining("Login successful"),
+        expect.any(Object),
       );
     });
   });

@@ -44,6 +44,7 @@ const Login = () => {
       });
 
       fetchUser();
+
       router.push("/dashboard");
       router.refresh();
     } else {

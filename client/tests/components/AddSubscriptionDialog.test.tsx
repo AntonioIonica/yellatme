@@ -9,14 +9,13 @@ import {
 import userEvent from "@testing-library/user-event";
 import AddSubscriptionDialog from "@/components/AddSubscriptionDialog";
 
-const { mockAddSubscription } = vi.hoisted(() => ({
-  mockAddSubscription: vi.fn(),
-}));
-
-const { mockToastSuccess, mockToastError } = vi.hoisted(() => ({
-  mockToastSuccess: vi.fn(),
-  mockToastError: vi.fn(),
-}));
+const { mockAddSubscription, mockToastSuccess, mockToastError } = vi.hoisted(
+  () => ({
+    mockAddSubscription: vi.fn(),
+    mockToastSuccess: vi.fn(),
+    mockToastError: vi.fn(),
+  }),
+);
 
 // mock addSubscription
 vi.mock("@/store/useSubscriptionsStore", () => ({

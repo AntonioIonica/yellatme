@@ -65,7 +65,6 @@ const {
   mockDeleteSubscription: vi.fn(),
   mockToastError: vi.fn(),
   mockToastSuccess: vi.fn(),
-
   mockSetPagination: vi.fn(),
 }));
 
