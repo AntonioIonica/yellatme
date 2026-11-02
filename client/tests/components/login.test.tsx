@@ -3,13 +3,19 @@ import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import Login from "@/app/login/page";
 import userEvent from "@testing-library/user-event";
 
-const { mockRouterPush, mockToastSuccess, mockRouterRefresh } = vi.hoisted(
-  () => ({
-    mockRouterPush: vi.fn(),
-    mockToastSuccess: vi.fn(),
-    mockRouterRefresh: vi.fn(),
-  }),
-);
+const {
+  mockRouterPush,
+  mockToastSuccess,
+  mockRouterRefresh,
+  mockToastError,
+  mockFetchUser,
+} = vi.hoisted(() => ({
+  mockRouterPush: vi.fn(),
+  mockToastSuccess: vi.fn(),
+  mockToastError: vi.fn(),
+  mockRouterRefresh: vi.fn(),
+  mockFetchUser: vi.fn(),
+}));
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({
@@ -20,13 +26,14 @@ vi.mock("next/navigation", () => ({
 
 vi.mock("@/store/useAuthStore", () => ({
   useAuthStore: () => ({
-    fetchUser: vi.fn(),
+    fetchUser: mockFetchUser,
   }),
 }));
 
 vi.mock("sonner", () => ({
   toast: {
     success: mockToastSuccess,
+    error: mockToastError,
   },
 }));
 
@@ -56,7 +63,7 @@ describe("Login page", () => {
       ok: true,
       json: async () => ({
         success: true,
-        message: "Login successfull",
+        message: "Login successful",
       }),
     });
 
@@ -103,10 +110,13 @@ describe("Login page", () => {
 
     render(<Login />);
 
-    user.type(screen.getByLabelText(/email/i), "antonioiulianionica@gmail.com");
-    user.type(screen.getByLabelText(/password/i), "qweasdzxc");
+    await user.type(
+      screen.getByLabelText(/email/i),
+      "antonioiulianionica@gmail.com",
+    );
+    await user.type(screen.getByLabelText(/password/i), "qweasdzxc");
 
-    user.click(screen.getByRole("button", { name: /submit/i }));
+    await user.click(screen.getByRole("button", { name: /submit/i }));
 
     await waitFor(() => {
       expect(mockFetch).toHaveBeenCalled();
@@ -125,6 +135,45 @@ describe("Login page", () => {
         expect.stringContaining("Login successful"),
         expect.any(Object),
       );
+    });
+  });
+
+  it("Should handle failed login", async () => {
+    const user = userEvent.setup();
+
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: false,
+      status: 401,
+      json: async () => ({
+        success: false,
+        error: "User not found!",
+      }),
+    });
+
+    vi.stubGlobal("fetch", mockFetch);
+
+    render(<Login />);
+
+    await user.type(screen.getByLabelText(/email/i), "test@gmail.com");
+
+    await user.type(screen.getByLabelText(/password/i), "pass123");
+
+    await user.click(screen.getByRole("button", { name: /submit/i }));
+
+    await waitFor(() => {
+      expect(mockToastError).toHaveBeenCalledWith(
+        expect.stringContaining("User not found!"),
+        expect.any(Object),
+      );
+    });
+
+    await waitFor(() => {
+      expect(mockFetchUser).not.toHaveBeenCalled();
+    });
+
+    await waitFor(() => {
+      expect(mockRouterPush).not.toHaveBeenCalled();
+      expect(mockRouterRefresh).not.toHaveBeenCalled();
     });
   });
 });
