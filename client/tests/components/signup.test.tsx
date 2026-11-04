@@ -180,10 +180,45 @@ describe("Login page", () => {
     });
   });
 
-  it("Should handle server fails", async () => {
+  it("Should handle network failure", async () => {
     const user = userEvent.setup();
 
     const mockFetch = vi.fn().mockRejectedValue(new Error("Network error"));
+
+    vi.stubGlobal("fetch", mockFetch);
+
+    render(<SignUp />);
+
+    await user.type(screen.getByLabelText(/name/i), "test-user");
+    await user.type(screen.getByLabelText(/email/i), "test@gmail.com");
+    await user.type(screen.getByLabelText("Password:"), "abcd1234");
+    await user.type(screen.getByLabelText("Confirm password:"), "abcd1234");
+
+    await user.click(screen.getByRole("button", { name: /submit/i }));
+
+    await waitFor(() => {
+      expect(mockFetch).toHaveBeenCalled();
+    });
+
+    await waitFor(() => {
+      expect(mockToastError).toHaveBeenCalledWith(
+        expect.stringContaining("Something went wrong. Please try again."),
+        expect.any(Object),
+      );
+    });
+
+    await waitFor(() => {
+      expect(mockRouterPush).not.toHaveBeenCalled();
+    });
+  });
+
+  it("Should handle server failure", async () => {
+    const user = userEvent.setup();
+
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: false,
+      status: 500,
+    });
 
     vi.stubGlobal("fetch", mockFetch);
 
