@@ -66,30 +66,34 @@ const SettingsPage = () => {
   const handleDeleteAccount = async () => {
     if (!user) return;
 
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/users/${user._id}`,
-      {
-        credentials: "include",
-        method: "DELETE",
-      },
-    );
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/users/${user._id}`,
+        {
+          credentials: "include",
+          method: "DELETE",
+        },
+      );
 
-    const result = await res.json();
-    
-    if (result.success) {
-      toast.success(result.message, {
-      position: "top-center",
-      style: { fontWeight: 600 },
-      closeButton: true,
-    });
+      const result = await res.json();
 
-      router.push(result.redirect);
-    } else {
-      toast.error(result.error, {
-      position: "top-center",
-      style: { fontWeight: 600 },
-      closeButton: true,
-    });
+      if (result.success) {
+        toast.success(result.message, {
+          position: "top-center",
+          style: { fontWeight: 600 },
+          closeButton: true,
+        });
+
+        router.push(result.redirect);
+      } else {
+        toast.error(result.error, {
+          position: "top-center",
+          style: { fontWeight: 600 },
+          closeButton: true,
+        });
+      }
+    } catch (error) {
+      console.error("Delete (account) network failure: ", error);
     }
 
     return null;
@@ -99,81 +103,93 @@ const SettingsPage = () => {
     e.preventDefault();
     if (!user) return;
 
-    const formData = new FormData(e.currentTarget);
-    const { name, password } = Object.fromEntries(formData.entries());
+    try {
+      const formData = new FormData(e.currentTarget);
+      const { name, password } = Object.fromEntries(formData.entries());
 
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/users/${user._id}`,
-      {
-        credentials: "include",
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/users/${user._id}`,
+        {
+          credentials: "include",
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ name, password }),
         },
-        body: JSON.stringify({ name, password }),
-      },
-    );
+      );
 
-    const result = await res.json();
+      const result = await res.json();
 
-    if (result.success) {
-      fetchUser();
+      if (result.success) {
+        fetchUser();
 
-      toast.success(result.message, {
-      position: "top-center",
-      style: { fontWeight: 600 },
-      closeButton: true,
-    });
-    } else {
-      toast.error(result.error, {
-      position: "top-center",
-      style: { fontWeight: 600 },
-      closeButton: true,
-    });
+        toast.success(result.message, {
+          position: "top-center",
+          style: { fontWeight: 600 },
+          closeButton: true,
+        });
+      } else {
+        toast.error(result.error, {
+          position: "top-center",
+          style: { fontWeight: 600 },
+          closeButton: true,
+        });
+      }
+    } catch (error) {
+      console.error("PATCH (account-edit) network failure: ", error);
     }
   };
 
   const handleChangePlan = async () => {
     if (!user) return;
 
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/users/${user._id}/change-plan`,
-      {
-        credentials: "include",
-      },
-    );
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/users/${user._id}/change-plan`,
+        {
+          credentials: "include",
+        },
+      );
 
-    const result = await res.json();
+      const result = await res.json();
 
-    if (result.success) {
-      toast.success(result.message, {
-      position: "top-center",
-      style: { fontWeight: 600 },
-      closeButton: true,
-    });
+      if (result.success) {
+        toast.success(result.message, {
+          position: "top-center",
+          style: { fontWeight: 600 },
+          closeButton: true,
+        });
 
-      router.push("/dashboard");
-    } else {
-      toast.error(result.error, {
-      position: "top-center",
-      style: { fontWeight: 600 },
-      closeButton: true,
-    });
+        router.push("/dashboard");
+      } else {
+        toast.error(result.error, {
+          position: "top-center",
+          style: { fontWeight: 600 },
+          closeButton: true,
+        });
+      }
+    } catch (error) {
+      console.error("PATCH (account-plan-edit) network failure: ", error);
     }
   };
 
   const handleSubscribe = async () => {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/api/billing/checkout`,
-      {
-        method: "POST",
-        credentials: "include",
-      },
-    );
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/billing/checkout`,
+        {
+          method: "POST",
+          credentials: "include",
+        },
+      );
 
-    const result = await res.json();
+      const result = await res.json();
 
-    setTimeout(() => router.push(result.url), 500);
+      setTimeout(() => router.push(result.url), 500);
+    } catch (error) {
+      console.error("POST (stripe-subscribe) network failure: ", error);
+    }
   };
 
   return (
