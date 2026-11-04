@@ -74,20 +74,24 @@ const Analytics = () => {
   useEffect(() => {
     if (!user) return;
 
-    const fetchAllSubs = async () => {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/subscriptions/analytics`,
-        { credentials: "include" },
-      );
+    try {
+      const fetchAllSubs = async () => {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/subscriptions/analytics`,
+          { credentials: "include" },
+        );
 
-      const result = await res.json();
+        const result = await res.json();
 
-      if (result.success) {
-        setAllSubs(result.data);
-      }
-    };
+        if (result.success) {
+          setAllSubs(result.data);
+        }
+      };
 
-    fetchAllSubs();
+      fetchAllSubs();
+    } catch (error) {
+      console.error("GET (subs) network failure: ", error);
+    }
   }, [user, setAllSubs]);
 
   useEffect(() => {
