@@ -51,4 +51,58 @@ describe("Login page", () => {
       }),
     ).toBeInTheDocument();
   });
+
+  it("Should successfully signup and redirect to login page", async () => {
+    const user = userEvent.setup();
+
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        success: true,
+        message: "User created successfully!",
+      }),
+    });
+
+    vi.stubGlobal("fetch", mockFetch);
+
+    render(<SignUp />);
+
+    await user.type(screen.getByLabelText(/name/i), "test-user");
+    await user.type(screen.getByLabelText(/email/i), "test@gmail.com");
+    await user.type(screen.getByLabelText("Password:"), "abcd1234");
+    await user.type(screen.getByLabelText("Confirm password:"), "abcd1234");
+
+    await user.click(screen.getByRole("button", { name: /submit/i }));
+
+    await waitFor(() => {
+      expect(mockFetch).toHaveBeenCalledWith(
+        expect.stringContaining("/api/v1/auth/sign-up"),
+        expect.objectContaining({
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            name: "test-user",
+            email: "test@gmail.com",
+            password: "abcd1234",
+          }),
+        }),
+      );
+    });
+
+    await waitFor(() => {
+      expect(mockToastSuccess).toHaveBeenCalledWith(
+        expect.stringContaining("User created successfully!"),
+        expect.any(Object),
+      );
+    });
+
+    await waitFor(() => {
+      expect(mockRouterPush).toHaveBeenCalledWith(
+        expect.stringContaining("/login"),
+      );
+    });
+  });
 });
