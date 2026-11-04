@@ -34,34 +34,42 @@ const DashboardPage = () => {
   useEffect(() => {
     if (!user) return;
 
-    const fetchStats = async () => {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/subscriptions/analytics`,
-        { credentials: "include" },
-      );
+    const fetchAllSubs = async () => {
+      try {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/subscriptions/analytics`,
+          { credentials: "include" },
+        );
 
-      const result = await res.json();
+        const result = await res.json();
 
-      if (result.success) {
-        setAllSubs(result.data);
+        if (result.success) {
+          setAllSubs(result.data);
+        }
+      } catch (error) {
+        console.error("GET (all subs) network failure: ", error);
       }
     };
 
-    fetchStats();
+    fetchAllSubs();
   }, [user, setAllSubs]);
 
   useEffect(() => {
     const fetchUpcomingRenewals = async () => {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/subscriptions/upcoming-renewals`,
-        {
-          credentials: "include",
-        },
-      );
+      try {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/subscriptions/upcoming-renewals`,
+          {
+            credentials: "include",
+          },
+        );
 
-      const result = await res.json();
-      if (result.success) {
-        setUpcomingRenewals(result.data);
+        const result = await res.json();
+        if (result.success) {
+          setUpcomingRenewals(result.data);
+        }
+      } catch (error) {
+        console.error("GET (upcoming renewals) network failure: ", error);
       }
     };
 

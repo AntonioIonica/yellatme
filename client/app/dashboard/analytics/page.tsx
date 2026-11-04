@@ -18,6 +18,7 @@ import { useEffect } from "react";
 import { randomColor } from "../calendar/page";
 import { Bar, BarChart, XAxis, YAxis } from "recharts";
 import { subMonths, format } from "date-fns";
+import { toast } from "sonner";
 
 const categories = [
   "technology",
@@ -74,8 +75,8 @@ const Analytics = () => {
   useEffect(() => {
     if (!user) return;
 
-    try {
-      const fetchAllSubs = async () => {
+    const fetchAllSubs = async () => {
+      try {
         const res = await fetch(
           `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/subscriptions/analytics`,
           { credentials: "include" },
@@ -86,12 +87,16 @@ const Analytics = () => {
         if (result.success) {
           setAllSubs(result.data);
         }
-      };
+      } catch (error) {
+        toast.error("Something went wrong. Please try again.", {
+          position: "top-center",
+          style: { fontWeight: 600 },
+          closeButton: true,
+        });
+      }
 
       fetchAllSubs();
-    } catch (error) {
-      console.error("GET (subs) network failure: ", error);
-    }
+    };
   }, [user, setAllSubs]);
 
   useEffect(() => {

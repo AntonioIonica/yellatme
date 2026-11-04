@@ -180,5 +180,13 @@ describe("Login page", () => {
     });
   });
 
-  it("Should handle server fails", async () => {});
+  it("Should handle server fails", async () => {
+    const user = userEvent.setup();
+
+    const mockFetch = vi.fn().mockRejectedValue(new Error("Network error"));
+
+    vi.stubGlobal("fetch", mockFetch);
+
+    render(<SignUp />);
+  });
 });

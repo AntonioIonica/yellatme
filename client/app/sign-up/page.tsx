@@ -35,32 +35,40 @@ const SignUp = () => {
       password,
     };
 
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/auth/sign-up`,
-      {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(userData),
-      },
-    );
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/auth/sign-up`,
+        {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(userData),
+        },
+      );
 
-    if (!res.ok) {
-      throw new Error("Failed request!");
-    }
+      if (!res.ok) {
+        throw new Error("Failed request!");
+      }
 
-    const result = await res.json();
+      const result = await res.json();
 
-    if (result.success) {
-      toast.success(result.message, {
-        position: "top-center",
-        style: { fontWeight: 600 },
-        closeButton: true,
-      });
+      if (result.success) {
+        toast.success(result.message, {
+          position: "top-center",
+          style: { fontWeight: 600 },
+          closeButton: true,
+        });
 
-      router.push("/login");
-    } else {
-      toast.error(result.error, {
+        router.push("/login");
+      } else {
+        toast.error(result.error, {
+          position: "top-center",
+          style: { fontWeight: 600 },
+          closeButton: true,
+        });
+      }
+    } catch (error) {
+      toast.error("Something went wrong. Please try again.", {
         position: "top-center",
         style: { fontWeight: 600 },
         closeButton: true,

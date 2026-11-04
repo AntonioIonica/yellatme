@@ -80,29 +80,34 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
 
   const { user, clearUser, fetchUser } = useAuthStore();
 
-  useEffect(()=>{
+  useEffect(() => {
     fetchUser();
   }, []);
 
   // Sign-out
   const handleLogout = async () => {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/auth/sign-out`,
-      {
-        credentials: "include",
-      },
-    );
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/auth/sign-out`,
+        {
+          credentials: "include",
+        },
+      );
 
-    const result = await res.json();
-    if (result.success) {
-      clearUser();
-      toast.info(result.message, {
-        position: "top-center",
-        style: { fontWeight: 600 },
-        closeButton: true,
-      });
-      
-      router.push("/");
+      const result = await res.json();
+
+      if (result.success) {
+        clearUser();
+        toast.info(result.message, {
+          position: "top-center",
+          style: { fontWeight: 600 },
+          closeButton: true,
+        });
+
+        router.push("/");
+      }
+    } catch (error) {
+      console.error("GET (signout) network failure: ", error);
     }
   };
 
@@ -118,7 +123,13 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
                     <Logo />
                   </div>
                   <div className="leading-non flex items-center justify-between space-x-4">
-                    {user?.plan.toLowerCase() == "free" ? <span className="font-light">Tokens: {+user?.freeTokens}</span> : ""}
+                    {user?.plan.toLowerCase() == "free" ? (
+                      <span className="font-light">
+                        Tokens: {+user?.freeTokens}
+                      </span>
+                    ) : (
+                      ""
+                    )}
                     <span>{user?.plan.toUpperCase().concat(" plan")}</span>
                   </div>
                 </Link>

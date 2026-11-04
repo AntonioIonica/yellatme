@@ -111,17 +111,17 @@ const Subscriptions = () => {
     const controller = new AbortController();
 
     const fetchUserSubs = async () => {
+      const params = new URLSearchParams();
+      params.set("page", String(currentPage));
+
+      if (searchBar) params.append("search", searchBar);
+      if (category) params.append("category", category);
+      if (status) params.append("status", status);
+      if (sortDir) params.append("sortDir", sortDir);
+
+      let query = `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/subscriptions/user/${user._id}${params != null && "?" + params.toString()}`;
+
       try {
-        const params = new URLSearchParams();
-        params.set("page", String(currentPage));
-
-        if (searchBar) params.append("search", searchBar);
-        if (category) params.append("category", category);
-        if (status) params.append("status", status);
-        if (sortDir) params.append("sortDir", sortDir);
-
-        let query = `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/subscriptions/user/${user._id}${params != null && "?" + params.toString()}`;
-
         const res = await fetch(query, {
           credentials: "include",
           signal: controller.signal,
@@ -142,7 +142,11 @@ const Subscriptions = () => {
           return;
         }
 
-        console.error("Failed to fetch subscriptions", error);
+        toast.error("Something went wrong. Please try again.", {
+          position: "top-center",
+          style: { fontWeight: 600 },
+          closeButton: true,
+        });
       }
     };
 
@@ -217,7 +221,11 @@ const Subscriptions = () => {
         });
       }
     } catch (error) {
-      console.error("DELETE (subscription) network error: ", error);
+      toast.error("Something went wrong. Please try again.", {
+        position: "top-center",
+        style: { fontWeight: 600 },
+        closeButton: true,
+      });
     }
   };
 
@@ -248,7 +256,11 @@ const Subscriptions = () => {
         });
       }
     } catch (error) {
-      console.error("Cancel subscription network error: ", error);
+      toast.error("Something went wrong. Please try again.", {
+        position: "top-center",
+        style: { fontWeight: 600 },
+        closeButton: true,
+      });
     }
   };
 
@@ -296,7 +308,11 @@ const Subscriptions = () => {
         });
       }
     } catch (error) {
-      console.error("PATCH (edit subscription) network error:", error);
+      toast.error("Something went wrong. Please try again.", {
+        position: "top-center",
+        style: { fontWeight: 600 },
+        closeButton: true,
+      });
     }
   };
 

@@ -93,7 +93,11 @@ const SettingsPage = () => {
         });
       }
     } catch (error) {
-      console.error("Delete (account) network failure: ", error);
+      toast.error("Something went wrong. Please try again.", {
+        position: "top-center",
+        style: { fontWeight: 600 },
+        closeButton: true,
+      });
     }
 
     return null;
@@ -103,10 +107,10 @@ const SettingsPage = () => {
     e.preventDefault();
     if (!user) return;
 
-    try {
-      const formData = new FormData(e.currentTarget);
-      const { name, password } = Object.fromEntries(formData.entries());
+    const formData = new FormData(e.currentTarget);
+    const { name, password } = Object.fromEntries(formData.entries());
 
+    try {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/users/${user._id}`,
         {
@@ -137,7 +141,11 @@ const SettingsPage = () => {
         });
       }
     } catch (error) {
-      console.error("PATCH (account-edit) network failure: ", error);
+      toast.error("Something went wrong. Please try again.", {
+        position: "top-center",
+        style: { fontWeight: 600 },
+        closeButton: true,
+      });
     }
   };
 
@@ -170,7 +178,11 @@ const SettingsPage = () => {
         });
       }
     } catch (error) {
-      console.error("PATCH (account-plan-edit) network failure: ", error);
+      toast.error("Something went wrong. Please try again.", {
+        position: "top-center",
+        style: { fontWeight: 600 },
+        closeButton: true,
+      });
     }
   };
 
@@ -188,7 +200,11 @@ const SettingsPage = () => {
 
       setTimeout(() => router.push(result.url), 500);
     } catch (error) {
-      console.error("POST (stripe-subscribe) network failure: ", error);
+      toast.error("Something went wrong. Please try again.", {
+        position: "top-center",
+        style: { fontWeight: 600 },
+        closeButton: true,
+      });
     }
   };
 

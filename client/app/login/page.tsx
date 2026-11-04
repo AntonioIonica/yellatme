@@ -15,11 +15,11 @@ const Login = () => {
   const handleSubmitLogin: SubmitEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
 
-    try {
-      const formData = new FormData(e.currentTarget);
-      const formObj = Object.fromEntries(formData.entries());
-      const { email, password } = formObj;
+    const formData = new FormData(e.currentTarget);
+    const formObj = Object.fromEntries(formData.entries());
+    const { email, password } = formObj;
 
+    try {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/auth/sign-in`,
         {
@@ -56,7 +56,11 @@ const Login = () => {
         });
       }
     } catch (error) {
-      console.error("Server failed to respond: ", error);
+      toast.error("Something went wrong. Please try again.", {
+        position: "top-center",
+        style: { fontWeight: 600 },
+        closeButton: true,
+      });
     }
   };
 

@@ -14,6 +14,7 @@ import { Subscription } from "@/store/useSubscriptionsStore";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
@@ -81,18 +82,18 @@ const Calendar = () => {
   useEffect(() => {
     if (!user) return;
 
-    try {
-      const fetchSubsDate = async () => {
-        const params = new URLSearchParams();
+    const fetchSubsDate = async () => {
+      const params = new URLSearchParams();
 
-        const from = new Date(currentYear, currentMonth, 1);
-        params.set("from", from.toString());
+      const from = new Date(currentYear, currentMonth, 1);
+      params.set("from", from.toString());
 
-        const to = new Date(currentYear, currentMonth, daysInMonth);
-        params.set("to", to.toString());
+      const to = new Date(currentYear, currentMonth, daysInMonth);
+      params.set("to", to.toString());
 
-        let query = `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/subscriptions/user/${user._id}?${params.toString()}`;
+      let query = `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/subscriptions/user/${user._id}?${params.toString()}`;
 
+      try {
         const res = await fetch(query, {
           credentials: "include",
         });
@@ -104,17 +105,21 @@ const Calendar = () => {
         setDateSubs(
           result?.data?.filter((sub: Subscription) => sub.status === "active"),
         );
-      };
+      } catch (error) {
+        toast.error("Something went wrong. Please try again.", {
+          position: "top-center",
+          style: { fontWeight: 600 },
+          closeButton: true,
+        });
+      }
 
       fetchSubsDate();
-    } catch (error) {
-      console.error("GET (subs-date) network failure: ", error);
-    }
+    };
   }, [currentYear, currentMonth]);
 
   useEffect(() => {
-    try {
-      const fetchUpcomingRenewals = async () => {
+    const fetchUpcomingRenewals = async () => {
+      try {
         const res = await fetch(
           `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/subscriptions/upcoming-renewals`,
           {
@@ -124,12 +129,16 @@ const Calendar = () => {
 
         const result = await res.json();
         setUpcomingRenewals(result.data);
-      };
+      } catch (error) {
+        toast.error("Something went wrong. Please try again.", {
+          position: "top-center",
+          style: { fontWeight: 600 },
+          closeButton: true,
+        });
+      }
 
       fetchUpcomingRenewals();
-    } catch (error) {
-      console.error("GET (upcoming renewals) network failure: ", error);
-    }
+    };
   }, []);
 
   useEffect(() => {
