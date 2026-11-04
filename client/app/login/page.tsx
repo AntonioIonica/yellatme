@@ -15,44 +15,48 @@ const Login = () => {
   const handleSubmitLogin: SubmitEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
 
-    const formData = new FormData(e.currentTarget);
-    const formObj = Object.fromEntries(formData.entries());
-    const { email, password } = formObj;
+    try {
+      const formData = new FormData(e.currentTarget);
+      const formObj = Object.fromEntries(formData.entries());
+      const { email, password } = formObj;
 
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/auth/sign-in`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/auth/sign-in`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            email,
+            password,
+          }),
         },
-        credentials: "include",
-        body: JSON.stringify({
-          email,
-          password,
-        }),
-      },
-    );
+      );
 
-    const result = await res.json();
+      const result = await res.json();
 
-    if (result.success) {
-      toast.success(result.message, {
-        position: "top-center",
-        style: { fontWeight: 600 },
-        closeButton: true,
-      });
+      if (result.success) {
+        toast.success(result.message, {
+          position: "top-center",
+          style: { fontWeight: 600 },
+          closeButton: true,
+        });
 
-      fetchUser();
+        fetchUser();
 
-      router.push("/dashboard");
-      router.refresh();
-    } else {
-      toast.error(result.error, {
-        position: "top-center",
-        style: { fontWeight: 600 },
-        closeButton: true,
-      });
+        router.push("/dashboard");
+        router.refresh();
+      } else {
+        toast.error(result.error, {
+          position: "top-center",
+          style: { fontWeight: 600 },
+          closeButton: true,
+        });
+      }
+    } catch (error) {
+      console.error("Server failed to respond: ", error);
     }
   };
 

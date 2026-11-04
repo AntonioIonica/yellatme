@@ -179,4 +179,6 @@ describe("Login page", () => {
       expect(mockRouterPush).not.toHaveBeenCalled();
     });
   });
+
+  it("Should handle server fails", async () => {});
 });
