@@ -102,7 +102,7 @@ vi.mock("sonner", () => ({
   },
 }));
 
-describe("Subscriptions-frontend", () => {
+describe("Subscriptions page", () => {
   afterEach(() => {
     cleanup();
     vi.unstubAllGlobals();
