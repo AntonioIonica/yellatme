@@ -81,47 +81,55 @@ const Calendar = () => {
   useEffect(() => {
     if (!user) return;
 
-    const fetchSubsDate = async () => {
-      const params = new URLSearchParams();
+    try {
+      const fetchSubsDate = async () => {
+        const params = new URLSearchParams();
 
-      const from = new Date(currentYear, currentMonth, 1);
-      params.set("from", from.toString());
+        const from = new Date(currentYear, currentMonth, 1);
+        params.set("from", from.toString());
 
-      const to = new Date(currentYear, currentMonth, daysInMonth);
-      params.set("to", to.toString());
+        const to = new Date(currentYear, currentMonth, daysInMonth);
+        params.set("to", to.toString());
 
-      let query = `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/subscriptions/user/${user._id}?${params.toString()}`;
+        let query = `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/subscriptions/user/${user._id}?${params.toString()}`;
 
-      const res = await fetch(query, {
-        credentials: "include",
-      });
+        const res = await fetch(query, {
+          credentials: "include",
+        });
 
-      const result = await res.json();
+        const result = await res.json();
 
-      if (!result.success) return;
+        if (!result.success) return;
 
-      setDateSubs(
-        result?.data?.filter((sub: Subscription) => sub.status === "active"),
-      );
-    };
+        setDateSubs(
+          result?.data?.filter((sub: Subscription) => sub.status === "active"),
+        );
+      };
 
-    fetchSubsDate();
+      fetchSubsDate();
+    } catch (error) {
+      console.error("GET (subs-date) network failure: ", error);
+    }
   }, [currentYear, currentMonth]);
 
   useEffect(() => {
-    const fetchUpcomingRenewals = async () => {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/subscriptions/upcoming-renewals`,
-        {
-          credentials: "include",
-        },
-      );
+    try {
+      const fetchUpcomingRenewals = async () => {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/subscriptions/upcoming-renewals`,
+          {
+            credentials: "include",
+          },
+        );
 
-      const result = await res.json();
-      setUpcomingRenewals(result.data);
-    };
+        const result = await res.json();
+        setUpcomingRenewals(result.data);
+      };
 
-    fetchUpcomingRenewals();
+      fetchUpcomingRenewals();
+    } catch (error) {
+      console.error("GET (upcoming renewals) network failure: ", error);
+    }
   }, []);
 
   useEffect(() => {
