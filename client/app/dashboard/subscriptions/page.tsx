@@ -190,57 +190,65 @@ const Subscriptions = () => {
   }, []);
 
   const handleDeleteSub = async (id: SubscriptionId) => {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/subscriptions/${id}`,
-      {
-        method: "DELETE",
-        credentials: "include",
-      },
-    );
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/subscriptions/${id}`,
+        {
+          method: "DELETE",
+          credentials: "include",
+        },
+      );
 
-    const result = await res.json();
+      const result = await res.json();
 
-    if (result.success) {
-      deleteSubscription(id);
+      if (result.success) {
+        deleteSubscription(id);
 
-      toast.success(result.message, {
-        position: "top-center",
-        style: { fontWeight: 600 },
-        closeButton: true,
-      });
-    } else {
-      toast.error(result.error, {
-        position: "top-center",
-        style: { fontWeight: 600 },
-        closeButton: true,
-      });
+        toast.success(result.message, {
+          position: "top-center",
+          style: { fontWeight: 600 },
+          closeButton: true,
+        });
+      } else {
+        toast.error(result.error, {
+          position: "top-center",
+          style: { fontWeight: 600 },
+          closeButton: true,
+        });
+      }
+    } catch (error) {
+      console.error("DELETE (subscription) network error: ", error);
     }
   };
 
   const handleCancelSub = async (id: SubscriptionId) => {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/subscriptions/${id}/cancel`,
-      {
-        method: "PATCH",
-        credentials: "include",
-      },
-    );
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/subscriptions/${id}/cancel`,
+        {
+          method: "PATCH",
+          credentials: "include",
+        },
+      );
 
-    const result = await res.json();
-    if (result.success) {
-      editSubscription(result.data);
+      const result = await res.json();
+      if (result.success) {
+        editSubscription(result.data);
 
-      toast.success(result.message, {
-        position: "top-center",
-        style: { fontWeight: 600 },
-        closeButton: true,
-      });
-    } else {
-      toast.error(result.error, {
-        position: "top-center",
-        style: { fontWeight: 600 },
-        closeButton: true,
-      });
+        toast.success(result.message, {
+          position: "top-center",
+          style: { fontWeight: 600 },
+          closeButton: true,
+        });
+      } else {
+        toast.error(result.error, {
+          position: "top-center",
+          style: { fontWeight: 600 },
+          closeButton: true,
+        });
+      }
+    } catch (error) {
+      console.error("Cancel subscription network error: ", error);
     }
   };
 
@@ -288,7 +296,7 @@ const Subscriptions = () => {
         });
       }
     } catch (error) {
-      console.error("PATCH network error:", error);
+      console.error("PATCH (edit subscription) network error:", error);
     }
   };
 

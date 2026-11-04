@@ -3,11 +3,9 @@
 import Logo from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { useAuthStore } from "@/store/useAuthStore";
 import { Check } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+
 
 export default function LandingPage() {
   return (
