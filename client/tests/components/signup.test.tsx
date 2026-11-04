@@ -105,4 +105,36 @@ describe("Login page", () => {
       );
     });
   });
+
+  it("Confirm password mismatch", async () => {
+    const user = userEvent.setup();
+
+    const mockFetch = vi.fn().mockResolvedValue({});
+
+    vi.stubGlobal("fetch", mockFetch);
+
+    render(<SignUp />);
+
+    await user.type(screen.getByLabelText(/name/i), "test-user");
+    await user.type(screen.getByLabelText(/email/i), "test@gmail.com");
+    await user.type(screen.getByLabelText("Password:"), "abcd1234");
+    await user.type(screen.getByLabelText("Confirm password:"), "abcd123455");
+
+    await user.click(screen.getByRole("button", { name: /submit/i }));
+
+    await waitFor(() => {
+      expect(mockToastError).toHaveBeenCalledWith(
+        expect.stringContaining("The passwords are not the same!"),
+        expect.any(Object),
+      );
+    });
+
+    await waitFor(() => {
+      expect(mockFetch).not.toHaveBeenCalled();
+    });
+
+    await waitFor(() => {
+      expect(mockRouterPush).not.toHaveBeenCalled();
+    });
+  });
 });
