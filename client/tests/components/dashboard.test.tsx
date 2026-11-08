@@ -34,6 +34,9 @@ let mockSubscriptions = [
   },
 ];
 
+let mockUser = null as any;
+let mockLoading = false;
+
 const {
   mockRouterPush,
   mockFetchUser,
@@ -41,8 +44,6 @@ const {
   mockEditSubscription,
   mockDeleteSubscription,
   mockSetAllSubs,
-  mockUser,
-  mockLoading,
 } = vi.hoisted(() => ({
   mockRouterPush: vi.fn(),
   mockFetchUser: vi.fn(),
@@ -50,8 +51,6 @@ const {
   mockEditSubscription: vi.fn(),
   mockDeleteSubscription: vi.fn(),
   mockSetAllSubs: vi.fn(),
-  mockUser: null as any,
-  mockLoading: false,
 }));
 
 vi.mock("next/navigation", () => ({
@@ -87,10 +86,40 @@ describe("Dashboard page", () => {
   });
 
   it("Should redirect unauthenticated users to login page", async () => {
+    mockUser = null;
+    mockLoading = false;
+
     render(<DashboardPage />);
 
     await waitFor(() => {
       expect(mockRouterPush).toHaveBeenCalledWith("/login");
+    });
+  });
+
+  it("Should return valid subscriptions when logged in", async () => {
+    mockUser = { _id: "test-user-id", name: "testUser" };
+
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        success: true,
+        data: mockSubscriptions,
+      }),
+    });
+
+    vi.stubGlobal("fetch", mockFetch);
+
+    render(<DashboardPage />);
+
+    await waitFor(() => {
+      expect(mockFetch).toHaveBeenCalledWith(
+        expect.stringContaining("/api/v1/subscriptions/analytics"),
+        expect.objectContaining({ credentials: "include" }),
+      );
+    });
+
+    await waitFor(() => {
+      expect(mockSetAllSubs).toHaveBeenCalledWith(mockSubscriptions);
     });
   });
 });
