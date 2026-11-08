@@ -16,6 +16,7 @@ import {
 } from "@/store/useSubscriptionsStore";
 import { useAuthStore } from "@/store/useAuthStore";
 import { comparePay, parseCurrency, getSubsByInterval } from "@/lib/utils";
+import { toast } from "sonner";
 
 const DashboardPage = () => {
   const { setAllSubs, allSubs } = useSubscriptionStore();
@@ -47,7 +48,11 @@ const DashboardPage = () => {
           setAllSubs(result.data);
         }
       } catch (error) {
-        console.error("GET (all subs) network failure: ", error);
+        toast.error("Something went wrong. Please try again.", {
+          position: "top-center",
+          style: { fontWeight: 600 },
+          closeButton: true,
+        });
       }
     };
 
@@ -69,7 +74,11 @@ const DashboardPage = () => {
           setUpcomingRenewals(result.data);
         }
       } catch (error) {
-        console.error("GET (upcoming renewals) network failure: ", error);
+        toast.error("Something went wrong. Please try again.", {
+          position: "top-center",
+          style: { fontWeight: 600 },
+          closeButton: true,
+        });
       }
     };
 
