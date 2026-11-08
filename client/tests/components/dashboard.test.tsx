@@ -1,14 +1,12 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
 import {
   cleanup,
-  getByText,
   render,
   screen,
   waitFor,
   within,
 } from "@testing-library/react";
 import DashboardPage from "@/app/dashboard/page";
-import userEvent from "@testing-library/user-event";
 
 let mockSubscriptions = [
   {
@@ -38,6 +36,19 @@ let mockSubscriptions = [
     status: "active",
     startDate: "2026-11-19",
     renewalDate: "2026-11-26",
+  },
+];
+
+const mockUpcomingRenewals = [
+  {
+    ...mockSubscriptions[0],
+    renewalDate: "2026-11-16",
+    status: "active",
+  },
+  {
+    ...mockSubscriptions[1],
+    renewalDate: "2026-12-08",
+    status: "active",
   },
 ];
 
@@ -208,5 +219,39 @@ describe("Dashboard page", () => {
     expect(card).not.toBeNull();
 
     expect(within(card!).getByText("2")).toBeInTheDocument();
+  });
+
+  it("Should display upcoming subscriptons correctly", async () => {
+    mockUser = { _id: "test-user-id", name: "testUser" };
+
+    const mockFetch = vi.fn().mockImplementation((url) => {
+      if (url.includes("/api/v1/subscriptions/analytics")) {
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({
+            success: true,
+            data: mockSubscriptions,
+          }),
+        });
+      }
+
+      if (url.includes("/api/v1/subscriptions/upcoming-renewals")) {
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({
+            success: true,
+            data: mockUpcomingRenewals,
+          }),
+        });
+      }
+    });
+
+    vi.stubGlobal("fetch", mockFetch);
+
+    render(<DashboardPage />);
+
+    expect(await screen.findByText("Netflix test")).toBeInTheDocument();
+
+    expect(screen.getByText(`"Movies and TV shows"`)).toBeInTheDocument();
   });
 });
