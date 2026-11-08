@@ -164,6 +164,29 @@ describe("Dashboard page", () => {
     expect(within(card!).getByText("$20.00")).toBeInTheDocument();
   });
 
+  it("Should display yearly projection correctly", async () => {
+    mockUser = { _id: "test-user-id", name: "testUser" };
+
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        success: true,
+        data: mockSubscriptions,
+      }),
+    });
+
+    vi.stubGlobal("fetch", mockFetch);
+
+    render(<DashboardPage />);
+
+    const heading = screen.getByText("Yearly projection");
+    const card = heading.parentElement?.parentElement;
+
+    expect(card).not.toBeNull();
+
+    expect(within(card!).getByText("$20.00")).toBeInTheDocument();
+  });
+
   it("Should display active subscriptions numbers correctly", async () => {
     mockUser = { _id: "test-user-id", name: "testUser" };
 
