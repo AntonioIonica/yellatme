@@ -141,7 +141,7 @@ describe("Dashboard page", () => {
     });
   });
 
-  it("Should display monthly spend correctly calcules", async () => {
+  it("Should display monthly spend correctly", async () => {
     mockUser = { _id: "test-user-id", name: "testUser" };
 
     const mockFetch = vi.fn().mockResolvedValue({
@@ -156,12 +156,34 @@ describe("Dashboard page", () => {
 
     render(<DashboardPage />);
 
-    await waitFor(() => {
-      expect(
-        document.querySelector('[data-slot="card-content"]'),
-      ).toHaveTextContent(
-        `$${mockSubscriptions.reduce((a, b) => a + +b.price, 0).toFixed(2)}`,
-      );
+    const heading = screen.getByText("Monthly spend");
+    const card = heading.parentElement?.parentElement;
+
+    expect(card).not.toBeNull();
+
+    expect(within(card!).getByText("$20.00")).toBeInTheDocument();
+  });
+
+  it("Should display active subscriptions numbers correctly", async () => {
+    mockUser = { _id: "test-user-id", name: "testUser" };
+
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        success: true,
+        data: mockSubscriptions,
+      }),
     });
+
+    vi.stubGlobal("fetch", mockFetch);
+
+    render(<DashboardPage />);
+
+    const heading = screen.getByText("Active subscriptions");
+    const card = heading.parentElement?.parentElement;
+
+    expect(card).not.toBeNull();
+
+    expect(within(card!).getByText("2")).toBeInTheDocument();
   });
 });
