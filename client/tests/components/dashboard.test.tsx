@@ -15,8 +15,8 @@ let mockSubscriptions = [
     category: "entertainment",
     paymentMethod: "Credit card",
     status: "active",
-    startDate: "2026-10-01",
-    renewalDate: "2026-11-08",
+    startDate: "2026-11-19",
+    renewalDate: "2026-11-26",
   },
   {
     _id: "sub-2",
@@ -29,8 +29,8 @@ let mockSubscriptions = [
     category: "technology",
     paymentMethod: "Credit card",
     status: "active",
-    startDate: "2026-10-01",
-    renewalDate: "2026-11-08",
+    startDate: "2026-11-19",
+    renewalDate: "2026-11-26",
   },
 ];
 
@@ -96,7 +96,7 @@ describe("Dashboard page", () => {
     });
   });
 
-  it("Should return valid subscriptions when logged in", async () => {
+  it("Should return all subscriptions when logged in", async () => {
     mockUser = { _id: "test-user-id", name: "testUser" };
 
     const mockFetch = vi.fn().mockResolvedValue({
@@ -119,7 +119,18 @@ describe("Dashboard page", () => {
     });
 
     await waitFor(() => {
+      expect(mockFetch).toHaveBeenCalledWith(
+        expect.stringContaining("/api/v1/subscriptions/upcoming-renewals"),
+        expect.objectContaining({ credentials: "include" }),
+      );
+    });
+
+    await waitFor(() => {
       expect(mockSetAllSubs).toHaveBeenCalledWith(mockSubscriptions);
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText("Netflix test")).toBeInTheDocument();
     });
   });
 });
