@@ -1,5 +1,12 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
-import { cleanup, render, screen, waitFor } from "@testing-library/react";
+import {
+  cleanup,
+  getByText,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import DashboardPage from "@/app/dashboard/page";
 import userEvent from "@testing-library/user-event";
 
@@ -131,6 +138,30 @@ describe("Dashboard page", () => {
 
     await waitFor(() => {
       expect(screen.getByText("Netflix test")).toBeInTheDocument();
+    });
+  });
+
+  it("Should display monthly spend correctly calcules", async () => {
+    mockUser = { _id: "test-user-id", name: "testUser" };
+
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        success: true,
+        data: mockSubscriptions,
+      }),
+    });
+
+    vi.stubGlobal("fetch", mockFetch);
+
+    render(<DashboardPage />);
+
+    await waitFor(() => {
+      expect(
+        document.querySelector('[data-slot="card-content"]'),
+      ).toHaveTextContent(
+        `$${mockSubscriptions.reduce((a, b) => a + +b.price, 0).toFixed(2)}`,
+      );
     });
   });
 });
