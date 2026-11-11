@@ -1,11 +1,5 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
-import {
-  cleanup,
-  render,
-  screen,
-  waitFor,
-  within,
-} from "@testing-library/react";
+import { cleanup, render, screen, within } from "@testing-library/react";
 import Calendar from "@/app/dashboard/calendar/page";
 import userEvent from "@testing-library/user-event";
 
@@ -37,19 +31,6 @@ let mockSubscriptions = [
     status: "active",
     startDate: "2026-11-19",
     renewalDate: "2026-11-26",
-  },
-];
-
-const mockUpcomingRenewals = [
-  {
-    ...mockSubscriptions[0],
-    renewalDate: "2026-11-16",
-    status: "active",
-  },
-  {
-    ...mockSubscriptions[1],
-    renewalDate: "2026-12-08",
-    status: "active",
   },
 ];
 
@@ -152,14 +133,12 @@ describe("Dashboard page", () => {
       },
     ];
 
-    const mockFetch = vi.fn().mockImplementation((url) => {
-      return Promise.resolve({
-        ok: true,
-        json: async () => ({
-          success: true,
-          data: mockDateSubscriptions,
-        }),
-      });
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        success: true,
+        data: mockDateSubscriptions,
+      }),
     });
 
     vi.stubGlobal("fetch", mockFetch);
@@ -167,7 +146,15 @@ describe("Dashboard page", () => {
     render(<Calendar />);
 
     // Active subscription should be present
-    expect(await screen.findByText("Netflix test")).toBeInTheDocument();
+    const dayCell = screen
+      .getByText("15", { selector: ".text-muted-foreground" })
+      .closest(".min-h-24") as HTMLElement | null;
+
+    expect(dayCell).not.toBeNull();
+
+    expect(
+      await within(dayCell!).findByText(mockSubscriptions[0].name),
+    ).toBeInTheDocument();
 
     // Cancelled subscription should not be present
     expect(screen.queryByText("Inactive subscription")).not.toBeInTheDocument();
@@ -262,5 +249,41 @@ describe("Dashboard page", () => {
     ).toBeInTheDocument();
   });
 
-  it("Should display current week ");
+  it("Should display subscriptions due this week", async () => {
+    mockUser = { _id: "test-user-id", name: "testUser" };
+    mockLoading = false;
+
+    const mockUpcomingSubscriptions = [
+      {
+        ...mockSubscriptions[0],
+        renewalDate: new Date(
+          new Date().getFullYear(),
+          new Date().getMonth(),
+          new Date().getDate() + 2,
+        ).toISOString(),
+      },
+    ];
+
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        success: true,
+        data: mockUpcomingSubscriptions,
+      }),
+    });
+
+    vi.stubGlobal("fetch", mockFetch);
+
+    render(<Calendar />);
+
+    const weekCard = screen
+      .getByText("This week")
+      .closest(".border-border") as HTMLElement | null;
+
+    expect(weekCard).not.toBeNull();
+
+    expect(
+      await within(weekCard!).findByText("Netflix test"),
+    ).toBeInTheDocument();
+  });
 });

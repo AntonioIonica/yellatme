@@ -105,7 +105,6 @@ const Calendar = () => {
         setDateSubs(
           result?.data?.filter((sub: Subscription) => sub.status === "active"),
         );
-        console.log("Date subs:", result.data);
       } catch (error) {
         toast.error("Something went wrong. Please try again.", {
           position: "top-center",
