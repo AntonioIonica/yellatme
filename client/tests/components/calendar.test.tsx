@@ -7,6 +7,7 @@ import {
   within,
 } from "@testing-library/react";
 import Calendar from "@/app/dashboard/calendar/page";
+import userEvent from "@testing-library/user-event";
 
 let mockSubscriptions = [
   {
@@ -180,5 +181,50 @@ describe("Dashboard page", () => {
 
     // Cancelled subscription should not be present
     expect(screen.queryByText("Inactive subscription")).not.toBeInTheDocument();
+  });
+
+  it("Should navigate between months", async () => {
+    const user = userEvent.setup();
+
+    mockUser = { _id: "test-user-id", name: "TestUser" };
+    mockLoading = false;
+
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        success: true,
+        data: [],
+      }),
+    });
+
+    render(<Calendar />);
+
+    const now = new Date();
+    const prevMonth = new Date(now.getFullYear(), now.getMonth() - 1);
+    const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1);
+
+    const buttons = screen.getAllByRole("button");
+
+    // Next month should be the second button
+    await user.click(buttons[1]);
+    expect(
+      screen.getByText(
+        `${nextMonth.toLocaleString("default", { month: "long" })} - ${nextMonth.getFullYear()}`,
+      ),
+    ).toBeInTheDocument();
+
+    await user.click(buttons[0]);
+    expect(
+      screen.getByText(
+        `${now.toLocaleString("default", { month: "long" })} - ${now.getFullYear()}`,
+      ),
+    ).toBeInTheDocument();
+
+    await user.click(buttons[0]);
+    expect(
+      screen.getByText(
+        `${prevMonth.toLocaleString("default", { month: "long" })} - ${prevMonth.getFullYear()}`,
+      ),
+    ).toBeInTheDocument();
   });
 });
