@@ -44,8 +44,6 @@ const Calendar = () => {
   const { user, loading, fetchUser } = useAuthStore();
   const router = useRouter();
 
-  const { allSubs, setAllSubs } = useSubscriptionStore();
-
   const firstDayOfMonth = new Date(currentYear, currentMonth, 1).getDay(); // parsing to set the format to 1st
   // to get the maximum number of days from the end of the month (+1 the next month but still the current (0))
   const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate(); // will return 28/29/30/31 in date format
@@ -119,33 +117,6 @@ const Calendar = () => {
 
     fetchSubsDate();
   }, [currentYear, currentMonth, user, daysInMonth]);
-
-  useEffect(() => {
-    if (!user) return;
-
-    const fetchAllSubs = async () => {
-      try {
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/subscriptions/analytics`,
-          { credentials: "include" },
-        );
-
-        const result = await res.json();
-
-        if (result.success) {
-          setAllSubs(result.data);
-        }
-      } catch (error) {
-        toast.error("Something went wrong. Please try again.", {
-          position: "top-center",
-          style: { fontWeight: 600 },
-          closeButton: true,
-        });
-      }
-    };
-
-    fetchAllSubs();
-  }, [user, setAllSubs]);
 
   useEffect(() => {
     fetchUser();
@@ -288,7 +259,7 @@ const Calendar = () => {
           <CardContent className="overflow-y-auto">
             <div className="space-y-3">
               {
-                getSubsByInterval(allSubs!, "currentWeek").map(
+                getSubsByInterval(dateSubs!, "currentWeek").map(
                   (subscription, index) => (
                     <div
                       key={index}
@@ -323,7 +294,7 @@ const Calendar = () => {
           <CardContent className="overflow-y-auto">
             <div className="space-y-3">
               {
-                getSubsByInterval(allSubs!, "next30Days").map(
+                getSubsByInterval(dateSubs!, "next30Days").map(
                   (subscription, index) => (
                     <div
                       key={index}

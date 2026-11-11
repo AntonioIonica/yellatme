@@ -153,16 +153,6 @@ describe("Dashboard page", () => {
     ];
 
     const mockFetch = vi.fn().mockImplementation((url) => {
-      if (url.includes("/api/v1/subscriptions/analytics")) {
-        return Promise.resolve({
-          ok: true,
-          json: async () => ({
-            success: true,
-            data: [],
-          }),
-        });
-      }
-
       return Promise.resolve({
         ok: true,
         json: async () => ({
@@ -271,4 +261,6 @@ describe("Dashboard page", () => {
       ),
     ).toBeInTheDocument();
   });
+
+  it("Should display current week ");
 });
