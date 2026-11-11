@@ -125,4 +125,60 @@ describe("Dashboard page", () => {
     // Navigation button
     expect(screen.getAllByRole("button")).toHaveLength(2);
   });
+
+  it("Should display active subscriptions on their renewal dates", async () => {
+    mockUser = { _id: "test-user-id", name: "testUser" };
+    mockLoading = false;
+
+    // 15 of current month and year
+    const renewalDate = new Date(
+      new Date().getFullYear(),
+      new Date().getMonth(),
+      15,
+    );
+
+    const mockDateSubscriptions = [
+      {
+        ...mockSubscriptions[0],
+        status: "active",
+        renewalDate: renewalDate.toISOString(),
+      },
+      {
+        ...mockSubscriptions[1],
+        name: "inactive subscription",
+        status: "cancelled",
+        renewalDate: renewalDate.toDateString(),
+      },
+    ];
+
+    const mockFetch = vi.fn().mockImplementation((url) => {
+      if (url.includes("/api/v1/subscriptions/analytics")) {
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({
+            success: true,
+            data: [],
+          }),
+        });
+      }
+
+      return Promise.resolve({
+        ok: true,
+        json: async () => ({
+          success: true,
+          data: mockDateSubscriptions,
+        }),
+      });
+    });
+
+    vi.stubGlobal("fetch", mockFetch);
+
+    render(<Calendar />);
+
+    // Active subscription should be present
+    expect(await screen.findByText("Netflix test")).toBeInTheDocument();
+
+    // Cancelled subscription should not be present
+    expect(screen.queryByText("Inactive subscription")).not.toBeInTheDocument();
+  });
 });
