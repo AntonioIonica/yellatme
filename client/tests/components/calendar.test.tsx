@@ -197,6 +197,8 @@ describe("Dashboard page", () => {
       }),
     });
 
+    vi.stubGlobal("fetch", mockFetch);
+
     render(<Calendar />);
 
     const now = new Date();
@@ -224,6 +226,48 @@ describe("Dashboard page", () => {
     expect(
       screen.getByText(
         `${prevMonth.toLocaleString("default", { month: "long" })} - ${prevMonth.getFullYear()}`,
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it("Should calculate the total cost of current month subscriptions", async () => {
+    mockUser = { _id: "test-user-id", name: "testUser" };
+    mockLoading = false;
+
+    const renewalDate = new Date(
+      new Date().getFullYear(),
+      new Date().getMonth(),
+      new Date().getDay() + 6,
+    );
+
+    const mockDateSubscriptions = [
+      {
+        ...mockSubscriptions[0],
+        renewalDate: renewalDate.toISOString(),
+        status: "active",
+      },
+      {
+        ...mockSubscriptions[1],
+        renewalDate: renewalDate.toDateString(),
+        status: "active",
+      },
+    ];
+
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        success: true,
+        data: mockDateSubscriptions,
+      }),
+    });
+
+    vi.stubGlobal("fetch", mockFetch);
+
+    render(<Calendar />);
+
+    expect(
+      await screen.findByText(
+        `$${mockDateSubscriptions.reduce((sum, curr) => sum + curr.price, 0).toFixed(2)} in payments`,
       ),
     ).toBeInTheDocument();
   });
