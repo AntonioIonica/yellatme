@@ -10,7 +10,10 @@ import {
 } from "@/components/ui/card";
 import { parseCurrency, getSubsByInterval } from "@/lib/utils";
 import { useAuthStore } from "@/store/useAuthStore";
-import { Subscription } from "@/store/useSubscriptionsStore";
+import {
+  Subscription,
+  useSubscriptionStore,
+} from "@/store/useSubscriptionsStore";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -33,9 +36,6 @@ export const randomColor = () => {
 };
 
 const Calendar = () => {
-  const [upcomingRenewals, setUpcomingRenewals] = useState<
-    Subscription[] | null
-  >([]);
   const [dateSubs, setDateSubs] = useState<Subscription[] | null>([]);
   const currentDate = new Date();
   const [currentMonth, setCurrentMonth] = useState(currentDate.getMonth());
@@ -43,6 +43,8 @@ const Calendar = () => {
 
   const { user, loading, fetchUser } = useAuthStore();
   const router = useRouter();
+
+  const { allSubs, setAllSubs } = useSubscriptionStore();
 
   const firstDayOfMonth = new Date(currentYear, currentMonth, 1).getDay(); // parsing to set the format to 1st
   // to get the maximum number of days from the end of the month (+1 the next month but still the current (0))
@@ -105,6 +107,7 @@ const Calendar = () => {
         setDateSubs(
           result?.data?.filter((sub: Subscription) => sub.status === "active"),
         );
+        console.log("Date subs:", result.data);
       } catch (error) {
         toast.error("Something went wrong. Please try again.", {
           position: "top-center",
@@ -112,23 +115,26 @@ const Calendar = () => {
           closeButton: true,
         });
       }
-
-      fetchSubsDate();
     };
-  }, [currentYear, currentMonth]);
+
+    fetchSubsDate();
+  }, [currentYear, currentMonth, user, daysInMonth]);
 
   useEffect(() => {
-    const fetchUpcomingRenewals = async () => {
+    if (!user) return;
+
+    const fetchAllSubs = async () => {
       try {
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/subscriptions/upcoming-renewals`,
-          {
-            credentials: "include",
-          },
+          `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/subscriptions/analytics`,
+          { credentials: "include" },
         );
 
         const result = await res.json();
-        setUpcomingRenewals(result.data);
+
+        if (result.success) {
+          setAllSubs(result.data);
+        }
       } catch (error) {
         toast.error("Something went wrong. Please try again.", {
           position: "top-center",
@@ -136,10 +142,10 @@ const Calendar = () => {
           closeButton: true,
         });
       }
-
-      fetchUpcomingRenewals();
     };
-  }, []);
+
+    fetchAllSubs();
+  }, [user, setAllSubs]);
 
   useEffect(() => {
     fetchUser();
@@ -282,7 +288,7 @@ const Calendar = () => {
           <CardContent className="overflow-y-auto">
             <div className="space-y-3">
               {
-                getSubsByInterval(upcomingRenewals!, "currentWeek").map(
+                getSubsByInterval(allSubs!, "currentWeek").map(
                   (subscription, index) => (
                     <div
                       key={index}
@@ -317,7 +323,7 @@ const Calendar = () => {
           <CardContent className="overflow-y-auto">
             <div className="space-y-3">
               {
-                getSubsByInterval(upcomingRenewals!, "next30Days").map(
+                getSubsByInterval(allSubs!, "next30Days").map(
                   (subscription, index) => (
                     <div
                       key={index}
