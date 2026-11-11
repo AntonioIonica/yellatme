@@ -1,0 +1,121 @@
+import { describe, it, expect, vi, afterEach } from "vitest";
+import {
+  cleanup,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
+import Calendar from "@/app/dashboard/calendar/page";
+
+let mockSubscriptions = [
+  {
+    _id: "sub-1",
+    user: "test-user-id",
+    name: "Netflix test",
+    description: "Movies and TV shows",
+    price: 12,
+    currency: "EUR",
+    frequency: "weekly",
+    category: "entertainment",
+    paymentMethod: "Credit card",
+    status: "active",
+    startDate: "2026-11-19",
+    renewalDate: "2026-11-26",
+  },
+  {
+    _id: "sub-2",
+    user: "test-user-id",
+    name: "Spotify test",
+    description: "Music streaming",
+    price: 8,
+    currency: "EUR",
+    frequency: "weekly",
+    category: "technology",
+    paymentMethod: "Credit card",
+    status: "active",
+    startDate: "2026-11-19",
+    renewalDate: "2026-11-26",
+  },
+];
+
+const mockUpcomingRenewals = [
+  {
+    ...mockSubscriptions[0],
+    renewalDate: "2026-11-16",
+    status: "active",
+  },
+  {
+    ...mockSubscriptions[1],
+    renewalDate: "2026-12-08",
+    status: "active",
+  },
+];
+
+let mockUser = null as any;
+let mockLoading = false;
+
+const {
+  mockRouterPush,
+  mockFetchUser,
+  mockSetSubscriptions,
+  mockEditSubscription,
+  mockDeleteSubscription,
+  mockSetAllSubs,
+} = vi.hoisted(() => ({
+  mockRouterPush: vi.fn(),
+  mockFetchUser: vi.fn(),
+  mockSetSubscriptions: vi.fn(),
+  mockEditSubscription: vi.fn(),
+  mockDeleteSubscription: vi.fn(),
+  mockSetAllSubs: vi.fn(),
+}));
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({
+    push: mockRouterPush,
+  }),
+}));
+
+vi.mock("@/store/useAuthStore", () => ({
+  useAuthStore: () => ({
+    fetchUser: mockFetchUser,
+    user: mockUser,
+    loading: mockLoading,
+  }),
+}));
+
+vi.mock("@/store/useSubscriptionsStore", () => ({
+  useSubscriptionStore: () => ({
+    subscriptions: mockSubscriptions,
+    setSubscriptions: mockSetSubscriptions,
+    editSubscription: mockEditSubscription,
+    deleteSubscription: mockDeleteSubscription,
+    allSubs: mockSubscriptions,
+    setAllSubs: mockSetAllSubs,
+  }),
+}));
+
+describe("Dashboard page", () => {
+  afterEach(() => {
+    cleanup();
+    vi.unstubAllGlobals();
+    vi.clearAllMocks();
+  });
+
+  it("Should render the calendar correctly", async () => {
+    mockUser = { _id: "test-user-id", name: "testUser" };
+    mockLoading = false;
+
+    render(<Calendar />);
+
+    const now = new Date();
+
+    // needing only month out of it - string wise
+    const monthName = now.toLocaleString("default", { month: "long" });
+
+    expect(
+      screen.getByText(`${monthName} - ${now.getFullYear()}`),
+    ).toBeInTheDocument();
+  });
+});

@@ -85,6 +85,8 @@ const Subscriptions = () => {
     setPagination,
     editSubscription,
     deleteSubscription,
+    allSubs,
+    setAllSubs,
   } = useSubscriptionStore();
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -103,6 +105,34 @@ const Subscriptions = () => {
   });
 
   const router = useRouter();
+
+  // All subs for total active
+  useEffect(() => {
+    if (!user) return;
+
+    const fetchAllSubs = async () => {
+      try {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/subscriptions/analytics`,
+          { credentials: "include" },
+        );
+
+        const result = await res.json();
+
+        if (result.success) {
+          setAllSubs(result.data);
+        }
+      } catch (error) {
+        toast.error("Something went wrong. Please try again.", {
+          position: "top-center",
+          style: { fontWeight: 600 },
+          closeButton: true,
+        });
+      }
+    };
+
+    fetchAllSubs();
+  }, [user, setAllSubs]);
 
   // Fetch subscriptions by pages
   useEffect(() => {
@@ -513,7 +543,7 @@ const Subscriptions = () => {
             <div className="text-sm text-muted-foreground">Total active</div>
             <div className="font-bold text-2xl mt-1">
               {
-                subscriptions.filter(
+                allSubs.filter(
                   (subscription) => subscription?.status === "active",
                 ).length as any
               }
@@ -527,7 +557,7 @@ const Subscriptions = () => {
             </div>
             <div className="font-bold text-2xl mt-1">
               {
-                getSubsByInterval(subscriptions, "next30Days").filter(
+                getSubsByInterval(allSubs, "next30Days").filter(
                   (sub) => sub.status === "active",
                 ).length as any
               }
