@@ -286,4 +286,42 @@ describe("Dashboard page", () => {
       await within(weekCard!).findByText("Netflix test"),
     ).toBeInTheDocument();
   });
+
+  it("Should display subscriptions due this week", async () => {
+    mockUser = { _id: "test-user-id", name: "testUser" };
+    mockLoading = false;
+
+    const mockUpcomingSubscriptions = [
+      {
+        ...mockSubscriptions[0],
+        renewalDate: new Date(
+          new Date().getFullYear(),
+          new Date().getMonth(),
+          new Date().getDate() + 12, // might fail if it passed half the month
+        ).toISOString(),
+      },
+    ];
+
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        success: true,
+        data: mockUpcomingSubscriptions,
+      }),
+    });
+
+    vi.stubGlobal("fetch", mockFetch);
+
+    render(<Calendar />);
+
+    const monthlyCard = screen
+      .getByText("Later this month")
+      .closest(".border-border") as HTMLElement | null;
+
+    expect(monthlyCard).not.toBeNull();
+
+    expect(
+      await within(monthlyCard!).findByText("Netflix test"),
+    ).toBeInTheDocument();
+  });
 });
