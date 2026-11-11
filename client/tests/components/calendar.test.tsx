@@ -85,6 +85,12 @@ describe("Dashboard page", () => {
     vi.clearAllMocks();
   });
 
+  it("Should redirect unauthenticated users to login page", async () => {
+    render(<Calendar />);
+
+    expect(mockRouterPush).toHaveBeenCalledWith("/login");
+  });
+
   it("Should render the calendar correctly", async () => {
     mockUser = { _id: "test-user-id", name: "testUser" };
     mockLoading = false;
