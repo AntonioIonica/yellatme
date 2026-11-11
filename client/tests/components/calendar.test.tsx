@@ -117,5 +117,12 @@ describe("Dashboard page", () => {
     expect(
       screen.getByText(`${monthName} - ${now.getFullYear()}`),
     ).toBeInTheDocument();
+
+    ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].forEach((day) => {
+      expect(screen.getByText(day)).toBeInTheDocument();
+    });
+
+    // Navigation button
+    expect(screen.getAllByRole("button")).toHaveLength(2);
   });
 });
