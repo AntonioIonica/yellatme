@@ -135,4 +135,46 @@ describe("Dashboard page", () => {
       expect(mockSetAllSubs).toHaveBeenCalledWith(mockSubscriptions);
     });
   });
+
+  it("Should display spending by categories", async () => {
+    mockUser = { _id: "test-user-id", name: "testUser" };
+    mockLoading = false;
+
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        success: true,
+        data: mockSubscriptions,
+      }),
+    });
+
+    vi.stubGlobal("fetch", mockFetch);
+
+    render(<Analytics />);
+
+    const entertainmentCategory = screen
+      .getByText("entertainment")
+      .closest(".space-y-1") as HTMLElement | null;
+
+    expect(
+      within(entertainmentCategory!).getByText(
+        `$${mockSubscriptions[0].price.toFixed(1)}`,
+      ),
+    ).toBeInTheDocument();
+
+    const technologyCategory = screen
+      .getByText("technology")
+      .closest(".space-y-1") as HTMLElement | null;
+
+    expect(
+      within(technologyCategory!).getByText(
+        `$${mockSubscriptions[1].price.toFixed(1)}`,
+      ),
+    ).toBeInTheDocument();
+
+    const financeCategory = screen
+      .getByText("finance")
+      .closest(".space-y-1") as HTMLElement | null;
+    expect(within(financeCategory!).getByText("$0.0")).toBeInTheDocument();
+  });
 });
