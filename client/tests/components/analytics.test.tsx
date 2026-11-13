@@ -42,11 +42,13 @@ let mockSubscriptions = [
 let mockUser = null as any;
 let mockLoading = false;
 
-const { mockRouterPush, mockFetchUser, mockSetAllSubs } = vi.hoisted(() => ({
-  mockRouterPush: vi.fn(),
-  mockFetchUser: vi.fn(),
-  mockSetAllSubs: vi.fn(),
-}));
+const { mockRouterPush, mockFetchUser, mockSetAllSubs, mockToastError } =
+  vi.hoisted(() => ({
+    mockRouterPush: vi.fn(),
+    mockFetchUser: vi.fn(),
+    mockToastError: vi.fn(),
+    mockSetAllSubs: vi.fn(),
+  }));
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({
@@ -68,6 +70,12 @@ vi.mock("@/store/useSubscriptionsStore", () => ({
     allSubs: mockSubscriptions,
     setAllSubs: mockSetAllSubs,
   }),
+}));
+
+vi.mock("sonner", () => ({
+  toast: {
+    error: mockToastError,
+  },
 }));
 
 vi.mock("recharts", () => ({
@@ -287,6 +295,24 @@ describe("Dashboard page", () => {
 
     await waitFor(() => {
       expect(mockSetAllSubs).not.toHaveBeenCalled();
+    });
+  });
+
+  it("Should handle server errors while fetching the subscriptions", async () => {
+    mockUser = { _id: "test-user-id", name: "testUser" };
+    mockLoading = false;
+
+    const mockFetch = vi.fn().mockRejectedValue(new Error("Network error"));
+
+    vi.stubGlobal("fetch", mockFetch);
+
+    render(<Analytics />);
+
+    await waitFor(() => {
+      expect(mockToastError).toHaveBeenCalledWith(
+        "Something went wrong. Please try again.",
+        expect.any(Object),
+      );
     });
   });
 });
