@@ -268,4 +268,25 @@ describe("Dashboard page", () => {
 
     expect(within(yearOverYear).getAllByText("$0.00")).toHaveLength(2);
   });
+
+  it("Should not update the analytics data when the response fails", async () => {
+    mockUser = { _id: "test-user-id", name: "testUser" };
+    mockLoading = false;
+
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        success: false,
+        data: [],
+      }),
+    });
+
+    vi.stubGlobal("fetch", mockFetch);
+
+    render(<Analytics />);
+
+    await waitFor(() => {
+      expect(mockSetAllSubs).not.toHaveBeenCalled();
+    });
+  });
 });
