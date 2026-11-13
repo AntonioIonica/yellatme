@@ -196,14 +196,67 @@ describe("Settings page", () => {
 
     await user.click(screen.getByRole("button", { name: /delete account/i }));
 
+    const dialog = screen.getByRole("dialog");
     expect(
-      screen.getByText("Are you sure you want to delete your account?"),
+      within(dialog).getByText("Are you sure you want to delete your account?"),
     ).toBeInTheDocument();
 
     expect(
-      screen.getByRole("button", { name: /delete account/i }),
+      within(dialog).getByRole("button", { name: /delete account/i }),
     ).toBeInTheDocument();
 
-    expect(screen.getByRole("button", { name: /cancel/i })).toBeInTheDocument();
+    expect(
+      within(dialog).getByRole("button", { name: /cancel/i }),
+    ).toBeInTheDocument();
+  });
+
+  it("Should delete account successfully", async () => {
+    mockUser = {
+      _id: "test-user-id",
+      name: "testUser",
+      plan: "pro",
+      subscriptionStatus: "active",
+      currentSubscriptionEnd: "2026-12-31",
+    };
+    mockLoading = false;
+
+    const user = userEvent.setup();
+
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        success: true,
+        message: "Account deleted successfully",
+        redirect: "/login",
+      }),
+    });
+
+    vi.stubGlobal("fetch", mockFetch);
+
+    render(<SettingsPage />);
+
+    await user.click(screen.getByRole("button", { name: "Delete account" }));
+
+    const dialog = screen.getByRole("dialog");
+    await user.click(
+      within(dialog).getByRole("button", { name: "Delete account" }),
+    );
+
+    await waitFor(() => {
+      expect(mockFetch).toHaveBeenCalledWith(
+        expect.stringContaining("/api/v1/users/test-user-id"),
+        expect.objectContaining({
+          method: "DELETE",
+          credentials: "include",
+        }),
+      );
+    });
+
+    expect(mockToastSuccess).toHaveBeenCalledWith(
+      "Account deleted successfully",
+      expect.any(Object),
+    );
+
+    expect(mockRouterPush).toHaveBeenCalledWith("/login");
   });
 });
