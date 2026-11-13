@@ -42,19 +42,9 @@ let mockSubscriptions = [
 let mockUser = null as any;
 let mockLoading = false;
 
-const {
-  mockRouterPush,
-  mockFetchUser,
-  mockSetSubscriptions,
-  mockEditSubscription,
-  mockDeleteSubscription,
-  mockSetAllSubs,
-} = vi.hoisted(() => ({
+const { mockRouterPush, mockFetchUser, mockSetAllSubs } = vi.hoisted(() => ({
   mockRouterPush: vi.fn(),
   mockFetchUser: vi.fn(),
-  mockSetSubscriptions: vi.fn(),
-  mockEditSubscription: vi.fn(),
-  mockDeleteSubscription: vi.fn(),
   mockSetAllSubs: vi.fn(),
 }));
 
@@ -75,9 +65,6 @@ vi.mock("@/store/useAuthStore", () => ({
 vi.mock("@/store/useSubscriptionsStore", () => ({
   useSubscriptionStore: () => ({
     subscriptions: mockSubscriptions,
-    setSubscriptions: mockSetSubscriptions,
-    editSubscription: mockEditSubscription,
-    deleteSubscription: mockDeleteSubscription,
     allSubs: mockSubscriptions,
     setAllSubs: mockSetAllSubs,
   }),
@@ -119,5 +106,33 @@ describe("Dashboard page", () => {
     expect(screen.getByText("Spending Trend")).toBeInTheDocument();
     expect(screen.getByText("By Category")).toBeInTheDocument();
     expect(screen.getByText("Year Over Year")).toBeInTheDocument();
+  });
+
+  it("Should fetch all subscriptions", async () => {
+    mockUser = { _id: "test-user-id", name: "testUser" };
+    mockLoading = false;
+
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        success: true,
+        data: mockSubscriptions,
+      }),
+    });
+
+    vi.stubGlobal("fetch", mockFetch);
+
+    render(<Analytics />);
+
+    await waitFor(() => {
+      expect(mockFetch).toHaveBeenCalledWith(
+        expect.stringContaining("/api/v1/subscriptions/analytics"),
+        expect.objectContaining({ credentials: "include" }),
+      );
+    });
+
+    await waitFor(() => {
+      expect(mockSetAllSubs).toHaveBeenCalledWith(mockSubscriptions);
+    });
   });
 });

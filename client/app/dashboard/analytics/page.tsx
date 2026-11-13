@@ -94,9 +94,9 @@ const Analytics = () => {
           closeButton: true,
         });
       }
-
-      fetchAllSubs();
     };
+
+    fetchAllSubs();
   }, [user, setAllSubs]);
 
   useEffect(() => {

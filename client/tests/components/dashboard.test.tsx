@@ -55,19 +55,9 @@ const mockUpcomingRenewals = [
 let mockUser = null as any;
 let mockLoading = false;
 
-const {
-  mockRouterPush,
-  mockFetchUser,
-  mockSetSubscriptions,
-  mockEditSubscription,
-  mockDeleteSubscription,
-  mockSetAllSubs,
-} = vi.hoisted(() => ({
+const { mockRouterPush, mockFetchUser, mockSetAllSubs } = vi.hoisted(() => ({
   mockRouterPush: vi.fn(),
   mockFetchUser: vi.fn(),
-  mockSetSubscriptions: vi.fn(),
-  mockEditSubscription: vi.fn(),
-  mockDeleteSubscription: vi.fn(),
   mockSetAllSubs: vi.fn(),
 }));
 
@@ -88,9 +78,6 @@ vi.mock("@/store/useAuthStore", () => ({
 vi.mock("@/store/useSubscriptionsStore", () => ({
   useSubscriptionStore: () => ({
     subscriptions: mockSubscriptions,
-    setSubscriptions: mockSetSubscriptions,
-    editSubscription: mockEditSubscription,
-    deleteSubscription: mockDeleteSubscription,
     allSubs: mockSubscriptions,
     setAllSubs: mockSetAllSubs,
   }),
