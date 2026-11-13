@@ -70,6 +70,17 @@ vi.mock("@/store/useSubscriptionsStore", () => ({
   }),
 }));
 
+vi.mock("recharts", () => ({
+  BarChart: ({ children, data }: any) => (
+    <div data-testid="bar-chart" data-chart={JSON.stringify(data)}>
+      {children}
+    </div>
+  ),
+  Bar: () => <div />,
+  XAxis: () => <div />,
+  YAxis: () => <div />,
+}));
+
 describe("Dashboard page", () => {
   afterEach(() => {
     cleanup();
@@ -176,5 +187,45 @@ describe("Dashboard page", () => {
       .getByText("finance")
       .closest(".space-y-1") as HTMLElement | null;
     expect(within(financeCategory!).getByText("$0.0")).toBeInTheDocument();
+  });
+
+  it("Should display correct data in the spending trend chart (by months)", async () => {
+    mockUser = { _id: "test-user-id", name: "testUser" };
+    mockLoading = false;
+
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        success: true,
+        data: mockSubscriptions,
+      }),
+    });
+
+    vi.stubGlobal("fetch", mockFetch);
+
+    render(<Analytics />);
+
+    // Tied to mocked recharts into bar charts
+    const chart = await screen.findByTestId("bar-chart");
+
+    const chartData = JSON.parse(chart.getAttribute("data-chart")!);
+
+    expect(chartData).toHaveLength(6);
+
+    const expectedTotal = mockSubscriptions.reduce(
+      (sum, sub) => sum + +sub.price,
+      0,
+    );
+
+    const subscriptionMonth = new Date(
+      mockSubscriptions[0].renewalDate,
+    ).toLocaleString("en-US", { month: "short", timeZone: "UTC" });
+
+    const matchingMonth = chartData.find(
+      (month: any) => month.month === subscriptionMonth,
+    );
+
+    expect(matchingMonth).toBeDefined();
+    expect(matchingMonth.total).toBe(expectedTotal);
   });
 });
