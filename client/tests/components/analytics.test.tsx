@@ -228,4 +228,44 @@ describe("Dashboard page", () => {
     expect(matchingMonth).toBeDefined();
     expect(matchingMonth.total).toBe(expectedTotal);
   });
+
+  it("Should display correct 'Year over year' spending data", async () => {
+    mockUser = { _id: "test-user-id", name: "testUser" };
+    mockLoading = false;
+
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        success: true,
+        data: mockSubscriptions,
+      }),
+    });
+
+    vi.stubGlobal("fetch", mockFetch);
+
+    render(<Analytics />);
+
+    const currentYear = new Date().getFullYear();
+    const previousYear = currentYear - 1;
+
+    const yearOverYear = screen
+      .getByText("Year Over Year")
+      .closest('[data-slot="card"]') as HTMLElement;
+
+    expect(
+      within(yearOverYear).getByText(`${previousYear} Total`),
+    ).toBeInTheDocument();
+
+    expect(
+      within(yearOverYear).getByText(`${currentYear} YTD`),
+    ).toBeInTheDocument();
+
+    expect(
+      within(yearOverYear).getByText("Projected " + currentYear),
+    ).toBeInTheDocument();
+
+    expect(within(yearOverYear).getByText("$20.00")).toBeInTheDocument();
+
+    expect(within(yearOverYear).getAllByText("$0.00")).toHaveLength(2);
+  });
 });
