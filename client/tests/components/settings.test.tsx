@@ -519,4 +519,32 @@ describe("Settings page", () => {
 
     expect(mockRouterPush).not.toHaveBeenCalledWith("/dashboard");
   });
+
+  it("Should display an error when Stripe checkout fails", async () => {
+    mockUser = {
+      _id: "test-user-id",
+      name: "testUser",
+      plan: "free",
+      subscriptionStatus: "expired",
+      freeTokens: 0,
+      currentSubscriptionEnd: null,
+    };
+
+    const user = userEvent.setup();
+
+    const mockFetch = vi.fn().mockRejectedValue(new Error("Network error"));
+
+    vi.stubGlobal("fetch", mockFetch);
+
+    render(<SettingsPage />);
+
+    await user.click(screen.getByRole("button", { name: /upgrade/i }));
+
+    await waitFor(() => {
+      expect(mockToastError).toHaveBeenCalledWith(
+        "Something went wrong. Please try again.",
+        expect.any(Object),
+      );
+    });
+  });
 });
