@@ -364,4 +364,49 @@ describe("Settings page", () => {
       { timeout: 1000 },
     );
   });
+
+  it("Should change user from pro plan to free plan successfully", async () => {
+    mockUser = {
+      _id: "test-user-id",
+      name: "testUser",
+      plan: "pro",
+      subscriptionStatus: "active",
+      currentSubscriptionEnd: "2026-12-31",
+    };
+
+    const user = userEvent.setup();
+
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        success: true,
+        message: "Plan changed successfully",
+      }),
+    });
+
+    vi.stubGlobal("fetch", mockFetch);
+
+    render(<SettingsPage />);
+
+    await user.click(screen.getByRole("button", { name: /manage plan/i }));
+
+    const dialog = screen.getByRole("dialog");
+    await user.click(
+      within(dialog).getByRole("button", { name: /confirm change/i }),
+    );
+
+    await waitFor(() => {
+      expect(mockFetch).toHaveBeenCalledWith(
+        expect.stringContaining("/api/v1/users/test-user-id/change-plan"),
+        expect.objectContaining({
+          credentials: "include",
+        }),
+      );
+    });
+
+    expect(mockToastSuccess).toHaveBeenCalledWith(
+      "Plan changed successfully",
+      expect.any(Object),
+    );
+  });
 });
