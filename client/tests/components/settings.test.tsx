@@ -451,4 +451,38 @@ describe("Settings page", () => {
 
     expect(mockRouterPush).not.toHaveBeenCalledWith("/dashboard");
   });
+
+  it("Should display an error when changing plans fails due to network failure", async () => {
+    mockUser = {
+      _id: "test-user-id",
+      name: "testUser",
+      plan: "pro",
+      subscriptionStatus: "active",
+      currentSubscriptionEnd: "2026-12-31",
+    };
+
+    const user = userEvent.setup();
+
+    const mockFetch = vi.fn().mockRejectedValue(new Error("Network error"));
+
+    vi.stubGlobal("fetch", mockFetch);
+
+    render(<SettingsPage />);
+
+    await user.click(screen.getByRole("button", { name: /manage plan/i }));
+
+    const dialog = screen.getByRole("dialog");
+    await user.click(
+      within(dialog).getByRole("button", { name: /confirm change/i }),
+    );
+
+    await waitFor(() => {
+      expect(mockToastError).toHaveBeenCalledWith(
+        "Something went wrong. Please try again.",
+        expect.any(Object),
+      );
+    });
+
+    expect(mockRouterPush).not.toHaveBeenCalledWith("/dashboard");
+  });
 });
