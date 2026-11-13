@@ -57,7 +57,6 @@ describe("Settings page", () => {
       freeTokens: 3,
       currentSubscriptionEnd: "2026-12-31",
     };
-    mockLoading = false;
 
     render(<SettingsPage />);
 
@@ -89,7 +88,6 @@ describe("Settings page", () => {
       subscriptionStatus: "active",
       currentSubscriptionEnd: "2026-12-31",
     };
-    mockLoading = false;
 
     const user = userEvent.setup();
 
@@ -148,7 +146,6 @@ describe("Settings page", () => {
       subscriptionStatus: "active",
       currentSubscriptionEnd: "2026-12-31",
     };
-    mockLoading = false;
 
     const user = userEvent.setup();
 
@@ -188,7 +185,6 @@ describe("Settings page", () => {
       subscriptionStatus: "active",
       currentSubscriptionEnd: "2026-12-31",
     };
-    mockLoading = false;
 
     const user = userEvent.setup();
 
@@ -218,7 +214,6 @@ describe("Settings page", () => {
       subscriptionStatus: "active",
       currentSubscriptionEnd: "2026-12-31",
     };
-    mockLoading = false;
 
     const user = userEvent.setup();
 
@@ -268,7 +263,6 @@ describe("Settings page", () => {
       subscriptionStatus: "active",
       currentSubscriptionEnd: "2026-12-31",
     };
-    mockLoading = false;
 
     const user = userEvent.setup();
 
@@ -297,5 +291,77 @@ describe("Settings page", () => {
     );
 
     expect(mockRouterPush).not.toHaveBeenCalledWith();
+  });
+
+  it("Should open the manage plan dialog when pro plan user", async () => {
+    mockUser = {
+      _id: "test-user-id",
+      name: "testUser",
+      plan: "pro",
+      subscriptionStatus: "active",
+      currentSubscriptionEnd: "2026-12-31",
+    };
+
+    const user = userEvent.setup();
+
+    render(<SettingsPage />);
+
+    await user.click(screen.getByRole("button", { name: /manage plan/i }));
+    const dialog = screen.getByRole("dialog");
+
+    expect(within(dialog).getByText("Switch to free plan")).toBeInTheDocument();
+
+    expect(
+      within(dialog).getByRole("button", { name: /confirm change/i }),
+    ).toBeInTheDocument();
+
+    expect(
+      within(dialog).getByRole("button", { name: /cancel/i }),
+    ).toBeInTheDocument();
+  });
+
+  it("Should redirect to Stripe pay when user is free and click manage plan", async () => {
+    mockUser = {
+      _id: "test-user-id",
+      name: "testUser",
+      plan: "free",
+      subscriptionStatus: "expired",
+      freeTokens: 0,
+      currentSubscriptionEnd: null,
+    };
+
+    const user = userEvent.setup();
+
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        url: "https://checkout.stripe.com/test-session",
+      }),
+    });
+
+    vi.stubGlobal("fetch", mockFetch);
+
+    render(<SettingsPage />);
+
+    await user.click(screen.getByRole("button", { name: /manage plan/i }));
+
+    await waitFor(() => {
+      expect(mockFetch).toHaveBeenCalledWith(
+        expect.stringContaining("/api/billing/checkout"),
+        expect.objectContaining({
+          method: "POST",
+          credentials: "include",
+        }),
+      );
+    });
+
+    await waitFor(
+      () => {
+        expect(mockRouterPush).toHaveBeenCalledWith(
+          "https://checkout.stripe.com/test-session",
+        );
+      },
+      { timeout: 1000 },
+    );
   });
 });
