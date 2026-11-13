@@ -293,6 +293,40 @@ describe("Settings page", () => {
     expect(mockRouterPush).not.toHaveBeenCalledWith();
   });
 
+  it("Should display an error when account deletion fails due to network failure", async () => {
+    mockUser = {
+      _id: "test-user-id",
+      name: "testUser",
+      plan: "pro",
+      subscriptionStatus: "active",
+      currentSubscriptionEnd: "2026-12-31",
+    };
+
+    const user = userEvent.setup();
+
+    const mockFetch = vi.fn().mockRejectedValue(new Error("Network error"));
+
+    vi.stubGlobal("fetch", mockFetch);
+
+    render(<SettingsPage />);
+
+    await user.click(screen.getByRole("button", { name: "Delete account" }));
+
+    const dialog = screen.getByRole("dialog");
+    await user.click(
+      within(dialog).getByRole("button", { name: "Delete account" }),
+    );
+
+    await waitFor(() => {
+      expect(mockToastError).toHaveBeenCalledWith(
+        "Something went wrong. Please try again.",
+        expect.any(Object),
+      );
+    });
+
+    expect(mockRouterPush).not.toHaveBeenCalled();
+  });
+
   it("Should open the manage plan dialog when pro plan user", async () => {
     mockUser = {
       _id: "test-user-id",
