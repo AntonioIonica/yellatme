@@ -408,5 +408,47 @@ describe("Settings page", () => {
       "Plan changed successfully",
       expect.any(Object),
     );
+
+    expect(mockRouterPush).toHaveBeenCalledWith("/dashboard");
+  });
+
+  it("Should display an error when changing from pro to free plan fails", async () => {
+    mockUser = {
+      _id: "test-user-id",
+      name: "testUser",
+      plan: "pro",
+      subscriptionStatus: "active",
+      currentSubscriptionEnd: "2026-12-31",
+    };
+
+    const user = userEvent.setup();
+
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        success: false,
+        error: "Failed to change plan",
+      }),
+    });
+
+    vi.stubGlobal("fetch", mockFetch);
+
+    render(<SettingsPage />);
+
+    await user.click(screen.getByRole("button", { name: /manage plan/i }));
+
+    const dialog = screen.getByRole("dialog");
+    await user.click(
+      within(dialog).getByRole("button", { name: /confirm change/i }),
+    );
+
+    await waitFor(() => {
+      expect(mockToastError).toHaveBeenCalledWith(
+        "Failed to change plan",
+        expect.any(Object),
+      );
+    });
+
+    expect(mockRouterPush).not.toHaveBeenCalledWith("/dashboard");
   });
 });
