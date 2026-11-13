@@ -139,4 +139,44 @@ describe("Settings page", () => {
       expect.any(Object),
     );
   });
+
+  it("Should display a toast error when updating profile fails", async () => {
+    mockUser = {
+      _id: "test-user-id",
+      name: "testUser",
+      plan: "pro",
+      subscriptionStatus: "active",
+      currentSubscriptionEnd: "2026-12-31",
+    };
+    mockLoading = false;
+
+    const user = userEvent.setup();
+
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        success: false,
+        error: "Failed to update user",
+      }),
+    });
+
+    vi.stubGlobal("fetch", mockFetch);
+
+    render(<SettingsPage />);
+
+    const nameInput = screen.getByLabelText("Name:");
+    await user.clear(nameInput);
+    await user.type(nameInput, "newUserName");
+
+    await user.click(screen.getByRole("button", { name: /save changes/i }));
+
+    await waitFor(() => {
+      expect(mockToastError).toHaveBeenCalledWith(
+        "Failed to update user",
+        expect.any(Object),
+      );
+    });
+
+    expect(mockFetchUser).toHaveBeenCalledTimes(1);
+  });
 });
