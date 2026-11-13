@@ -283,31 +283,39 @@ const SettingsPage = () => {
             </div>
             <Dialog>
               <DialogTrigger asChild>
-                <Button variant="outline">Manage plan</Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-md">
-                <DialogHeader>
-                  <DialogTitle className="font-normal text-lg">
-                    Switch to free plan
-                  </DialogTitle>
-                  <DialogDescription className="text-foreground font-semibold">
-                    Are you sure you want to cancel your subscription to get
-                    back to free plan?
-                  </DialogDescription>
-                </DialogHeader>
-                <DialogFooter className="flex justify-between items-center">
-                  <Button
-                    onClick={handleChangePlan}
-                    variant="default"
-                    className="font-bold text-lg"
-                  >
-                    Confirm change
+                {user?.plan === "pro" ? (
+                  <Button variant="outline">Manage plan</Button>
+                ) : (
+                  <Button variant="outline" onClick={handleSubscribe}>
+                    Manage plan
                   </Button>
-                  <DialogClose asChild>
-                    <Button type="button">Cancel</Button>
-                  </DialogClose>
-                </DialogFooter>
-              </DialogContent>
+                )}
+              </DialogTrigger>
+              {user?.plan === "pro" && (
+                <DialogContent className="max-w-md">
+                  <DialogHeader>
+                    <DialogTitle className="font-normal text-lg">
+                      Switch to free plan
+                    </DialogTitle>
+                    <DialogDescription className="text-foreground font-semibold">
+                      Are you sure you want to cancel your subscription to get
+                      back to free plan?
+                    </DialogDescription>
+                  </DialogHeader>
+                  <DialogFooter className="flex justify-between items-center">
+                    <Button
+                      onClick={handleChangePlan}
+                      variant="default"
+                      className="font-bold text-lg"
+                    >
+                      Confirm change
+                    </Button>
+                    <DialogClose asChild>
+                      <Button type="button">Cancel</Button>
+                    </DialogClose>
+                  </DialogFooter>
+                </DialogContent>
+              )}
             </Dialog>
           </div>
           <div className="space-y-3">
