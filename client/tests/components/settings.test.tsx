@@ -259,4 +259,43 @@ describe("Settings page", () => {
 
     expect(mockRouterPush).toHaveBeenCalledWith("/login");
   });
+
+  it("Should display an error when account deletion fails", async () => {
+    mockUser = {
+      _id: "test-user-id",
+      name: "testUser",
+      plan: "pro",
+      subscriptionStatus: "active",
+      currentSubscriptionEnd: "2026-12-31",
+    };
+    mockLoading = false;
+
+    const user = userEvent.setup();
+
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        success: false,
+        error: "Failed to delete account",
+      }),
+    });
+
+    vi.stubGlobal("fetch", mockFetch);
+
+    render(<SettingsPage />);
+
+    await user.click(screen.getByRole("button", { name: "Delete account" }));
+
+    const dialog = screen.getByRole("dialog");
+    await user.click(
+      within(dialog).getByRole("button", { name: "Delete account" }),
+    );
+
+    expect(mockToastError).toHaveBeenCalledWith(
+      "Failed to delete account",
+      expect.any(Object),
+    );
+
+    expect(mockRouterPush).not.toHaveBeenCalledWith();
+  });
 });
