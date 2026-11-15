@@ -42,7 +42,7 @@ app.use(
 app.use(express.urlencoded({ extended: false }));
 
 // Arcjet middleware - rate limiter
-if (NODE_ENV != "test") app.use(arcjetMiddleware);
+if (NODE_ENV !== "test") app.use(arcjetMiddleware);
 
 // Append the routes to the specific general route
 app.use("/api/v1/auth", authRouter);

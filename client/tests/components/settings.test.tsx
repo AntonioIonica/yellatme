@@ -48,6 +48,17 @@ describe("Settings page", () => {
     vi.clearAllMocks();
   });
 
+  it("Should redirect unauthenticated users to login", async () => {
+    mockUser = null;
+    mockLoading = false;
+
+    render(<SettingsPage />);
+
+    await waitFor(() => {
+      expect(mockRouterPush).toHaveBeenCalledWith("/login");
+    });
+  });
+
   it("Should render settings page correctly", async () => {
     mockUser = {
       _id: "test-user-id",
