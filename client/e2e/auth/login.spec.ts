@@ -27,5 +27,7 @@ test("Should fail login when fields are empty", async ({ page }) => {
 
   await page.getByRole("button", { name: "Submit" }).click();
 
+  await expect(page.getByLabel("Email:")).toBeFocused();
+
   await expect(page).toHaveURL(/\/login/);
 });
