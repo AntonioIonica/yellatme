@@ -21,3 +21,11 @@ test("Should fail login when incorrect password", async ({ page }) => {
 
   await expect(page).toHaveURL(/\/login/);
 });
+
+test("Should fail login when fields are empty", async ({ page }) => {
+  await page.goto("/login");
+
+  await page.getByRole("button", { name: "Submit" }).click();
+
+  await expect(page).toHaveURL(/\/login/);
+});

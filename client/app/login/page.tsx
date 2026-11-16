@@ -92,6 +92,7 @@ const Login = () => {
             type="email"
             placeholder="name@gmail.com"
             className="text-lg pl-1 rounded-sm"
+            required
           />
 
           <label className="text-xl font-bold" htmlFor="password">
@@ -102,6 +103,7 @@ const Login = () => {
             name="password"
             id="password"
             className="text-lg pl-1 rounded-sm"
+            required
           />
 
           <Button className="mt-6 text-xl hover:cursor-pointer" type="submit">
