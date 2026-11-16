@@ -20,6 +20,13 @@ const port = process.env.PORT || PORT;
 dns.setServers(["8.8.8.8", "1.1.1.1"]); // Google + Cloudflare
 const app = express();
 
+app.get("/health-check", (req, res) => {
+  res.status(200).json({
+    status: "ok",
+    message: "Server is running",
+  });
+});
+
 app.set("trust proxy", true); // so arcjet will se the true IP
 
 // Before parsing as json because needs to be raw body for stripe

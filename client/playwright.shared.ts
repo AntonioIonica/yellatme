@@ -62,8 +62,8 @@ export const createPlaywrightConfig = (bypassAuth: boolean, testDir: string) =>
 
       /* Test against branded browsers. */
       // {
-      //   name: 'Microsoft Edge',
-      //   use: { ...devices['Desktop Edge'], channel: 'msedge' },
+      //   name: "Microsoft Edge",
+      //   use: { ...devices["Desktop Edge"], channel: "msedge" },
       // },
       // {
       //   name: 'Google Chrome',
@@ -82,9 +82,10 @@ export const createPlaywrightConfig = (bypassAuth: boolean, testDir: string) =>
       {
         command: "npm run dev",
         cwd: "../server",
-        url: "http://localhost:5500",
+        url: "http://localhost:5500/health-check",
         reuseExistingServer: !process.env.CI,
         timeout: 120_000,
+        ignoreHTTPSErrors: true,
         env: {
           ...process.env,
           NODE_ENV: "test",
