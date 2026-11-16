@@ -109,6 +109,7 @@ const SignUp = () => {
             id="name"
             name="name"
             type="text"
+            required
           />
 
           <label className="text-xl font-bold" htmlFor="email">
@@ -119,6 +120,7 @@ const SignUp = () => {
             type="email"
             name="email"
             id="email"
+            required
           />
 
           <label className="text-xl font-bold" htmlFor="password">
@@ -129,6 +131,7 @@ const SignUp = () => {
             type="password"
             name="password"
             id="password"
+            required
           />
 
           <label className="text-xl font-bold" htmlFor="confirmPassword">
@@ -139,6 +142,7 @@ const SignUp = () => {
             type="password"
             name="confirmPassword"
             id="confirmPassword"
+            required
           />
 
           <Button className="text-xl hover:cursor-pointer" type="submit">
