@@ -46,11 +46,17 @@ const SignUp = () => {
         },
       );
 
-      if (!res.ok) {
-        throw new Error("Failed request!");
-      }
-
       const result = await res.json();
+
+      if (!res.ok) {
+        toast.error(result.error || "Something went wrong. Please try again.", {
+          position: "top-center",
+          style: { fontWeight: 600 },
+          closeButton: true,
+        });
+
+        return;
+      }
 
       if (result.success) {
         toast.success(result.message, {
