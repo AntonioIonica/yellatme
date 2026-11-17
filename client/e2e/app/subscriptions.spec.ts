@@ -91,3 +91,26 @@ test("Should filter subscriptions by sort", async ({ page }) => {
   await responsePromise;
   await expect(page.getByText("No subscriptions found!")).toBeVisible();
 });
+
+test("Should add a subscriptions successfully", async ({ page }) => {
+  await page.goto("/dashboard/subscriptions");
+
+  await page.getByRole("button", { name: "Add subscription" }).click();
+
+  await expect(page.getByRole("dialog")).toBeVisible();
+
+  await expect(
+    page.getByRole("heading", { name: "Add new subscription" }),
+  ).toBeVisible();
+
+  await page.getByLabel("Subscription name:*").fill("Spotify");
+  await page.getByLabel("Subscription description:").fill("Music streaming");
+  await page.getByLabel("Price:*").fill("10");
+  await page.getByLabel("Payment method:*").fill("Credit card");
+
+  await page.getByRole("button", { name: "Create subscription" }).click();
+
+  await expect(
+    page.getByText(`Subscription Spotify was added to your collection!`),
+  ).toBeVisible();
+});
