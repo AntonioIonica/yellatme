@@ -10,10 +10,7 @@ import {
 } from "@/components/ui/card";
 import { parseCurrency, getSubsByInterval } from "@/lib/utils";
 import { useAuthStore } from "@/store/useAuthStore";
-import {
-  Subscription,
-  useSubscriptionStore,
-} from "@/store/useSubscriptionsStore";
+import { Subscription } from "@/store/useSubscriptionsStore";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";

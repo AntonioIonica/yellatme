@@ -37,3 +37,15 @@ test("Should allow users to search subscriptions", async ({ page }) => {
 
   await expect(searchInput).toHaveValue("Netflix");
 });
+
+test("Should display an empty state when no subscriptions match the search", async ({
+  page,
+}) => {
+  await page.goto("/dashboard/subscriptions");
+
+  await page
+    .getByPlaceholder("Search subscriptions...")
+    .fill("Non existing subscriptions");
+
+  await expect(page.getByText("No subscriptions found!")).toBeVisible();
+});
