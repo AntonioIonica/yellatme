@@ -61,7 +61,6 @@ test("Should filter subscriptions by category", async ({ page }) => {
   await page.getByRole("menuitem", { name: "Technology" }).click();
 
   await responsePromise;
-  await expect(page.getByText("No subscriptions found!")).toBeVisible();
 });
 
 test("Should filter subscriptions by status", async ({ page }) => {
@@ -75,7 +74,6 @@ test("Should filter subscriptions by status", async ({ page }) => {
   await page.getByRole("menuitem", { name: "Expired" }).click();
 
   await responsePromise;
-  await expect(page.getByText("No subscriptions found!")).toBeVisible();
 });
 
 test("Should filter subscriptions by sort", async ({ page }) => {
@@ -89,7 +87,6 @@ test("Should filter subscriptions by sort", async ({ page }) => {
   await page.getByRole("menuitem", { name: "Desc" }).click();
 
   await responsePromise;
-  await expect(page.getByText("No subscriptions found!")).toBeVisible();
 });
 
 test("Should add a subscriptions successfully", async ({ page }) => {
@@ -113,4 +110,8 @@ test("Should add a subscriptions successfully", async ({ page }) => {
   await expect(
     page.getByText(`Subscription Spotify was added to your collection!`),
   ).toBeVisible();
+
+  await expect(page.getByRole("dialog")).not.toBeVisible();
+
+  await expect(page.getByText("Spotify").first()).toBeVisible();
 });

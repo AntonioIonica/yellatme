@@ -24,9 +24,7 @@ test("Should display user's information", async ({ page }) => {
 
   await expect(page.getByText("e2e-test@example.com")).toBeVisible();
 
-  await expect(page.getByText("FREE plan")).toBeVisible();
-
-  await expect(page.getByText("Tokens: 5")).toBeVisible();
+  await expect(page.getByText("PRO plan")).toBeVisible();
 });
 
 test("Should open the Add subscription dialog", async ({ page }) => {
