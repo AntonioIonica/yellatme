@@ -56,3 +56,27 @@ test("Should navigate to subscriptions page", async ({ page }) => {
 
   await expect(page).toHaveURL(/\/dashboard\/subscriptions/);
 });
+
+test("Should navigate to calendar page", async ({ page }) => {
+  await page.goto("/dashboard");
+
+  await page.getByRole("link", { name: "Calendar" }).click();
+
+  await expect(page).toHaveURL(/\/dashboard\/calendar/);
+});
+
+test("Should navigate to analytics page", async ({ page }) => {
+  await page.goto("/dashboard");
+
+  await page.getByRole("link", { name: "Analytics" }).click();
+
+  await expect(page).toHaveURL(/\/dashboard\/analytics/);
+});
+
+test("Should navigate to settings", async ({ page }) => {
+  await page.goto("/dashboard");
+
+  await page.getByRole("link", { name: "Settings" }).click();
+
+  await expect(page).toHaveURL(/\/dashboard\/settings/);
+});
