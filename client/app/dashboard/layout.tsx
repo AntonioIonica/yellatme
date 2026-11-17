@@ -123,14 +123,14 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
                     <Logo />
                   </div>
                   <div className="leading-non flex items-center justify-between space-x-4">
-                    {user?.plan.toLowerCase() == "free" ? (
+                    {user?.plan?.toLowerCase() == "free" ? (
                       <span className="font-light">
                         Tokens: {+user?.freeTokens}
                       </span>
                     ) : (
                       ""
                     )}
-                    <span>{user?.plan.toUpperCase().concat(" plan")}</span>
+                    <span>{user?.plan?.toUpperCase().concat(" plan")}</span>
                   </div>
                 </Link>
               </SidebarMenuButton>
@@ -192,7 +192,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
                     <Avatar className="size-8">
                       <AvatarFallback className="bg-accent text-accent-foreground">
                         {/* User Name  */}
-                        {user?.name.substring(0, 1).toUpperCase()}
+                        {user?.name?.substring(0, 1).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex flex-col gap-1 leading-none">

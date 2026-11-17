@@ -50,3 +50,9 @@ test("Should log out a user successfully", async ({ page }) => {
 
   await expect(page).toHaveURL("/login");
 });
+
+test("Should redirect unauthenticated users to login", async ({ page }) => {
+  await page.goto("/login");
+
+  await expect(page).toHaveURL(/\/login/);
+});

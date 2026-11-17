@@ -7,10 +7,23 @@ const authorize = async (req, res, next) => {
   try {
     // Running tests
     if (NODE_ENV === "test" && BYPASS_AUTH_FOR_TESTS === "true") {
-      req.user = {
-        _id: "6a60510cc3b6a3d358ec44fd",
-      };
-      return next();
+      try {
+        const user = await User.findById("6a60510cc3b6a3d358ec44fd").select(
+          "-password",
+        );
+
+        if (!user) {
+          return res.status(401).json({
+            success: false,
+            error: "Test user not found",
+          });
+        }
+
+        req.user = user;
+        return next();
+      } catch (error) {
+        return next(error);
+      }
     }
 
     const token =
