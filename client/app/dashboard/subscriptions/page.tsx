@@ -59,7 +59,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { format } from "date-fns";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { SubmitEventHandler, useEffect, useMemo, useState } from "react";
 import { DateRange } from "react-day-picker";
 import { toast } from "sonner";
@@ -105,6 +105,28 @@ const Subscriptions = () => {
   });
 
   const router = useRouter();
+  // current pathname url
+  const pathname = usePathname();
+  // URLSearchParams
+  const searchParams = useSearchParams();
+
+  // when filters are choosen it updates the query params URL
+  const updateQueryParams = (key: string, value: string | null) => {
+    const params = new URLSearchParams(searchParams.toString());
+
+    // value !== null when any filter is choosen
+    if (value) {
+      params.set(key, value);
+    } else {
+      params.delete(key);
+    }
+
+    const queryString = params.toString();
+
+    router.replace(queryString ? `${pathname}?${queryString}` : pathname, {
+      scroll: false,
+    });
+  };
 
   // All subs for total active
   useEffect(() => {
@@ -381,6 +403,7 @@ const Subscriptions = () => {
                 onSelect={() => {
                   setCurrentPage(1);
                   setCategory("technology");
+                  updateQueryParams("category", "technology");
                 }}
               >
                 Technology
@@ -389,6 +412,7 @@ const Subscriptions = () => {
                 onSelect={() => {
                   setCurrentPage(1);
                   setCategory("auto");
+                  updateQueryParams("category", "auto");
                 }}
               >
                 Auto
@@ -397,6 +421,7 @@ const Subscriptions = () => {
                 onSelect={() => {
                   setCurrentPage(1);
                   setCategory("lifestyle");
+                  updateQueryParams("category", "lifestyle");
                 }}
               >
                 Lifestyle
@@ -405,6 +430,7 @@ const Subscriptions = () => {
                 onSelect={() => {
                   setCurrentPage(1);
                   setCategory("entertainment");
+                  updateQueryParams("category", "entertainment");
                 }}
               >
                 Entertainment
@@ -413,6 +439,7 @@ const Subscriptions = () => {
                 onSelect={() => {
                   setCurrentPage(1);
                   setCategory("finance");
+                  updateQueryParams("category", "finance");
                 }}
               >
                 Finance
@@ -421,6 +448,7 @@ const Subscriptions = () => {
                 onSelect={() => {
                   setCurrentPage(1);
                   setCategory("house");
+                  updateQueryParams("category", "house");
                 }}
               >
                 House
@@ -429,6 +457,7 @@ const Subscriptions = () => {
                 onSelect={() => {
                   setCurrentPage(1);
                   setCategory("work");
+                  updateQueryParams("category", "work");
                 }}
               >
                 Work
@@ -437,6 +466,7 @@ const Subscriptions = () => {
                 onSelect={() => {
                   setCurrentPage(1);
                   setCategory("garden");
+                  updateQueryParams("category", "garden");
                 }}
               >
                 Garden
@@ -445,6 +475,7 @@ const Subscriptions = () => {
                 onSelect={() => {
                   setCurrentPage(1);
                   setCategory("tools");
+                  updateQueryParams("category", "tools");
                 }}
               >
                 Tools
@@ -453,6 +484,7 @@ const Subscriptions = () => {
                 onSelect={() => {
                   setCurrentPage(1);
                   setCategory("other");
+                  updateQueryParams("category", "other");
                 }}
               >
                 Others
@@ -473,6 +505,7 @@ const Subscriptions = () => {
                 onSelect={() => {
                   setCurrentPage(1);
                   setStatus("active");
+                  updateQueryParams("status", "active");
                 }}
               >
                 Active
@@ -481,6 +514,7 @@ const Subscriptions = () => {
                 onSelect={() => {
                   setCurrentPage(1);
                   setStatus("expired");
+                  updateQueryParams("status", "expired");
                 }}
               >
                 Expired
@@ -489,6 +523,7 @@ const Subscriptions = () => {
                 onSelect={() => {
                   setCurrentPage(1);
                   setStatus("cancelled");
+                  updateQueryParams("status", "cancelled");
                 }}
               >
                 Cancelled
@@ -509,6 +544,7 @@ const Subscriptions = () => {
                 onSelect={() => {
                   setCurrentPage(1);
                   setSortDir("asc");
+                  updateQueryParams("sort", "asc");
                 }}
               >
                 Asc
@@ -517,6 +553,7 @@ const Subscriptions = () => {
                 onSelect={() => {
                   setCurrentPage(1);
                   setSortDir("desc");
+                  updateQueryParams("sort", "desc");
                 }}
               >
                 Desc
@@ -954,6 +991,10 @@ const Subscriptions = () => {
               disabled={!pagination.hasPreviousPage}
               onClick={() => {
                 setCurrentPage((page) => page - 1);
+                updateQueryParams(
+                  "page",
+                  (pagination.currentPage - 1).toString(),
+                );
               }}
             >
               Previous
@@ -965,6 +1006,10 @@ const Subscriptions = () => {
               disabled={!pagination.hasNextPage}
               onClick={() => {
                 setCurrentPage((page) => page + 1);
+                updateQueryParams(
+                  "page",
+                  (pagination.currentPage + 1).toString(),
+                );
               }}
             >
               Next
