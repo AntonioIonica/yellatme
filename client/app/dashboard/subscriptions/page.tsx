@@ -78,32 +78,6 @@ function debounce(func: any) {
 }
 
 const Subscriptions = () => {
-  const {
-    subscriptions,
-    pagination,
-    setSubscriptions,
-    setPagination,
-    editSubscription,
-    deleteSubscription,
-    allSubs,
-    setAllSubs,
-  } = useSubscriptionStore();
-
-  const [currentPage, setCurrentPage] = useState(1);
-  const { user, loading, fetchUser } = useAuthStore();
-
-  const [searchBar, setSearchBar] = useState<string>();
-  const [category, setCategory] = useState<string>();
-  const [status, setStatus] = useState<string>();
-  const [sortDir, setSortDir] = useState<string>();
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [selectedSub, setSelectedSub] = useState<Subscription | null>(null);
-  const [formData, setFormData] = useState<Subscription | null>(null);
-  const [date, setDate] = useState<DateRange | undefined>({
-    from: null!,
-    to: null!,
-  });
-
   const router = useRouter();
   // current pathname url
   const pathname = usePathname();
@@ -127,6 +101,38 @@ const Subscriptions = () => {
       scroll: false,
     });
   };
+
+  const {
+    subscriptions,
+    pagination,
+    setSubscriptions,
+    setPagination,
+    editSubscription,
+    deleteSubscription,
+    allSubs,
+    setAllSubs,
+  } = useSubscriptionStore();
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const { user, loading, fetchUser } = useAuthStore();
+
+  const [searchBar, setSearchBar] = useState<string>();
+  const [category, setCategory] = useState<string | undefined>(
+    searchParams.get("category") || undefined,
+  );
+  const [status, setStatus] = useState<string | undefined>(
+    searchParams.get("status") || undefined,
+  );
+  const [sortDir, setSortDir] = useState<string | undefined>(
+    searchParams.get("sort") || undefined,
+  );
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [selectedSub, setSelectedSub] = useState<Subscription | null>(null);
+  const [formData, setFormData] = useState<Subscription | null>(null);
+  const [date, setDate] = useState<DateRange | undefined>({
+    from: null!,
+    to: null!,
+  });
 
   // All subs for total active
   useEffect(() => {
