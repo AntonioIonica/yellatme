@@ -49,3 +49,33 @@ test("Should display an empty state when no subscriptions match the search", asy
 
   await expect(page.getByText("No subscriptions found!")).toBeVisible();
 });
+
+test("Should filter subscriptions by category", async ({ page }) => {
+  await page.goto("/dashboard/subscriptions");
+
+  await page.getByRole("button", { name: "Category" }).click();
+
+  await page.getByRole("menuitem", { name: "Technology" }).click();
+
+  await expect(page.getByText("No subscriptions found!")).toBeVisible();
+});
+
+test("Should filter subscriptions by status", async ({ page }) => {
+  await page.goto("/dashboard/subscriptions");
+
+  await page.getByRole("button", { name: "Status" }).click();
+
+  await page.getByRole("menuitem", { name: "Expired" }).click();
+
+  await expect(page.getByText("No subscriptions found!")).toBeVisible();
+});
+
+test("Should filter subscriptions by sort", async ({ page }) => {
+  await page.goto("/dashboard/subscriptions");
+
+  await page.getByRole("button", { name: "Sort" }).click();
+
+  await page.getByRole("menuitem", { name: "Desc" }).click();
+
+  await expect(page.getByText("No subscriptions found!")).toBeVisible();
+});
