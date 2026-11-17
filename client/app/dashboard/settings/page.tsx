@@ -43,7 +43,7 @@ const planFeatures = {
 };
 
 const SettingsPage = () => {
-  const { user, loading, fetchUser } = useAuthStore();
+  const { user, loading, fetchUser, clearUser } = useAuthStore();
   const router = useRouter();
 
   useEffect(() => {
@@ -101,6 +101,32 @@ const SettingsPage = () => {
     }
 
     return null;
+  };
+
+  const handleLogout = async () => {
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/auth/sign-out`,
+        {
+          credentials: "include",
+        },
+      );
+
+      const result = await res.json();
+
+      if (result.success) {
+        clearUser();
+        toast.info(result.message, {
+          position: "top-center",
+          style: { fontWeight: 600 },
+          closeButton: true,
+        });
+
+        router.push("/");
+      }
+    } catch (error) {
+      console.error("GET (signout) network failure: ", error);
+    }
   };
 
   const handleUpdateUser: SubmitEventHandler<HTMLFormElement> = async (e) => {
@@ -216,8 +242,11 @@ const SettingsPage = () => {
           <CardTitle>Profile</CardTitle>
           <CardDescription>Manage your account</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
-          <form className="flex flex-col gap-6" onSubmit={handleUpdateUser}>
+        <CardContent className="space-y-6 flex justify-between">
+          <form
+            className="flex flex-col gap-6 w-2xl"
+            onSubmit={handleUpdateUser}
+          >
             <div className="flex flex-col gap-4">
               <div className="space-y-2">
                 <Label htmlFor="name">Name: </Label>
@@ -244,6 +273,9 @@ const SettingsPage = () => {
               <Button type="submit">Save changes</Button>
             </div>
           </form>
+          <div className="flex justify-center items-end mb-6">
+            <Button onClick={handleLogout}>Logout</Button>
+          </div>
         </CardContent>
       </Card>
 

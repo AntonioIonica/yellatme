@@ -65,7 +65,7 @@ test("Should fail register when email is in use", async ({ page }) => {
   await expect(page).toHaveURL(/\/sign-up/);
 });
 
-test("Should fail register when emtpy fields", async ({ page }) => {
+test("Should fail register when empty fields", async ({ page }) => {
   await page.goto("/sign-up");
 
   await page.getByRole("button", { name: "Submit" }).click();
