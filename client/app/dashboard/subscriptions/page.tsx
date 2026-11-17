@@ -79,12 +79,10 @@ function debounce(func: any) {
 
 const Subscriptions = () => {
   const router = useRouter();
-  // current pathname url
   const pathname = usePathname();
-  // URLSearchParams
   const searchParams = useSearchParams();
 
-  // when filters are choosen it updates the query params URL
+  // when filters are choosen it updates the URL
   const updateQueryParams = (key: string, value: string | null) => {
     const params = new URLSearchParams(searchParams.toString());
 
@@ -124,7 +122,7 @@ const Subscriptions = () => {
     searchParams.get("status") || undefined,
   );
   const [sortDir, setSortDir] = useState<string | undefined>(
-    searchParams.get("sort") || undefined,
+    searchParams.get("sortDir") || undefined,
   );
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedSub, setSelectedSub] = useState<Subscription | null>(null);
@@ -161,6 +159,12 @@ const Subscriptions = () => {
 
     fetchAllSubs();
   }, [user, setAllSubs]);
+
+  useEffect(() => {
+    setCategory(searchParams.get("category") || undefined);
+    setStatus(searchParams.get("status") || undefined);
+    setSortDir(searchParams.get("sort") || undefined);
+  }, [searchParams]);
 
   // Fetch subscriptions by pages
   useEffect(() => {
@@ -550,7 +554,7 @@ const Subscriptions = () => {
                 onSelect={() => {
                   setCurrentPage(1);
                   setSortDir("asc");
-                  updateQueryParams("sort", "asc");
+                  updateQueryParams("sortDir", "asc");
                 }}
               >
                 Asc
@@ -559,7 +563,7 @@ const Subscriptions = () => {
                 onSelect={() => {
                   setCurrentPage(1);
                   setSortDir("desc");
-                  updateQueryParams("sort", "desc");
+                  updateQueryParams("sortDir", "desc");
                 }}
               >
                 Desc
