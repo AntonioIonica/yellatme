@@ -57,7 +57,13 @@ test("Should filter subscriptions by category", async ({ page }) => {
 
   await page.getByRole("menuitem", { name: "Technology" }).click();
 
+  const responsePromise = page.waitForResponse((response) =>
+    response.url().includes("category=technology"),
+  );
+
   await expect(page.getByText("No subscriptions found!")).toBeVisible();
+
+  await responsePromise;
 });
 
 test("Should filter subscriptions by status", async ({ page }) => {
@@ -67,7 +73,13 @@ test("Should filter subscriptions by status", async ({ page }) => {
 
   await page.getByRole("menuitem", { name: "Expired" }).click();
 
+  const responsePromise = page.waitForResponse((response) =>
+    response.url().includes("status=expired"),
+  );
+
   await expect(page.getByText("No subscriptions found!")).toBeVisible();
+
+  await responsePromise;
 });
 
 test("Should filter subscriptions by sort", async ({ page }) => {
@@ -77,5 +89,11 @@ test("Should filter subscriptions by sort", async ({ page }) => {
 
   await page.getByRole("menuitem", { name: "Desc" }).click();
 
+  const responsePromise = page.waitForResponse((response) =>
+    response.url().includes("sort=desc"),
+  );
+
   await expect(page.getByText("No subscriptions found!")).toBeVisible();
+
+  await responsePromise;
 });
