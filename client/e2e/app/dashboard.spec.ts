@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 
-test("Should display the dashboard correctly", async ({ page }) => {
+test("Should display the dashboard page correctly", async ({ page }) => {
   await page.goto("/dashboard");
 
   await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
