@@ -48,3 +48,11 @@ test("Should close the Add subscription dialog", async ({ page }) => {
 
   await expect(page.getByRole("dialog")).not.toBeVisible();
 });
+
+test("Should navigate to subscriptions page", async ({ page }) => {
+  await page.goto("/dashboard");
+
+  await page.getByRole("link", { name: "Subscriptions" }).click();
+
+  await expect(page).toHaveURL(/\/dashboard\/subscriptions/);
+});
