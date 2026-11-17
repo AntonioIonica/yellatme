@@ -36,3 +36,15 @@ test("Should open the Add subscription dialog", async ({ page }) => {
 
   await expect(page.getByRole("dialog")).toBeVisible();
 });
+
+test("Should close the Add subscription dialog", async ({ page }) => {
+  await page.goto("/dashboard");
+
+  await page.getByRole("button", { name: "Add subscription" }).click();
+
+  await expect(page.getByRole("dialog")).toBeVisible();
+
+  await page.getByRole("button", { name: "Close" }).click();
+
+  await expect(page.getByRole("dialog")).not.toBeVisible();
+});
