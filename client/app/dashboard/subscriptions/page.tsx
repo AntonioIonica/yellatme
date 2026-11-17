@@ -634,10 +634,9 @@ const Subscriptions = () => {
                         {subscription?.name}
                       </CardTitle>
                     </div>
-                    <div className="text-lg font-semibold mr-6 flex items-center justify-between space-x-16">
-                      <span className="text-xs uppercase">
-                        {subscription.status == "active" &&
-                          subscription?.category.slice(0, 4)}
+                    <div className="text-lg font-semibold mr-6 flex items-center justify-between space-x-12">
+                      <span className="text-xs lowercase">
+                        {subscription?.category.slice(0, 4)}
                       </span>
                       <span className="text-muted-foreground">
                         {parseCurrency(subscription?.currency)}
