@@ -355,16 +355,6 @@ const Subscriptions = () => {
       </div>
     );
 
-  if (!subscriptions || subscriptions.length === 0) {
-    return (
-      <div className="bg-background space-y-6">
-        <div className="flex items-center justify-center text-lg">
-          No subscriptions found!
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6">
       {/* Search/Filter section */}
@@ -579,362 +569,374 @@ const Subscriptions = () => {
       <br />
 
       {/* Subscriptions grid */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {subscriptions.map((subscription, index) => (
-          <Card key={index} className="border-border bg-card">
-            <CardHeader className="pb-3">
-              <div className="flex items-start justify-between">
-                <div className="flex justify-between items-center w-full">
-                  <div className="flex flex-col items-center justify-between">
-                    <CardTitle className="text-bold text-lg">
-                      {subscription?.name}
-                    </CardTitle>
+      {!subscriptions || subscriptions.length === 0 ? (
+        <div className="bg-background space-y-6">
+          <div className="flex items-center justify-center text-lg">
+            No subscriptions found!
+          </div>
+        </div>
+      ) : (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {subscriptions.map((subscription, index) => (
+            <Card key={index} className="border-border bg-card">
+              <CardHeader className="pb-3">
+                <div className="flex items-start justify-between">
+                  <div className="flex justify-between items-center w-full">
+                    <div className="flex flex-col items-center justify-between">
+                      <CardTitle className="text-bold text-lg">
+                        {subscription?.name}
+                      </CardTitle>
+                    </div>
+                    <div className="text-lg font-semibold mr-6 flex items-center justify-between space-x-16">
+                      <span className="text-xs uppercase">
+                        {subscription.status == "active" &&
+                          subscription?.category.slice(0, 4)}
+                      </span>
+                      <span className="text-muted-foreground">
+                        {parseCurrency(subscription?.currency)}
+                        {+subscription?.price}
+                      </span>
+                    </div>
                   </div>
-                  <div className="text-lg font-semibold mr-6 flex items-center justify-between space-x-16">
-                    <span className="text-xs uppercase">
-                      {subscription.status == "active" &&
-                        subscription?.category.slice(0, 4)}
-                    </span>
-                    <span className="text-muted-foreground">
-                      {parseCurrency(subscription?.currency)}
-                      {+subscription?.price}
-                    </span>
-                  </div>
-                </div>
 
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button size="icon" variant="ghost" className="size-8">
-                      <MoreHorizontal className="size-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  {/* align = end means posing the dropdown from the end of the card to the beginning, inside it */}
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem
-                      onClick={() => {
-                        setSelectedSub(subscription);
-                        setDialogOpen(true);
-                      }}
-                    >
-                      <Edit className="mr-2 size-4" />
-                      <span>Edit</span>
-                    </DropdownMenuItem>
-
-                    <DropdownMenuItem
-                      disabled={
-                        subscription?.status === "expired" ||
-                        subscription?.status === "cancelled"
-                      }
-                      onClick={() => handleCancelSub(subscription?._id)}
-                    >
-                      {subscription?.status === "active" ? (
-                        <>
-                          <ClipboardClock className="mr-2 size-4" />
-                          Cancel
-                        </>
-                      ) : subscription?.status === "cancelled" ? (
-                        <>
-                          <Activity className="mr-2 size-4" />
-                          Cancelled
-                        </>
-                      ) : (
-                        <>
-                          <Activity className="mr-2 size-4" />
-                          Expired
-                        </>
-                      )}
-                    </DropdownMenuItem>
-
-                    <DropdownMenuItem
-                      className="text-destructive"
-                      onClick={() => {
-                        handleDeleteSub(subscription?._id);
-                      }}
-                    >
-                      <Trash2 className="mr-2 size-4" />
-                      Delete
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Frequency</span>
-                <span className="text-sm">{subscription?.frequency}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">
-                  Description
-                </span>
-                <span className="text-sm">
-                  {subscription.status == "active" &&
-                    subscription?.description.slice(0, 20)}
-                </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">
-                  Renewal date
-                </span>
-                <span className="text-sm">
-                  {/* First is parsed to date from db date, then formated for estetics */}
-                  {new Date(subscription?.renewalDate).toDateString()}
-                </span>
-              </div>
-              <div className="flex items-center justify-between pt-2">
-                <Badge
-                  variant={
-                    subscription?.status === "active" ? "default" : "secondary"
-                  }
-                  className={
-                    subscription?.status === "active"
-                      ? "text-accent-foreground bg-green-300"
-                      : ""
-                  }
-                >
-                  {subscription?.status}
-                </Badge>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-
-        {/* Placed here to be rendered outside .map so can share the dialog between all subscriptions */}
-        <Dialog
-          open={dialogOpen}
-          onOpenChange={(open) => {
-            // if it's open->true to dialog opening
-            setDialogOpen(open);
-
-            // closing it restores the data from the selectedSub, refetching
-            if (!open) {
-              setFormData(selectedSub);
-            }
-          }}
-        >
-          <DialogContent className="sm:max-w-sm h-[80vh] w-full">
-            <form
-              onSubmit={(e) => handleEditSub(e)}
-              className="h-full flex flex-col overflow-auto"
-            >
-              <DialogHeader>
-                <DialogTitle>Edit subscription</DialogTitle>
-                <DialogDescription>
-                  Choose which field to edit
-                </DialogDescription>
-              </DialogHeader>
-
-              <FieldGroup className="overflow-scroll px-1 py-3 flex-1">
-                {/* Name */}
-                <Field>
-                  <Label htmlFor="subName">Subscription name:* </Label>
-                  <Input
-                    id="subName"
-                    name="subName"
-                    value={formData?.name as string}
-                    onChange={(e) => {
-                      setFormData((prev) => ({
-                        ...prev!,
-                        name: e.target.value,
-                      }));
-                    }}
-                  />
-                </Field>
-
-                {/* Description */}
-                <Field>
-                  <Label htmlFor="subDescription">
-                    Subscription description:{" "}
-                  </Label>
-                  <Input
-                    id="subDescription"
-                    name="subDescription"
-                    value={formData?.description}
-                    onChange={(e) => {
-                      setFormData((prev) => ({
-                        ...prev!,
-                        description: e.target.value,
-                      }));
-                    }}
-                  />
-                </Field>
-
-                {/* Currency */}
-                <Field>
-                  <FieldLabel>Currency: </FieldLabel>
-                  <Select
-                    value={formData?.currency}
-                    onValueChange={(value) =>
-                      setFormData((prev) => ({
-                        ...prev!,
-                        currency: value,
-                      }))
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="EUR" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        <SelectItem value="EUR">EUR</SelectItem>
-                        <SelectItem value="USD">USD</SelectItem>
-                        <SelectItem value="GBP">GBP</SelectItem>
-                        <SelectItem value="LEI">LEI</SelectItem>
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                </Field>
-
-                {/* Price */}
-                <Field>
-                  <Label htmlFor="price">Price:* </Label>
-                  <Input
-                    id="price"
-                    name="price"
-                    type="number"
-                    value={formData?.price}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev!,
-                        price: +e.target.value,
-                      }))
-                    }
-                  />
-                </Field>
-
-                {/* Frequency */}
-                <Field>
-                  <FieldLabel>Frequency: </FieldLabel>
-                  <Select
-                    value={formData?.frequency}
-                    onValueChange={(value) =>
-                      setFormData((prev) => ({
-                        ...prev!,
-                        frequency: value,
-                      }))
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="weekly" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        <SelectItem value="daily">Daily</SelectItem>
-                        <SelectItem value="weekly">Weekly</SelectItem>
-                        <SelectItem value="monthly">Monthly</SelectItem>
-                        <SelectItem value="yearly">Yearly</SelectItem>
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                  <FieldDescription>
-                    How often the payment occurs
-                  </FieldDescription>
-                </Field>
-
-                {/* Category */}
-                <Field>
-                  <FieldLabel>Category: </FieldLabel>
-                  <Select
-                    value={formData?.category}
-                    onValueChange={(value) =>
-                      setFormData((prev) => ({
-                        ...prev!,
-                        category: value,
-                      }))
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="technology" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        <SelectItem value="technology">Technology</SelectItem>
-                        <SelectItem value="auto">Auto</SelectItem>
-                        <SelectItem value="lifestyle">Lifestyle</SelectItem>
-                        <SelectItem value="entertainment">
-                          Entertainment
-                        </SelectItem>
-                        <SelectItem value="finance">Finance</SelectItem>
-                        <SelectItem value="house">House</SelectItem>
-                        <SelectItem value="work">Work</SelectItem>
-                        <SelectItem value="garden">Garden</SelectItem>
-                        <SelectItem value="tools">Tools</SelectItem>
-                        <SelectItem value="other">Others</SelectItem>
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                </Field>
-
-                {/* Payment method */}
-                <Field>
-                  <Label htmlFor="paymentMethod">Payment method:* </Label>
-                  <Input
-                    id="paymentMethod"
-                    name="paymentMethod"
-                    type="text"
-                    value={formData?.paymentMethod}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev!,
-                        paymentMethod: e.target.value,
-                      }))
-                    }
-                  />
-                </Field>
-
-                {/* Dates*/}
-                <Field>
-                  <FieldLabel htmlFor="date-picker-range">
-                    Start date and Renewal date:*
-                  </FieldLabel>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        id="date-picker-range"
-                        className="justify-start px-3 font-normal w-full"
-                      >
-                        <CalendarIcon />
-                        {date?.from ? (
-                          date.to ? (
-                            <>
-                              {format(date.from, "LLL dd, y")} -{" "}
-                              {format(date.to, "LLL dd, y")}
-                            </>
-                          ) : (
-                            format(date.from, "LLL dd, y")
-                          )
-                        ) : (
-                          <span>Pick a date</span>
-                        )}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button size="icon" variant="ghost" className="size-8">
+                        <MoreHorizontal className="size-4" />
                       </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={date?.to}
-                        onSelect={(newTo) => {
-                          setDate((prev) => ({
-                            ...prev!,
-                            to: newTo,
-                          }));
+                    </DropdownMenuTrigger>
+                    {/* align = end means posing the dropdown from the end of the card to the beginning, inside it */}
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem
+                        onClick={() => {
+                          setSelectedSub(subscription);
+                          setDialogOpen(true);
                         }}
-                        numberOfMonths={2}
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </Field>
-              </FieldGroup>
-              <DialogFooter>
-                <DialogClose asChild>
-                  <Button variant="outline">Cancel</Button>
-                </DialogClose>
-                <Button type="submit">Edit subscription</Button>
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
-      </div>
+                      >
+                        <Edit className="mr-2 size-4" />
+                        <span>Edit</span>
+                      </DropdownMenuItem>
+
+                      <DropdownMenuItem
+                        disabled={
+                          subscription?.status === "expired" ||
+                          subscription?.status === "cancelled"
+                        }
+                        onClick={() => handleCancelSub(subscription?._id)}
+                      >
+                        {subscription?.status === "active" ? (
+                          <>
+                            <ClipboardClock className="mr-2 size-4" />
+                            Cancel
+                          </>
+                        ) : subscription?.status === "cancelled" ? (
+                          <>
+                            <Activity className="mr-2 size-4" />
+                            Cancelled
+                          </>
+                        ) : (
+                          <>
+                            <Activity className="mr-2 size-4" />
+                            Expired
+                          </>
+                        )}
+                      </DropdownMenuItem>
+
+                      <DropdownMenuItem
+                        className="text-destructive"
+                        onClick={() => {
+                          handleDeleteSub(subscription?._id);
+                        }}
+                      >
+                        <Trash2 className="mr-2 size-4" />
+                        Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">
+                    Frequency
+                  </span>
+                  <span className="text-sm">{subscription?.frequency}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">
+                    Description
+                  </span>
+                  <span className="text-sm">
+                    {subscription.status == "active" &&
+                      subscription?.description.slice(0, 20)}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">
+                    Renewal date
+                  </span>
+                  <span className="text-sm">
+                    {/* First is parsed to date from db date, then formated for estetics */}
+                    {new Date(subscription?.renewalDate).toDateString()}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between pt-2">
+                  <Badge
+                    variant={
+                      subscription?.status === "active"
+                        ? "default"
+                        : "secondary"
+                    }
+                    className={
+                      subscription?.status === "active"
+                        ? "text-accent-foreground bg-green-300"
+                        : ""
+                    }
+                  >
+                    {subscription?.status}
+                  </Badge>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+
+          {/* Placed here to be rendered outside .map so can share the dialog between all subscriptions */}
+          <Dialog
+            open={dialogOpen}
+            onOpenChange={(open) => {
+              // if it's open->true to dialog opening
+              setDialogOpen(open);
+
+              // closing it restores the data from the selectedSub, refetching
+              if (!open) {
+                setFormData(selectedSub);
+              }
+            }}
+          >
+            <DialogContent className="sm:max-w-sm h-[80vh] w-full">
+              <form
+                onSubmit={(e) => handleEditSub(e)}
+                className="h-full flex flex-col overflow-auto"
+              >
+                <DialogHeader>
+                  <DialogTitle>Edit subscription</DialogTitle>
+                  <DialogDescription>
+                    Choose which field to edit
+                  </DialogDescription>
+                </DialogHeader>
+
+                <FieldGroup className="overflow-scroll px-1 py-3 flex-1">
+                  {/* Name */}
+                  <Field>
+                    <Label htmlFor="subName">Subscription name:* </Label>
+                    <Input
+                      id="subName"
+                      name="subName"
+                      value={formData?.name as string}
+                      onChange={(e) => {
+                        setFormData((prev) => ({
+                          ...prev!,
+                          name: e.target.value,
+                        }));
+                      }}
+                    />
+                  </Field>
+
+                  {/* Description */}
+                  <Field>
+                    <Label htmlFor="subDescription">
+                      Subscription description:{" "}
+                    </Label>
+                    <Input
+                      id="subDescription"
+                      name="subDescription"
+                      value={formData?.description}
+                      onChange={(e) => {
+                        setFormData((prev) => ({
+                          ...prev!,
+                          description: e.target.value,
+                        }));
+                      }}
+                    />
+                  </Field>
+
+                  {/* Currency */}
+                  <Field>
+                    <FieldLabel>Currency: </FieldLabel>
+                    <Select
+                      value={formData?.currency}
+                      onValueChange={(value) =>
+                        setFormData((prev) => ({
+                          ...prev!,
+                          currency: value,
+                        }))
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="EUR" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectItem value="EUR">EUR</SelectItem>
+                          <SelectItem value="USD">USD</SelectItem>
+                          <SelectItem value="GBP">GBP</SelectItem>
+                          <SelectItem value="LEI">LEI</SelectItem>
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  </Field>
+
+                  {/* Price */}
+                  <Field>
+                    <Label htmlFor="price">Price:* </Label>
+                    <Input
+                      id="price"
+                      name="price"
+                      type="number"
+                      value={formData?.price}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev!,
+                          price: +e.target.value,
+                        }))
+                      }
+                    />
+                  </Field>
+
+                  {/* Frequency */}
+                  <Field>
+                    <FieldLabel>Frequency: </FieldLabel>
+                    <Select
+                      value={formData?.frequency}
+                      onValueChange={(value) =>
+                        setFormData((prev) => ({
+                          ...prev!,
+                          frequency: value,
+                        }))
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="weekly" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectItem value="daily">Daily</SelectItem>
+                          <SelectItem value="weekly">Weekly</SelectItem>
+                          <SelectItem value="monthly">Monthly</SelectItem>
+                          <SelectItem value="yearly">Yearly</SelectItem>
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                    <FieldDescription>
+                      How often the payment occurs
+                    </FieldDescription>
+                  </Field>
+
+                  {/* Category */}
+                  <Field>
+                    <FieldLabel>Category: </FieldLabel>
+                    <Select
+                      value={formData?.category}
+                      onValueChange={(value) =>
+                        setFormData((prev) => ({
+                          ...prev!,
+                          category: value,
+                        }))
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="technology" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectItem value="technology">Technology</SelectItem>
+                          <SelectItem value="auto">Auto</SelectItem>
+                          <SelectItem value="lifestyle">Lifestyle</SelectItem>
+                          <SelectItem value="entertainment">
+                            Entertainment
+                          </SelectItem>
+                          <SelectItem value="finance">Finance</SelectItem>
+                          <SelectItem value="house">House</SelectItem>
+                          <SelectItem value="work">Work</SelectItem>
+                          <SelectItem value="garden">Garden</SelectItem>
+                          <SelectItem value="tools">Tools</SelectItem>
+                          <SelectItem value="other">Others</SelectItem>
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  </Field>
+
+                  {/* Payment method */}
+                  <Field>
+                    <Label htmlFor="paymentMethod">Payment method:* </Label>
+                    <Input
+                      id="paymentMethod"
+                      name="paymentMethod"
+                      type="text"
+                      value={formData?.paymentMethod}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev!,
+                          paymentMethod: e.target.value,
+                        }))
+                      }
+                    />
+                  </Field>
+
+                  {/* Dates*/}
+                  <Field>
+                    <FieldLabel htmlFor="date-picker-range">
+                      Start date and Renewal date:*
+                    </FieldLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          id="date-picker-range"
+                          className="justify-start px-3 font-normal w-full"
+                        >
+                          <CalendarIcon />
+                          {date?.from ? (
+                            date.to ? (
+                              <>
+                                {format(date.from, "LLL dd, y")} -{" "}
+                                {format(date.to, "LLL dd, y")}
+                              </>
+                            ) : (
+                              format(date.from, "LLL dd, y")
+                            )
+                          ) : (
+                            <span>Pick a date</span>
+                          )}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={date?.to}
+                          onSelect={(newTo) => {
+                            setDate((prev) => ({
+                              ...prev!,
+                              to: newTo,
+                            }));
+                          }}
+                          numberOfMonths={2}
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </Field>
+                </FieldGroup>
+                <DialogFooter>
+                  <DialogClose asChild>
+                    <Button variant="outline">Cancel</Button>
+                  </DialogClose>
+                  <Button type="submit">Edit subscription</Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
+        </div>
+      )}
 
       {/* Pagination */}
       {pagination.totalSubscriptions > 0 && (

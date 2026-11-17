@@ -27,3 +27,13 @@ test("Should close the Add subscription dialog", async ({ page }) => {
 
   await expect(page.getByRole("dialog")).not.toBeVisible();
 });
+
+test("Should allow users to search subscriptions", async ({ page }) => {
+  await page.goto("/dashboard/subscriptions");
+
+  const searchInput = page.getByPlaceholder("Search subscriptions...");
+
+  await searchInput.fill("Netflix");
+
+  await expect(searchInput).toHaveValue("Netflix");
+});
