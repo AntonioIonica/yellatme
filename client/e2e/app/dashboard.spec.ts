@@ -16,3 +16,15 @@ test("Should display the dashboard correctly", async ({ page }) => {
     page.getByText("Upcoming renewals (30 days)", { exact: true }),
   ).toBeVisible();
 });
+
+test("Should display user's information", async ({ page }) => {
+  await page.goto("/dashboard");
+
+  await expect(page.getByText("E2E Test User")).toBeVisible();
+
+  await expect(page.getByText("e2e-test@example.com")).toBeVisible();
+
+  await expect(page.getByText("FREE plan")).toBeVisible();
+
+  await expect(page.getByText("Tokens: 5")).toBeVisible();
+});
