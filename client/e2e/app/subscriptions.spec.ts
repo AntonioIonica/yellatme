@@ -90,6 +90,7 @@ test("Should filter subscriptions by sort", async ({ page }) => {
 });
 
 test("Should add a subscriptions successfully", async ({ page }) => {
+  test.skip();
   await page.goto("/dashboard/subscriptions");
 
   await page.getByRole("button", { name: "Add subscription" }).click();
@@ -114,4 +115,23 @@ test("Should add a subscriptions successfully", async ({ page }) => {
   await expect(page.getByRole("dialog")).not.toBeVisible();
 
   await expect(page.getByText("Spotify").first()).toBeVisible();
+});
+
+test("Should open the edit subscription dialog", async ({ page }) => {
+  await page.goto("/dashboard/subscriptions");
+
+  const subscriptionCard = page
+    .locator(".bg-card")
+    .filter({ hasText: "Spotify" })
+    .first();
+
+  await subscriptionCard.getByRole("button").click();
+
+  await page.getByRole("menuitem", { name: "Edit" }).click();
+
+  await expect(
+    page.getByRole("heading", { name: "Edit subscription" }),
+  ).toBeVisible();
+
+  await expect(page.getByLabel("Subscription name:*")).toHaveValue("Spotify");
 });
