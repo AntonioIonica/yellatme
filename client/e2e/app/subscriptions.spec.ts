@@ -135,3 +135,30 @@ test("Should open the edit subscription dialog", async ({ page }) => {
 
   await expect(page.getByLabel("Subscription name:*")).toHaveValue("Spotify");
 });
+
+test("Should edit a subscription successfully", async ({ page }) => {
+  await page.goto("/dashboard/subscriptions");
+
+  const subscriptionCard = page
+    .locator(".bg-card")
+    .filter({ hasText: "Spotify" })
+    .first();
+
+  await subscriptionCard.getByRole("button").click();
+
+  await page.getByRole("menuitem", { name: "Edit" }).click();
+
+  await page.getByLabel("Subscription name:*").clear();
+
+  await page.getByLabel("Subscription name:*").fill("Spotify Premium");
+
+  await page.getByRole("button", { name: "Edit subscription" }).click();
+
+  await expect(
+    page.getByText("Successfully updated the subscription details!"),
+  ).toBeVisible();
+
+  await expect(
+    page.locator(".bg-card").filter({ hasText: "Spotify Premium" }).first(),
+  ).toBeVisible();
+});
