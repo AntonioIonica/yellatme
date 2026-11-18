@@ -1,6 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
-@import "shadcn/tailwind.css";
+/* @import "shadcn/tailwind.css"; */
 
 @theme inline {
   --color-background: var(--background);
@@ -44,7 +44,6 @@
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
 }
-
 
 :root {
   --background: #fff5f5;
@@ -91,12 +90,16 @@
   body {
     @apply text-foreground;
     background:
-      radial-gradient(circle at 15% 15%,
+      radial-gradient(
+        circle at 15% 15%,
         var(--background-gradient-1),
-        transparent 45%),
-      radial-gradient(circle at 85% 65%,
+        transparent 45%
+      ),
+      radial-gradient(
+        circle at 85% 65%,
         var(--background-gradient-2),
-        transparent 40%),
+        transparent 40%
+      ),
       var(--background);
     background-repeat: no-repeat;
     background-attachment: fixed;
