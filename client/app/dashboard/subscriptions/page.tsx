@@ -60,7 +60,13 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import { SubmitEventHandler, useEffect, useMemo, useState } from "react";
+import {
+  SubmitEventHandler,
+  Suspense,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { DateRange } from "react-day-picker";
 import { toast } from "sonner";
 
@@ -77,7 +83,7 @@ function debounce(func: any) {
   };
 }
 
-const Subscriptions = () => {
+const SubscriptionsContent = () => {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -1030,4 +1036,16 @@ const Subscriptions = () => {
   );
 };
 
-export default Subscriptions;
+export default function SubscriptionsPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center text-lg p-8">
+          Loading subscriptions...
+        </div>
+      }
+    >
+      <SubscriptionsContent />
+    </Suspense>
+  );
+}
