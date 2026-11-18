@@ -100,7 +100,7 @@ test("Should add a subscriptions successfully", async ({ page }) => {
     page.getByRole("heading", { name: "Add new subscription" }),
   ).toBeVisible();
 
-  await page.getByLabel("Subscription name:*").fill("Spotify");
+  await page.getByLabel("Subscription name:*").fill("Spotify add test");
   await page.getByLabel("Subscription description:").fill("Music streaming");
   await page.getByLabel("Price:*").fill("10");
   await page.getByLabel("Payment method:*").fill("Credit card");
@@ -108,20 +108,52 @@ test("Should add a subscriptions successfully", async ({ page }) => {
   await page.getByRole("button", { name: "Create subscription" }).click();
 
   await expect(
-    page.getByText(`Subscription Spotify was added to your collection!`),
+    page.getByText(
+      `Subscription Spotify add test was added to your collection!`,
+    ),
   ).toBeVisible();
 
   await expect(page.getByRole("dialog")).not.toBeVisible();
 
-  await expect(page.getByText("Spotify").first()).toBeVisible();
+  await expect(page.getByText("Spotify add test").first()).toBeVisible();
+
+  const subscriptionCard = page
+    .locator(".bg-card")
+    .filter({ hasText: "Spotify add test" })
+    .first();
+
+  await subscriptionCard.getByRole("button").click();
+
+  await page.getByRole("menuitem", { name: "Delete" }).click();
 });
 
 test("Should open the edit subscription dialog", async ({ page }) => {
   await page.goto("/dashboard/subscriptions");
 
+  await page.getByRole("button", { name: "Add subscription" }).click();
+
+  await expect(page.getByRole("dialog")).toBeVisible();
+
+  await expect(
+    page.getByRole("heading", { name: "Add new subscription" }),
+  ).toBeVisible();
+
+  await page.getByLabel("Subscription name:*").fill("Spotify edit test");
+  await page.getByLabel("Subscription description:").fill("Music streaming");
+  await page.getByLabel("Price:*").fill("10");
+  await page.getByLabel("Payment method:*").fill("Credit card");
+
+  await page.getByRole("button", { name: "Create subscription" }).click();
+
+  await expect(
+    page.getByText(
+      "Subscription Spotify edit test was added to your collection!",
+    ),
+  ).toBeVisible();
+
   const subscriptionCard = page
     .locator(".bg-card")
-    .filter({ hasText: "Spotify" })
+    .filter({ hasText: "Spotify edit test" })
     .first();
 
   await subscriptionCard.getByRole("button").click();
@@ -132,7 +164,15 @@ test("Should open the edit subscription dialog", async ({ page }) => {
     page.getByRole("heading", { name: "Edit subscription" }),
   ).toBeVisible();
 
-  await expect(page.getByLabel("Subscription name:*")).toHaveValue("Spotify");
+  await expect(page.getByLabel("Subscription name:*")).toHaveValue(
+    "Spotify edit test",
+  );
+
+  await page.getByRole("button", { name: "Cancel" }).click();
+
+  await subscriptionCard.getByRole("button").click();
+
+  await page.getByRole("menuitem", { name: "Delete" }).click();
 });
 
 test("Should edit a subscription successfully", async ({ page }) => {
@@ -146,20 +186,16 @@ test("Should edit a subscription successfully", async ({ page }) => {
     page.getByRole("heading", { name: "Add new subscription" }),
   ).toBeVisible();
 
-  await page.getByLabel("Subscription name:*").fill("Spotify");
+  await page.getByLabel("Subscription name:*").fill("Spotify edit test");
   await page.getByLabel("Subscription description:").fill("Music streaming");
   await page.getByLabel("Price:*").fill("10");
   await page.getByLabel("Payment method:*").fill("Credit card");
 
   await page.getByRole("button", { name: "Create subscription" }).click();
 
-  await expect(
-    page.getByText(`Subscription Spotify was added to your collection!`),
-  ).toBeVisible();
-
   const subscriptionCard = page
     .locator(".bg-card")
-    .filter({ hasText: "Spotify" })
+    .filter({ hasText: "Spotify edit test" })
     .first();
 
   await subscriptionCard.getByRole("button").click();
@@ -179,14 +215,37 @@ test("Should edit a subscription successfully", async ({ page }) => {
   await expect(
     page.locator(".bg-card").filter({ hasText: "Spotify Premium" }).first(),
   ).toBeVisible();
+
+  const newSubscriptionCard = page
+    .locator(".bg-card")
+    .filter({ hasText: "Spotify Premium" });
+
+  await newSubscriptionCard.getByRole("button").click();
+
+  await page.getByRole("menuitem", { name: "Delete" }).click();
 });
 
 test("Should successfully delete a subscription", async ({ page }) => {
   await page.goto("/dashboard/subscriptions");
 
+  await page.getByRole("button", { name: "Add subscription" }).click();
+
+  await expect(page.getByRole("dialog")).toBeVisible();
+
+  await expect(
+    page.getByRole("heading", { name: "Add new subscription" }),
+  ).toBeVisible();
+
+  await page.getByLabel("Subscription name:*").fill("Spotify delete test");
+  await page.getByLabel("Subscription description:").fill("Music streaming");
+  await page.getByLabel("Price:*").fill("10");
+  await page.getByLabel("Payment method:*").fill("Credit card");
+
+  await page.getByRole("button", { name: "Create subscription" }).click();
+
   const subscriptionCard = page
     .locator(".bg-card")
-    .filter({ hasText: "Spotify" })
+    .filter({ hasText: "Spotify delete test" })
     .first();
 
   await subscriptionCard.getByRole("button").click();
