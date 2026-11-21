@@ -50,7 +50,7 @@ test("Should display an empty state when no subscriptions match the search", asy
   await expect(page.getByText("No subscriptions found!")).toBeVisible();
 });
 
-test("Should filter subscriptions by category", async ({ page }) => {
+test("Should filter subscriptions by category-url", async ({ page }) => {
   await page.goto("/dashboard/subscriptions");
 
   await page.getByRole("button", { name: "Category" }).click();
@@ -63,7 +63,78 @@ test("Should filter subscriptions by category", async ({ page }) => {
   await responsePromise;
 });
 
-test("Should filter subscriptions by status", async ({ page }) => {
+test("Should filter subscriptions by category", async ({ page }) => {
+  await page.goto("/dashboard/subscriptions");
+
+  await page.getByRole("button", { name: "Add subscription" }).click();
+
+  await page.getByLabel("Subscription name:*").fill("Netflix category test");
+  await page.getByLabel("Subscription description:").fill("Technology test");
+  await page.getByLabel("Price:*").fill("15");
+  await page.getByLabel("Payment method:*").fill("Credit card");
+
+  await page.getByRole("dialog").getByRole("combobox").nth(2).click();
+  await page.getByRole("option", { name: "Technology" }).click();
+
+  await page.getByRole("button", { name: "Create subscription" }).click();
+
+  await expect(
+    page.getByText(
+      "Subscription Netflix category test was added to your collection!",
+    ),
+  ).toBeVisible();
+
+  await page.getByRole("button", { name: "Add subscription" }).click();
+
+  await page.getByLabel("Subscription name:*").fill("Spotify category test");
+  await page.getByLabel("Subscription description:").fill("Entertainment test");
+  await page.getByLabel("Price:*").fill("11");
+  await page.getByLabel("Payment method:*").fill("Credit card");
+
+  await page.getByRole("dialog").getByRole("combobox").nth(2).click();
+  await page.getByRole("option", { name: "Entertainment" }).click();
+
+  await page.getByRole("button", { name: "Create subscription" }).click();
+
+  await expect(
+    page.getByText(
+      "Subscription Spotify category test was added to your collection!",
+    ),
+  ).toBeVisible();
+
+  await page.getByRole("button", { name: "Category" }).click();
+  await page.getByRole("menuitem", { name: "Technology" }).click();
+
+  await expect(
+    page.getByText("Netflix category test", { exact: true }).first(),
+  ).toBeVisible();
+  await expect(
+    page.getByText("Spotify category test", { exact: true }),
+  ).not.toBeVisible();
+
+  const netflixCard = page
+    .locator(".bg-card")
+    .filter({ has: page.getByText("Netflix category test", { exact: true }) })
+    .first();
+
+  await netflixCard.getByRole("button").click();
+
+  await page.getByRole("menuitem", { name: "Delete" }).click();
+
+  await page.getByRole("button", { name: "Category" }).click();
+  await page.getByRole("menuitem", { name: "Entertainment" }).click();
+
+  const spotifyCard = page
+    .locator(".bg-card")
+    .filter({ has: page.getByText("Spotify category test", { exact: true }) })
+    .first();
+
+  await spotifyCard.getByRole("button").click();
+
+  await page.getByRole("menuitem", { name: "Delete" }).click();
+});
+
+test("Should filter subscriptions by status-url", async ({ page }) => {
   await page.goto("/dashboard/subscriptions");
 
   await page.getByRole("button", { name: "Status" }).click();
@@ -76,7 +147,7 @@ test("Should filter subscriptions by status", async ({ page }) => {
   await responsePromise;
 });
 
-test("Should filter subscriptions by sort", async ({ page }) => {
+test("Should filter subscriptions by sort-url", async ({ page }) => {
   await page.goto("/dashboard/subscriptions");
 
   await page.getByRole("button", { name: "Sort" }).click();
