@@ -254,3 +254,45 @@ test("Should successfully delete a subscription", async ({ page }) => {
 
   await expect(page.getByText("Successfully deleted")).toBeVisible();
 });
+
+test("Should search subscriptions successfully", async ({ page }) => {
+  await page.goto("/dashboard/subscriptions");
+
+  await page.getByRole("button", { name: "Add subscription" }).click();
+
+  await page.getByLabel("Subscription name:*").fill("Netflix search test");
+  await page.getByLabel("Subscription description:").fill("Search test");
+  await page.getByLabel("Price:*").fill("15");
+  await page.getByLabel("Payment method:*").fill("Credit card");
+
+  await page.getByRole("button", { name: "Create subscription" }).click();
+
+  await expect(
+    page.getByText(
+      "Subscription Netflix search test was added to your collection",
+    ),
+  ).toBeVisible();
+
+  await page
+    .getByPlaceholder("Search subscriptions...")
+    .fill("Netflix search test");
+
+  await expect(
+    page.getByText("Netflix search test", { exact: true }),
+  ).toBeVisible();
+
+  const subscriptionCard = page
+    .locator(".bg-card")
+    .filter({ hasText: "Netflix search test" })
+    .first();
+
+  await subscriptionCard.getByRole("button").click();
+
+  await page.getByRole("menuitem", { name: "Delete" }).click();
+
+  await expect(page.getByText("Successfully deleted")).toBeVisible();
+
+  await expect(page.getByText("Netflix search test")).not.toBeVisible();
+
+  await expect(page.getByText("Netflix premium")).not.toBeVisible();
+});
