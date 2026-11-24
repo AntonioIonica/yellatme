@@ -169,7 +169,7 @@ const SubscriptionsContent = () => {
   useEffect(() => {
     setCategory(searchParams.get("category") || undefined);
     setStatus(searchParams.get("status") || undefined);
-    setSortDir(searchParams.get("sort") || undefined);
+    setSortDir(searchParams.get("sortDir") || undefined);
   }, [searchParams]);
 
   // Fetch subscriptions by pages

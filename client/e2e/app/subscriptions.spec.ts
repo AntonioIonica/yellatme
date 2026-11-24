@@ -1,4 +1,16 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
+
+// Will select the startDate and renewalDate based on calendar obj
+async function selectDateRange(
+  page: Page,
+  startDate: string,
+  renewalDate: string,
+) {
+  await page.locator("#date-picker-range").click();
+
+  await page.locator(`[data-day="${startDate}"]`).click();
+  await page.locator(`[data-day="${renewalDate}"]`).click();
+}
 
 test("Should display the subscriptions page correctly", async ({ page }) => {
   await page.goto("/dashboard/subscriptions");
@@ -229,6 +241,59 @@ test("Should filter subscriptions by sort-url", async ({ page }) => {
   await page.getByRole("menuitem", { name: "Desc" }).click();
 
   await responsePromise;
+});
+
+test("Should filter subscriptions by sort", async ({ page }) => {
+  await page.goto("/dashboard/subscriptions");
+
+  const testIdDate = Date.now();
+
+  const netflixName = `Netflix sort test ${testIdDate}`;
+  const spotifyName = `Spotify sort test ${testIdDate}`;
+
+  await page.getByRole("button", { name: "Add subscription" }).click();
+
+  await page.getByLabel("Subscription name:*").fill(netflixName);
+  await page
+    .getByLabel("Subscription description:")
+    .fill("Earlier renewal test");
+  await page.getByLabel("Price:*").fill("9");
+  await page.getByLabel("Payment method:*").fill("Credit card");
+
+  await selectDateRange(page, "11/24/2026", "12/10/2026");
+
+  await page.getByRole("button", { name: "Create subscription" }).click();
+
+  await expect(
+    page.getByText(`Subscription ${netflixName} was added to your collection!`),
+  ).toBeVisible();
+
+  await page.getByRole("button", { name: "Add subscription" }).click();
+
+  await page.getByLabel("Subscription name:*").fill(spotifyName);
+  await page.getByLabel("Subscription description:").fill("Later renewal test");
+  await page.getByLabel("Price:*").fill("13");
+  await page.getByLabel("Payment method:*").fill("Credit card");
+
+  await selectDateRange(page, "11/24/2026", "12/20/2026");
+
+  await page.getByRole("button", { name: "Create subscription" }).click();
+
+  await expect(
+    page.getByText(`Subscription ${spotifyName} was added to your collection!`),
+  ).toBeVisible();
+
+  await page.getByRole("button", { name: "Sort" }).click();
+  await Promise.all([
+    page.waitForURL(/sortDir=asc/),
+    page.getByRole("menuitem", { name: "Asc" }).click(),
+  ]);
+
+  const netflixTitle = page.getByText(netflixName, { exact: true });
+  const spotifyTitle = page.getByText(spotifyName, { exact: true });
+
+  await expect(netflixTitle).toBeVisible();
+  await expect(spotifyTitle).toBeVisible();
 });
 
 test("Should add a subscriptions successfully", async ({ page }) => {
