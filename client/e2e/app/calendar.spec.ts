@@ -101,6 +101,18 @@ test("Should display an active subscription on its renewal date", async ({
     .filter({ has: page.getByText("Later this month", { exact: true }) });
 
   await expect(laterThisMonthCard.getByText(subscriptionName)).toBeVisible();
+
+  // Delete subscription
+  await page.goto("/dashboard/subscriptions");
+
+  const subscriptionCard = page
+    .locator(".bg-card")
+    .filter({ has: page.getByText(subscriptionName, { exact: true }) })
+    .first();
+
+  await subscriptionCard.getByRole("button").click();
+
+  await page.getByRole("menuitem", { name: "Delete" }).click();
 });
 
 test("Should not display a cancelled subscription", async ({ page }) => {
@@ -139,4 +151,19 @@ test("Should not display a cancelled subscription", async ({ page }) => {
   await expect(
     laterThisMonthCard.getByText(subscriptionName),
   ).not.toBeVisible();
+
+  // Delete subscription
+  await page.goto("/dashboard/subscriptions");
+
+  await page.getByRole("button", { name: "Status" }).click();
+  await page.getByRole("menuitem", { name: "Cancelled" }).click();
+
+  const subscriptionCard = page
+    .locator(".bg-card")
+    .filter({ has: page.getByText(subscriptionName, { exact: true }) })
+    .first();
+
+  await subscriptionCard.getByRole("button").click();
+
+  await page.getByRole("menuitem", { name: "Delete" }).click();
 });
