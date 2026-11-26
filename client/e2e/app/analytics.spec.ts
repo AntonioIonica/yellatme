@@ -123,3 +123,50 @@ test("Should display this month data", async ({ page }) => {
 
   await page.getByRole("menuitem", { name: "Delete" }).click();
 });
+
+test("Should display this week data", async ({ page }) => {
+  await page.goto("/dashboard/analytics");
+
+  const subscriptionName = `Analytics category ${Date.now()}`;
+
+  await page.getByRole("button", { name: "Add subscription" }).click();
+
+  await page.getByLabel("Subscription name:*").fill(subscriptionName);
+  await page
+    .getByLabel("Subscription description:")
+    .fill("Analytics this week test");
+  await page.getByLabel("Price:*").fill("25");
+  await page.getByLabel("Payment method:*").fill("Credit card");
+  await page.getByRole("dialog").getByRole("combobox").nth(1).click();
+  await page.getByRole("option", { name: "Daily" }).click();
+
+  await page.getByRole("button", { name: "Create subscription" }).click();
+
+  await expect(
+    page.getByText(
+      `Subscription ${subscriptionName} was added to your collection!`,
+    ),
+  ).toBeVisible();
+
+  //   Reload to fetch fresh data
+  await page.goto("/dashboard/analytics");
+
+  const thisMonth = page
+    .locator('[data-slot="card-content"]')
+    .filter({ has: page.getByText("This week", { exact: true }) })
+    .first();
+
+  await expect(thisMonth.getByText("$25.00")).toBeVisible();
+
+  //   Delete subscription
+  await page.goto("/dashboard/subscriptions");
+
+  const subscriptionCard = page
+    .locator(".bg-card")
+    .filter({ has: page.getByText(subscriptionName, { exact: true }) })
+    .first();
+
+  await subscriptionCard.getByRole("button").click();
+
+  await page.getByRole("menuitem", { name: "Delete" }).click();
+});
