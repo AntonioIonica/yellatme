@@ -170,3 +170,50 @@ test("Should display this week data", async ({ page }) => {
 
   await page.getByRole("menuitem", { name: "Delete" }).click();
 });
+
+test("Should display year over year - YTD data", async ({ page }) => {
+  await page.goto("/dashboard/analytics");
+
+  const subscriptionName = `Analytics category ${Date.now()}`;
+
+  await page.getByRole("button", { name: "Add subscription" }).click();
+
+  await page.getByLabel("Subscription name:*").fill(subscriptionName);
+  await page
+    .getByLabel("Subscription description:")
+    .fill("Analytics Year Over Year test");
+  await page.getByLabel("Price:*").fill("30");
+  await page.getByLabel("Payment method:*").fill("Credit card");
+
+  await page.getByRole("button", { name: "Create subscription" }).click();
+
+  await expect(
+    page.getByText(
+      `Subscription ${subscriptionName} was added to your collection!`,
+    ),
+  ).toBeVisible();
+
+  //   Reload to fetch fresh data
+  await page.goto("/dashboard/analytics");
+
+  const ytdCard = page
+    .locator(".border-border")
+    .filter({
+      has: page.getByText(`${new Date().getFullYear()} YTD`, { exact: true }),
+    })
+    .first();
+
+  await expect(ytdCard.getByText("$30.00")).toBeVisible();
+
+  //   Delete subscription
+  await page.goto("/dashboard/subscriptions");
+
+  const subscriptionCard = page
+    .locator(".bg-card")
+    .filter({ has: page.getByText(subscriptionName, { exact: true }) })
+    .first();
+
+  await subscriptionCard.getByRole("button").click();
+
+  await page.getByRole("menuitem", { name: "Delete" }).click();
+});
