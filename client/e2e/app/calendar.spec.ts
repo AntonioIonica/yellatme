@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, Page } from "@playwright/test";
 
 // Will select the startDate and renewalDate based on calendar obj
 async function selectDateRange(
@@ -101,4 +101,42 @@ test("Should display an active subscription on its renewal date", async ({
     .filter({ has: page.getByText("Later this month", { exact: true }) });
 
   await expect(laterThisMonthCard.getByText(subscriptionName)).toBeVisible();
+});
+
+test("Should not display a cancelled subscription", async ({ page }) => {
+  const subscriptionName = `Calendar cancelled test ${Date.now()}`;
+
+  await page.goto("/dashboard/calendar");
+
+  await page.getByRole("button", { name: "Add subscription" }).click();
+
+  await page.getByLabel("Subscription name:*").fill(subscriptionName);
+  await page
+    .getByLabel("Subscription description:")
+    .fill("Calendar cancelled display test");
+  await page.getByLabel("Price:*").fill("9");
+  await page.getByLabel("Payment method:*").fill("Credit card");
+
+  await selectDateRange(page, "11/24/2026", "12/10/2026");
+
+  await page.getByRole("dialog").getByRole("combobox").nth(3).click();
+  await page.getByRole("option", { name: "Cancelled" }).click();
+
+  await page.getByRole("button", { name: "Create subscription" }).click();
+
+  await expect(
+    page.getByText(
+      `Subscription ${subscriptionName} was added to your collection!`,
+    ),
+  ).toBeVisible();
+
+  await page.locator("button:has(svg.lucide-chevron-right)").click();
+
+  const laterThisMonthCard = page
+    .locator(".text-card-foreground")
+    .filter({ has: page.getByText("Later this month", { exact: true }) });
+
+  await expect(
+    laterThisMonthCard.getByText(subscriptionName),
+  ).not.toBeVisible();
 });
