@@ -157,4 +157,5 @@ export type userType = {
   freeTokens: Number;
   currentSubscriptionEnd: Date;
   subscriptionStatus: "active" | "cancelled" | "expired";
+  cancelAtPeriodEnd: Boolean;
 };

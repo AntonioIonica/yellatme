@@ -312,6 +312,9 @@ const SettingsPage = () => {
                 {user?.currentSubscriptionEnd?.toString().split("T")[0] ||
                   "Not available"}
               </span>
+              {user?.plan === "pro" && user?.cancelAtPeriodEnd && (
+                <span className="italic">Cancellation scheduled</span>
+              )}
             </div>
 
             {user?.plan === "pro" ? (

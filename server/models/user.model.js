@@ -34,6 +34,7 @@ const userSchema = new mongoose.Schema(
     },
     stripeCustomerId: String,
     stripeSubscriptionId: String,
+    cancelAtPeriodEnd: { type: Boolean, default: false },
     subscriptionStatus: {
       type: String,
       enum: ["active", "cancelled, expired"],

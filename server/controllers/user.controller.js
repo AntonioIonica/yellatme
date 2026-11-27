@@ -203,7 +203,8 @@ export const changePlan = async (req, res, next) => {
 
     res.status(201).json({
       success: true,
-      message: "Successfully cancelled the PRO plan!",
+      message:
+        "Your PRO subscription will be cancelled at the end of the billing period.",
     });
   } catch (error) {
     next(error);

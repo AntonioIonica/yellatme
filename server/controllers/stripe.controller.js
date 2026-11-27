@@ -64,7 +64,6 @@ export const stripeWebhookController = async (req, res) => {
     const periodEnd = sub.items?.data?.[0]?.current_period_end; // newer Stripe API
 
     const endDate = periodEnd ? new Date(periodEnd * 1000) : null;
-    console.log(endDate);
 
     // Find by Stripe subscription
     await User.findOneAndUpdate(
@@ -72,6 +71,7 @@ export const stripeWebhookController = async (req, res) => {
       {
         currentSubscriptionEnd: endDate,
         subscriptionStatus: sub.status,
+        cancelAtPeriodEnd: sub.cancel_at_period_end,
         plan: sub.status === "active" ? "pro" : "free",
       },
     );
@@ -85,6 +85,7 @@ export const stripeWebhookController = async (req, res) => {
       },
       {
         currentSubscriptionEnd: null,
+        cancelAtPeriodEnd: false,
         subscriptionStatus: "cancelled",
         plan: "free",
       },
