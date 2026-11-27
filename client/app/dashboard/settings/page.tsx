@@ -316,9 +316,19 @@ const SettingsPage = () => {
             <Dialog>
               <DialogTrigger asChild>
                 {user?.plan === "pro" ? (
-                  <Button variant="outline">Manage plan</Button>
+                  <Button
+                    className="hover:cursor-pointer hover:bg-muted-foreground"
+                    variant="outline"
+                    onClick={handleChangePlan}
+                  >
+                    Manage plan
+                  </Button>
                 ) : (
-                  <Button variant="outline" onClick={handleSubscribe}>
+                  <Button
+                    className="hover:cursor-pointer hover:bg-muted-foreground"
+                    variant="outline"
+                    onClick={handleSubscribe}
+                  >
                     Manage plan
                   </Button>
                 )}
