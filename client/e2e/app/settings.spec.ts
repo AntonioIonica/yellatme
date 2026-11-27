@@ -55,3 +55,21 @@ test("Should allow a Pro user to open the cancellation dialog", async ({
 
   await expect(page.getByRole("button", { name: "Cancel" })).toBeVisible();
 });
+
+test("Should close the cancellation dialog without changing the plan", async ({
+  page,
+}) => {
+  await page.goto("/dashboard/settings");
+
+  const planCard = page.locator("#payment");
+
+  await planCard.getByRole("button", { name: "Manage plan" }).click();
+
+  await expect(page.getByText("Switch to free plan")).toBeVisible();
+
+  await page.getByRole("button", { name: "Cancel", exact: true }).click();
+
+  await expect(page.getByText("Switch to free plan")).not.toBeVisible();
+
+  await expect(planCard.getByText("PRO plan")).toBeVisible();
+});
