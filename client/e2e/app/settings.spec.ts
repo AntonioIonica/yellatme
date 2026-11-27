@@ -73,3 +73,27 @@ test("Should close the cancellation dialog without changing the plan", async ({
 
   await expect(planCard.getByText("PRO plan")).toBeVisible();
 });
+
+test("Should open and close the delete account dialog", async ({ page }) => {
+  await page.goto("/dashboard/settings");
+
+  await page.getByRole("button", { name: "Delete account" }).click();
+
+  await expect(
+    page.getByText("Delete your account", { exact: true }).first(),
+  ).toBeVisible();
+
+  await expect(
+    page.getByText("Are you sure you want to delete your account?"),
+  ).toBeVisible();
+
+  await expect(
+    page.getByRole("button", { name: "Delete account" }),
+  ).toBeVisible();
+
+  await page.getByRole("button", { name: "Cancel", exact: true }).click();
+
+  await expect(
+    page.getByText("Are you sure you want to delete your account?"),
+  ).not.toBeVisible();
+});
