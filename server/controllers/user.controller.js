@@ -204,11 +204,25 @@ export const changePlan = async (req, res, next) => {
       },
     );
 
-    console.log("Stripe cancellation:", {
-      id: updatedSubscription.id,
-      status: updatedSubscription.status,
-      cancel_at_period_end: updatedSubscription.cancel_at_period_end,
-    });
+    const updatedUser = await User.findOneAndUpdate(
+      {
+        _id: user._id,
+        stripeSubscriptionId: updatedSubscription.id,
+      },
+      {
+        $set: {
+          cancelAtPeriodEnd: updatedSubscription.cancel_at_period_end,
+        },
+      },
+      {
+        new: true,
+        runValidators: true,
+      },
+    );
+
+    if (!updatedUser) {
+      throw new Error("User not found when updating cancellation status");
+    }
 
     res.status(201).json({
       success: true,

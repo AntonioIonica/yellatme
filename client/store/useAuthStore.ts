@@ -30,6 +30,7 @@ export const useAuthStore = create<authStore>((set) => ({
       }
 
       const result = await res.json();
+
       if (result.success) {
         set({ user: result.user, loading: false });
       }
