@@ -98,6 +98,44 @@ test("Should open and close the delete account dialog", async ({ page }) => {
   ).not.toBeVisible();
 });
 
+test("Should send a DELETE request when confirming delete account", async ({
+  page,
+}) => {
+  let deleteRequested = false;
+
+  await page.route("**/api/v1/users/*", async (route) => {
+    if (route.request().method() !== "DELETE") {
+      return route.continue();
+    }
+
+    deleteRequested = true;
+
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        success: true,
+        message: "Account deleted successfully!",
+        redirect: "/",
+      }),
+    });
+  });
+
+  await page.goto("/dashboard/settings");
+
+  await page.getByRole("button", { name: "Delete account" }).click();
+
+  await expect(
+    page.getByText("Delete your account", { exact: true }),
+  ).toBeVisible();
+
+  await page.getByRole("button", { name: "Delete account" }).last().click();
+
+  await expect.poll(() => deleteRequested).toBe(true);
+
+  await expect(page).toHaveURL("/");
+});
+
 test("Should modify account name", async ({ page }) => {
   await page.goto("/dashboard/settings");
 
