@@ -97,3 +97,15 @@ test("Should open and close the delete account dialog", async ({ page }) => {
     page.getByText("Are you sure you want to delete your account?"),
   ).not.toBeVisible();
 });
+
+test("Should modify account name", async ({ page }) => {
+  await page.goto("/dashboard/settings");
+
+  const accName = page.getByLabel("Name:", { exact: true });
+
+  await accName.clear();
+
+  await accName.fill("AntonioI");
+
+  await expect(accName).toHaveValue("AntonioI");
+});
