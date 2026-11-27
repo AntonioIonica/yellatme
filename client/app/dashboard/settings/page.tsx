@@ -313,9 +313,10 @@ const SettingsPage = () => {
                   "Not available"}
               </span>
             </div>
-            <Dialog>
-              <DialogTrigger asChild>
-                {user?.plan === "pro" ? (
+
+            {user?.plan === "pro" ? (
+              <Dialog>
+                <DialogTrigger asChild>
                   <Button
                     className="hover:cursor-pointer hover:bg-muted-foreground"
                     variant="outline"
@@ -323,17 +324,7 @@ const SettingsPage = () => {
                   >
                     Manage plan
                   </Button>
-                ) : (
-                  <Button
-                    className="hover:cursor-pointer hover:bg-muted-foreground"
-                    variant="outline"
-                    onClick={handleSubscribe}
-                  >
-                    Manage plan
-                  </Button>
-                )}
-              </DialogTrigger>
-              {user?.plan === "pro" && (
+                </DialogTrigger>
                 <DialogContent className="max-w-md">
                   <DialogHeader>
                     <DialogTitle className="font-normal text-lg">
@@ -357,8 +348,16 @@ const SettingsPage = () => {
                     </DialogClose>
                   </DialogFooter>
                 </DialogContent>
-              )}
-            </Dialog>
+              </Dialog>
+            ) : (
+              <Button
+                className="hover:cursor-pointer hover:bg-muted-foreground"
+                variant="outline"
+                onClick={handleSubscribe}
+              >
+                Manage plan
+              </Button>
+            )}
           </div>
           <div className="space-y-3">
             <h4 className="font-medium text-sm">Your plan includes: </h4>

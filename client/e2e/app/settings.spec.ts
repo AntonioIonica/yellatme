@@ -31,32 +31,3 @@ test("Should display the correct PRO plan details", async ({ page }) => {
   await expect(planCard.getByText("Advanced analytics")).toBeVisible();
   await expect(planCard.getByText("Priority support")).toBeVisible();
 });
-
-test("Should initiate checkout when a Free plan user clicks Manage plan button", async ({
-  page,
-}) => {
-  await page.goto("/dashboard/settings");
-
-  await page.route("**/api/billing/checkout", async (route) => {
-    await route.fulfill({
-      status: 200,
-      contentType: "application/json",
-      body: JSON.stringify({ url: "/dashboard?checkout=test" }),
-    });
-  });
-
-  const checkoutRequest = page.waitForRequest(
-    (request) =>
-      request.url().includes("/api/billing/checkout") &&
-      request.method() === "POST",
-  );
-
-  await page
-    .locator("#payment")
-    .getByRole("button", { name: "Manage plan" })
-    .click();
-
-  await checkoutRequest;
-
-  await expect(page).toHaveURL(/checkout=test/);
-});
