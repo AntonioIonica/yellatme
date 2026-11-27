@@ -20,3 +20,14 @@ test("Should display the user's account informations", async ({ page }) => {
     page.getByRole("button", { name: "Delete account" }),
   ).toBeEnabled();
 });
+
+test("Should display the correct PRO plan details", async ({ page }) => {
+  await page.goto("/dashboard/settings");
+
+  const planCard = page.locator("#payment");
+
+  await expect(planCard.getByText("PRO plan")).toBeVisible();
+  await expect(planCard.getByText("Unlimited subscriptions")).toBeVisible();
+  await expect(planCard.getByText("Advanced analytics")).toBeVisible();
+  await expect(planCard.getByText("Priority support")).toBeVisible();
+});
