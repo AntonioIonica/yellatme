@@ -323,7 +323,6 @@ const SettingsPage = () => {
                   <Button
                     className="hover:cursor-pointer hover:bg-muted-foreground"
                     variant="outline"
-                    onClick={handleChangePlan}
                   >
                     Manage plan
                   </Button>
