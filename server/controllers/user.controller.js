@@ -197,8 +197,17 @@ export const changePlan = async (req, res, next) => {
       throw error;
     }
 
-    await stripe.subscriptions.update(subscriptionId, {
-      cancel_at_period_end: true,
+    const updatedSubscription = await stripe.subscriptions.update(
+      subscriptionId,
+      {
+        cancel_at_period_end: true,
+      },
+    );
+
+    console.log("Stripe cancellation:", {
+      id: updatedSubscription.id,
+      status: updatedSubscription.status,
+      cancel_at_period_end: updatedSubscription.cancel_at_period_end,
     });
 
     res.status(201).json({
